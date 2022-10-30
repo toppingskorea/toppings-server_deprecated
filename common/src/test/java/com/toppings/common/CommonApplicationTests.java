@@ -1,10 +1,10 @@
-package com.toppings;
+package com.toppings.common;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class ToppingsServerApplicationTests {
+class CommonApplicationTests {
 
 	@Test
 	void contextLoads() {

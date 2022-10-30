@@ -1,1 +1,3 @@
 rootProject.name = 'toppings-server'
+include 'common'
+include 'server'

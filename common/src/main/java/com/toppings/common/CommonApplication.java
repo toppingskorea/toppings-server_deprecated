@@ -1,13 +1,13 @@
-package com.toppings;
+package com.toppings.common;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ToppingsServerApplication {
+public class CommonApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ToppingsServerApplication.class, args);
+		SpringApplication.run(CommonApplication.class, args);
 	}
 
 }

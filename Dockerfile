@@ -10,7 +10,7 @@ FROM openjdk:11 as runner
 
 WORKDIR /app
 
-COPY --from=builder ./build/libs/*.jar app.jar
+COPY --from=builder ./server/build/libs/*.jar app.jar
 
 EXPOSE 8080
 

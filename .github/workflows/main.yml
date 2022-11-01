@@ -65,4 +65,4 @@ jobs:
         run: |
           pwd
           docker stop ${{ env.NAME }} && docker rm ${{ env.NAME }} && docker rmi ${{ env.DOCKER_IMAGE }}:latest
-          docker create --name ${{ env.DOCKER_IMAGE }}-container -p 8080:8080 -e TZ=Asia/Seoul ${{ env.DOCKER_IMAGE }}
+          docker create --name ${{ env.NAME }}-container -p 8080:8080 -e TZ=Asia/Seoul ${{ env.DOCKER_IMAGE }}

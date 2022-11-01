@@ -1,1 +1,6 @@
 
+spring:
+  profiles:
+    group:
+      local:
+        - local

@@ -11,7 +11,7 @@ import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import com.game_studio.pr.common.constants.prop.CorsProperties;
+import com.toppings.common.constants.prop.CorsProperties;
 
 import lombok.RequiredArgsConstructor;
 

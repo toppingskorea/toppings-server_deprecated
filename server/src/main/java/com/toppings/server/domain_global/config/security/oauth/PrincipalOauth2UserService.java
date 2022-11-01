@@ -1,6 +1,7 @@
 package com.toppings.server.domain_global.config.security.oauth;
 
 import java.util.Objects;
+import java.util.UUID;
 
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -49,10 +50,8 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
 		OAuth2User oAuth2User
 	) {
 		OAuth2UserInfo oAuth2UserInfo = null;
-		switch (userRequest.getClientRegistration().getRegistrationId()) {
-			case "kakao":
-				oAuth2UserInfo = new KakaoUserInfo(oAuth2User.getAttributes());
-				break;
+		if (userRequest.getClientRegistration().getRegistrationId().equals("kakao")) {
+			oAuth2UserInfo = new KakaoUserInfo(oAuth2User.getAttributes());
 		}
 		return oAuth2UserInfo;
 	}
@@ -61,24 +60,23 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
 	private User getUser(OAuth2UserInfo oAuth2UserInfo) {
 		String providerId = oAuth2UserInfo.getProviderId();
 		String email = oAuth2UserInfo.getEmail();
-		LoginType type = oAuth2UserInfo.getLoginType();
-		// String name = oAuth2UserInfo.getName();
-		// String phone = oAuth2UserInfo.getPhone();
+		String name = oAuth2UserInfo.getName();
 		User user = userRepository.findUserByUsername(providerId + "_" + email).orElse(null);
 		if (user == null)
-			user = registerUser(type, providerId, email);
+			user = registerUser(providerId, email, name);
 		return user;
 	}
 
 	// 사용자 등록 (가입)
 	private User registerUser(
-		LoginType type,
 		String providerId,
-		String email
+		String email,
+		String name
 	) {
 		User user = User.builder()
 			.username(providerId + "_" + email)
 			.role(Auth.ROLE_USER)
+			.name(name)
 			.build();
 		userRepository.save(user);
 		return user;

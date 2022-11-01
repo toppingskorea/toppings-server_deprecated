@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import com.game_studio.pr.common.utils.request.RequestIpProvider;
+import com.toppings.common.request.RequestIpProvider;
 
 @Component
 @Aspect

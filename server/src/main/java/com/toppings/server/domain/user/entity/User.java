@@ -48,6 +48,12 @@ public class User extends BaseEntity {
 	@Column(name = "user_pw", columnDefinition = "varchar(200)")
 	private String password;
 
+	@Column(name = "user_country", columnDefinition = "varchar(200)")
+	private String country;
+
+	@Column(name = "user_habit", columnDefinition = "varchar(200)")
+	private String habit;
+
 	@Column(name = "user_role", columnDefinition = "varchar(20)")
 	@Enumerated(EnumType.STRING)
 	private Auth role;
@@ -57,13 +63,4 @@ public class User extends BaseEntity {
 
 	@Column(name = "delete_yn", columnDefinition = "varchar(1) default 'N'")
 	private String deleteYn;
-
-	@Column(name = "etc", columnDefinition = "varchar(500)")
-	private String etc;
-
-	@Column(name = "update_user_id")
-	private Long updateUserId;
-
-	@Column(name = "create_user_id")
-	private Long createUserId;
 }

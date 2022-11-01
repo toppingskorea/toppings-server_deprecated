@@ -49,6 +49,8 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           push: true
           tags: ${{ env.DOCKER_IMAGE }}:latest
+          build-args: |
+            TOPPINGS_KEY=${{ secrets.TOPPINGS_KEY }}
 
   deploy:
     needs: build

@@ -9,7 +9,7 @@
 // import com.querydsl.core.types.Projections;
 // import com.querydsl.core.types.dsl.BooleanExpression;
 // import com.querydsl.jpa.impl.JPAQueryFactory;
-// import com.toppings.common.constants.Auth;
+// import com.toppings.server.domain.user.constant.Auth;
 // import com.toppings.server.domain.user.dto.AdminResponse;
 //
 // import lombok.RequiredArgsConstructor;

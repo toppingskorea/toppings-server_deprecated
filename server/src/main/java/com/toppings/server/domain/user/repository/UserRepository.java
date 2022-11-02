@@ -26,7 +26,7 @@ public interface UserRepository extends JpaRepository<User, Long>, QueryDslUserR
 
 	@Modifying(clearAutomatically = true)
 	@Transactional
-	@Query("UPDATE User u SET u.refreshToken = :refreshToken WHERE u.userId = :userId AND u.deleteYn = :delYn")
+	@Query("UPDATE User u SET u.refreshToken = :refreshToken WHERE u.id = :userId AND u.deleteYn = :delYn")
 	void updateUserRefreshTokenByUserId(
 		@Param("userId") Long userId,
 		@Param("refreshToken") String refreshToken,

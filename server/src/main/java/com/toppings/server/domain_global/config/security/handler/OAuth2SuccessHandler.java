@@ -6,10 +6,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.core.env.Environment;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 
-import com.toppings.server.domain.user.repository.UserRepository;
 import com.toppings.server.domain.user.service.UserService;
 import com.toppings.server.domain_global.config.security.auth.PrincipalDetails;
 import com.toppings.server.domain_global.config.security.jwt.JwtProperties;
@@ -19,8 +19,11 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
 	private final UserService userService;
 
-	public OAuth2SuccessHandler(UserService userService) {
+	private final boolean isProd;
+
+	public OAuth2SuccessHandler(UserService userService, boolean isProd) {
 		this.userService = userService;
+		this.isProd = isProd;
 	}
 
 	// OAuth2 로그인 과정을 성공적으로 거칠 경우 동작하는 메소드
@@ -34,7 +37,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		System.out.println("--------------- oauth2 success handler ---------------");
 		PrincipalDetails principalDetails = (PrincipalDetails)authentication.getPrincipal();
 		setTokenResponse(response, principalDetails);
-		getRedirectStrategy().sendRedirect(request, response, "http://localhost:8080"); // 나중에 도메인 주소로 변경
+		String target = isProd ? "http://toppings.co.kr" : "http://dev.toppings.co.kr";
+		getRedirectStrategy().sendRedirect(request, response, target);
 	}
 
 	// 응답 헤더 및 쿠키 작업 (JWT 토큰 방식 사용)
@@ -44,7 +48,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 	) {
 		String accessToken = JwtUtils.createAccessToken(principalDetails.getUser());
 		response.addHeader(JwtProperties.JWT_ACCESS_HEADER, accessToken);
-		JwtUtils.makeRefreshTokenCookie(response, principalDetails.getUser().getUserId());
+		JwtUtils.makeRefreshTokenCookie(response, principalDetails.getUser().getId());
 	}
 }
 

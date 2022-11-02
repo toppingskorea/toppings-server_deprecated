@@ -1,4 +1,4 @@
-package com.toppings.common.constants;
+package com.toppings.server.domain.user.constant;
 
 import lombok.Getter;
 

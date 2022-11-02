@@ -4,10 +4,7 @@ import javax.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.toppings.common.dto.ApiDataResponse;
 import com.toppings.server.domain.user.dto.UserRegisterRequest;
@@ -36,10 +33,18 @@ public class UserController {
 	/**
 	 * 유저 목록 조회 (admin)
 	 */
+	@GetMapping("/admin")
+	public ResponseEntity<?> getUsersForAdmin() {
+		return ResponseEntity.ok(ApiDataResponse.of(""));
+	}
 
 	/**
 	 * 유저 정보 조회
 	 */
+	@GetMapping("/me")
+	public ResponseEntity<?> getUser(@AuthenticationPrincipal Long id) {
+		return ResponseEntity.ok(ApiDataResponse.of(""));
+	}
 
 	/**
 	 * 유저 프로필 수정

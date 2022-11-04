@@ -10,18 +10,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.toppings.server.domain.user.service.UserService;
 import com.toppings.server.domain_global.config.security.auth.PrincipalDetails;
-import com.toppings.server.domain_global.config.security.jwt.JwtProperties;
 import com.toppings.server.domain_global.config.security.jwt.JwtUtils;
 
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
-
-	private final UserService userService;
-
-	public OAuth2SuccessHandler(UserService userService) {
-		this.userService = userService;
-	}
 
 	// OAuth2 로그인 과정을 성공적으로 거칠 경우 동작하는 메소드
 	// 요구사항에 따라 언제든 수정될 수 있다.
@@ -43,7 +35,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		String accessToken,
 		String refreshToken
 	) {
-		return UriComponentsBuilder.fromUriString("http://dev.toppings.co.kr/login/redirect")
+		return UriComponentsBuilder.fromUriString("http://127.0.0.1:3000/login/redirect")
 			.queryParam("accessToken", accessToken)
 			.queryParam("refreshToken", refreshToken)
 			.build().toUriString();

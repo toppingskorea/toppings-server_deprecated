@@ -131,7 +131,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Bean
 	public AuthenticationSuccessHandler oauth2SuccessHandler() {
-		return new OAuth2SuccessHandler(userService);
+		return new OAuth2SuccessHandler();
 	}
 
 	@Bean

@@ -1,0 +1,62 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ENC(hbNLgmu6WtGm1uhFR7NTKQLd8jXFN63RJqlFchtSQtNT1SIm1pPiyqbyK2/7G/dgXS1D6XPwS7v9vEX93VHPZVR/bq8hHv9y0clkzmaOBHI1l6jUHC0JJUCPxoDqTxfu1JuxqKKATpsFhDj1HRWN2v4gojOD3ZoO)
+    username: ENC(MhpbnQ6zaisNbaA5eglung==)
+    password: ENC(5hQDKxFH/RxTU2YwBekk5w==)
+#  cache:
+#    type: redis
+#    redis:
+#      cache-null-values: true
+#      time-to-live: 180
+#  redis:
+#    host: localhost
+#    port: 6379
+
+  jpa:
+    show-sql: true
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+    hibernate:
+      ddl-auto: update
+      jdbc:
+        time_zone: Asia/Seoul
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: ENC(QKkAUvXFqfT0EmsimclU6BMcSaeqnMsh3M6U/mcXhdULtdqYIhFnGUcw0OKoONEl)
+            client-secret: ENC(qPi02EI9wMf1mObGXvWx7VaFN7GS6h0ju1njb1w9TR8Z2kGsdCC2reh3FHPRdhE2)
+            scope:
+              - profile_nickname
+              - account_email
+            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+            client-authentication-method: POST
+            authorization-grant-type: authorization_code
+            client-name: kakao
+
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+
+jwt:
+  firstKey: ENC(8AQYPjsMGj+5cI2XJmilp3QKsMS9CkwhEiwijnkxTxBUsjJf+7dhHxEM2V/W4oWLiyCj3MNDp1+FlVYsoBENRwjrihlyh8gNmfcvf93j47o=)
+  secondKey: ENC(v94WBS6eJJakpbkdUsjs12ZYV3qTFd5Nf2aox8Ath47rYxN+1/X/2u/Hfynlt+biK49Lu0iYKncVEr8TYcROgf6XXuaDqGGX)
+  thirdKey: ENC(JCimNz/aAkb221yp5rf3d7zdz/6ny63Emb9DOkABlx/sdSLIGmd+BzUPcq8CvWBvQfGzUOGQqqUcF3m8u8g/Aas5dL/l4LwbviMJPbdFiqU=)
+
+server:
+  port: 8080
+

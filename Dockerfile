@@ -16,4 +16,4 @@ COPY --from=builder ./server/build/libs/*.jar app.jar
 
 EXPOSE 8080
 
-ENTRYPOINT java -jar -Djasypt.encryptor.password=${TOPPINGS_KEY} -Dspring.profiles.active=prod app.jar -Duser.timezone=Asia/Seoul
+ENTRYPOINT java -jar -Djasypt.encryptor.password=${TOPPINGS_KEY} -Dspring.profiles.active=dev app.jar -Duser.timezone=Asia/Seoul

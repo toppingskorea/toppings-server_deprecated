@@ -33,7 +33,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		System.out.println("--------------- oauth2 success handler ---------------");
 		PrincipalDetails principalDetails = (PrincipalDetails)authentication.getPrincipal();
 		setTokenResponse(response, principalDetails);
-		getRedirectStrategy().sendRedirect(request, response, "http://dev.toppings.co.kr"); // 나중에 도메인 주소로 변경
+		getRedirectStrategy().sendRedirect(request, response, "http://dev.toppings.co.kr/"); // 나중에 도메인 주소로 변경
 	}
 
 	// 응답 헤더 및 쿠키 작업 (JWT 토큰 방식 사용)
@@ -43,7 +43,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 	) {
 		String accessToken = JwtUtils.createAccessToken(principalDetails.getUser());
 		response.addHeader(JwtProperties.JWT_ACCESS_HEADER, accessToken);
-		JwtUtils.makeRefreshTokenCookie(response, principalDetails.getUser().getUserId());
+		String refreshTokenCookie = JwtUtils.makeRefreshTokenCookie(response, principalDetails.getUser().getUserId());
+		System.out.println("refreshTokenCookie : " + refreshTokenCookie);
 	}
 }
 

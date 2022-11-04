@@ -71,7 +71,6 @@ public class JwtUtils {
 		Cookie cookie = new Cookie(JwtProperties.JWT_REFRESH_HEADER, refreshToken);
 		cookie.setMaxAge(JwtProperties.REFRESH_COOKIE_EXPIRATION_TIME);
 		cookie.setHttpOnly(true);
-		// cookie.setSecure(true);
 		cookie.setPath("/");
 		response.addCookie(cookie);
 		return refreshToken;

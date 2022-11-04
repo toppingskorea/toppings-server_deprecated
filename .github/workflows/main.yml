@@ -71,7 +71,7 @@ jobs:
       - name: Docker run
         run: |
           pwd
-          docker rm -f ${{ env.NAME }}
+          docker rm -f ${{ env.NAME }}-container
           docker create --name ${{ env.NAME }}-container -p 28080:28080 -e TZ=Asia/Seoul ${{ env.DOCKER_IMAGE }}
           docker start ${{ env.NAME }}-container
           docker image prune -f

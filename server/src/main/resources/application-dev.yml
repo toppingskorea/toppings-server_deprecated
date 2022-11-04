@@ -40,7 +40,7 @@ spring:
             scope:
               - profile_nickname
               - account_email
-            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+            redirect-uri: ENC(rXhaxm6bfR0iwf/YpdOuASOyKox1ZoM1m0GaYhHjfpo6gitbgje0iAHZd76v+EJPK1UWxfyp0zTgzY6k9mmjJw==)
             client-authentication-method: POST
             authorization-grant-type: authorization_code
             client-name: kakao

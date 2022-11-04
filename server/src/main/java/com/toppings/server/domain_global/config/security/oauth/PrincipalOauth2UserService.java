@@ -1,7 +1,6 @@
 package com.toppings.server.domain_global.config.security.oauth;
 
 import java.util.Objects;
-import java.util.UUID;
 
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -9,13 +8,12 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import com.toppings.common.constants.Auth;
+import com.toppings.server.domain_global.constants.Auth;
 import com.toppings.server.domain.user.entity.User;
 import com.toppings.server.domain.user.repository.UserRepository;
 import com.toppings.server.domain_global.config.security.auth.PrincipalDetails;
 import com.toppings.server.domain_global.config.security.oauth.provider.KakaoUserInfo;
 import com.toppings.server.domain_global.config.security.oauth.provider.OAuth2UserInfo;
-import com.toppings.server.domain_global.constants.LoginType;
 
 import lombok.RequiredArgsConstructor;
 

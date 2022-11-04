@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 
-import com.toppings.server.domain.user.repository.UserRepository;
 import com.toppings.server.domain.user.service.UserService;
 import com.toppings.server.domain_global.config.security.auth.PrincipalDetails;
 import com.toppings.server.domain_global.config.security.jwt.JwtProperties;
@@ -34,7 +33,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		System.out.println("--------------- oauth2 success handler ---------------");
 		PrincipalDetails principalDetails = (PrincipalDetails)authentication.getPrincipal();
 		setTokenResponse(response, principalDetails);
-		getRedirectStrategy().sendRedirect(request, response, "http://localhost:8080"); // 나중에 도메인 주소로 변경
+		getRedirectStrategy().sendRedirect(request, response, "http://dev.toppings.co.kr"); // 나중에 도메인 주소로 변경
 	}
 
 	// 응답 헤더 및 쿠키 작업 (JWT 토큰 방식 사용)

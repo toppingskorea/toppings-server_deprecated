@@ -12,7 +12,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
-import com.toppings.common.constants.Auth;
+import com.toppings.server.domain_global.constants.Auth;
 import com.toppings.server.domain_global.entity.BaseEntity;
 
 import lombok.AllArgsConstructor;

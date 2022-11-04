@@ -5,7 +5,6 @@ COPY . .
 RUN chmod 755 ./gradlew && \
     ./gradlew bootjar
 
-
 FROM openjdk:11 as runner
 
 WORKDIR /app
@@ -13,6 +12,8 @@ WORKDIR /app
 ARG TOPPINGS_KEY
 
 COPY --from=builder ./server/build/libs/*.jar app.jar
+
+RUN echo ${TOPPINGS_KEY}
 
 EXPOSE 8080
 

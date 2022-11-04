@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.toppings.server.domain.user.service.UserService;
 import com.toppings.server.domain_global.config.security.auth.PrincipalDetails;
@@ -31,20 +32,21 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		Authentication authentication
 	) throws IOException, ServletException {
 		System.out.println("--------------- oauth2 success handler ---------------");
-		PrincipalDetails principalDetails = (PrincipalDetails)authentication.getPrincipal();
-		setTokenResponse(response, principalDetails);
-		getRedirectStrategy().sendRedirect(request, response, "http://dev.toppings.co.kr/"); // 나중에 도메인 주소로 변경
+		PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+		String accessToken = JwtUtils.createAccessToken(principalDetails.getUser());
+		String refreshToken = JwtUtils.createRefreshToken(principalDetails.getUser().getUserId());
+		String targetUrl = getTargetUrl(accessToken, refreshToken);
+		getRedirectStrategy().sendRedirect(request, response, targetUrl); // 나중에 도메인 주소로 변경
 	}
 
-	// 응답 헤더 및 쿠키 작업 (JWT 토큰 방식 사용)
-	private void setTokenResponse(
-		HttpServletResponse response,
-		PrincipalDetails principalDetails
+	private String getTargetUrl(
+		String accessToken,
+		String refreshToken
 	) {
-		String accessToken = JwtUtils.createAccessToken(principalDetails.getUser());
-		response.addHeader(JwtProperties.JWT_ACCESS_HEADER, accessToken);
-		String refreshTokenCookie = JwtUtils.makeRefreshTokenCookie(response, principalDetails.getUser().getUserId());
-		System.out.println("refreshTokenCookie : " + refreshTokenCookie);
+		return UriComponentsBuilder.fromUriString("http://dev.toppings.co.kr/login/redirect")
+			.queryParam("accessToken", accessToken)
+			.queryParam("refreshToken", refreshToken)
+			.build().toUriString();
 	}
 }
 

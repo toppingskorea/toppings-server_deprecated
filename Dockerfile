@@ -10,11 +10,10 @@ FROM openjdk:11 as runner
 WORKDIR /app
 
 ARG TOPPINGS_KEY
+ENV TOPPINGS_KEY ${TOPPINGS_KEY}
 
 COPY --from=builder ./server/build/libs/*.jar app.jar
 
-RUN echo ${TOPPINGS_KEY}
-
-EXPOSE 8080
+EXPOSE 28080
 
 ENTRYPOINT java -jar -Djasypt.encryptor.password=${TOPPINGS_KEY} -Dspring.profiles.active=dev app.jar -Duser.timezone=Asia/Seoul

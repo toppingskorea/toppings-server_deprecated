@@ -41,6 +41,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		String refreshToken
 	) {
 		String redirectUri = (String) servletContext.getAttribute("redirectUri");
+		if (redirectUri == null)
+			redirectUri = "http://127.0.0.1:3000/login/redirect";
+		
 		return UriComponentsBuilder.fromUriString(redirectUri)
 			.queryParam("accessToken", accessToken)
 			.queryParam("refreshToken", refreshToken)

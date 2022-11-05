@@ -27,7 +27,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		System.out.println("--------------- oauth2 success handler ---------------");
 		PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
 		String accessToken = JwtUtils.createAccessToken(principalDetails.getUser());
-		String refreshToken = JwtUtils.createRefreshToken(principalDetails.getUser().getUserId());
+		String refreshToken = JwtUtils.createRefreshToken(principalDetails.getUser().getId());
 		String targetUrl = getTargetUrl(accessToken, refreshToken);
 		getRedirectStrategy().sendRedirect(request, response, targetUrl); // 나중에 도메인 주소로 변경
 	}

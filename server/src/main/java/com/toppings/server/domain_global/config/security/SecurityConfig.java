@@ -138,5 +138,4 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	public AuthenticationFailureHandler oauth2FailHandler() {
 		return new OAuth2FailHandler();
 	}
-
 }

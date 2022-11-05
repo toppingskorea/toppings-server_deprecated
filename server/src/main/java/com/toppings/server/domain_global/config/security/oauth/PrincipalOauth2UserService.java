@@ -8,7 +8,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import com.toppings.server.domain_global.constants.Auth;
+import com.toppings.server.domain.user.constant.Auth;
 import com.toppings.server.domain.user.entity.User;
 import com.toppings.server.domain.user.repository.UserRepository;
 import com.toppings.server.domain_global.config.security.auth.PrincipalDetails;

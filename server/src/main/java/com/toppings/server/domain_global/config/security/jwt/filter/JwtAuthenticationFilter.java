@@ -59,8 +59,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	) throws IOException, ServletException {
 		PrincipalDetails principalDetails = (PrincipalDetails)authResult.getPrincipal();
 		response.addHeader(JwtProperties.JWT_ACCESS_HEADER, JwtUtils.createAccessToken(principalDetails.getUser()));
-		userService.updateUserRefreshTokenByUserId(principalDetails.getUser().getUserId(),
-			JwtUtils.makeRefreshTokenCookie(response, principalDetails.getUser().getUserId())
+		userService.updateUserRefreshTokenByUserId(principalDetails.getUser().getId(),
+			JwtUtils.makeRefreshTokenCookie(response, principalDetails.getUser().getId())
 		);
 	}
 

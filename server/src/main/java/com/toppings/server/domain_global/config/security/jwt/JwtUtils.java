@@ -79,7 +79,7 @@ public class JwtUtils {
 	private static Claims getClaims(User user) {
 		Claims claims = Jwts.claims();
 		claims.put(ROLE_WORD, user.getRole());
-		claims.put("uid", user.getUserId());
+		claims.put("uid", user.getId());
 		return claims;
 	}
 

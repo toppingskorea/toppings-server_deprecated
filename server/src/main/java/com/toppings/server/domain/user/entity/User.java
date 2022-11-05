@@ -12,7 +12,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
-import com.toppings.server.domain_global.constants.Auth;
+import com.toppings.server.domain.user.constant.Auth;
 import com.toppings.server.domain_global.entity.BaseEntity;
 
 import lombok.AllArgsConstructor;
@@ -37,7 +37,7 @@ public class User extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "user_id")
-	private Long userId;
+	private Long id;
 
 	@Column(name = "user_username", columnDefinition = "varchar(100)", unique = true)
 	private String username;
@@ -51,7 +51,7 @@ public class User extends BaseEntity {
 	@Column(name = "user_country", columnDefinition = "varchar(200)")
 	private String country;
 
-	@Column(name = "user_habit", columnDefinition = "varchar(200)")
+	@Column(name = "user_habit", columnDefinition = "text")
 	private String habit;
 
 	@Column(name = "user_role", columnDefinition = "varchar(20)")
@@ -63,4 +63,10 @@ public class User extends BaseEntity {
 
 	@Column(name = "delete_yn", columnDefinition = "varchar(1) default 'N'")
 	private String deleteYn;
+	
+	// 좋아요
+	
+	// 스크랩
+	
+	// 리뷰
 }

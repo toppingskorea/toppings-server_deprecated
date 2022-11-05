@@ -2,6 +2,8 @@ package com.toppings.server.domain_global.config.security;
 
 import java.util.Arrays;
 
+import javax.servlet.ServletContext;
+
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +20,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -31,6 +34,7 @@ import com.toppings.server.domain_global.config.security.handler.OAuth2SuccessHa
 import com.toppings.server.domain_global.config.security.jwt.JwtProperties;
 import com.toppings.server.domain_global.config.security.jwt.filter.JwtAuthenticationFilter;
 import com.toppings.server.domain_global.config.security.jwt.filter.JwtAuthorizationFilter;
+import com.toppings.server.domain_global.config.security.jwt.filter.ServletContextFilter;
 import com.toppings.server.domain_global.config.security.jwt.handler.JwtAuthenticationDeniedHandler;
 import com.toppings.server.domain_global.config.security.jwt.handler.JwtAuthenticationEntryPoint;
 import com.toppings.server.domain_global.config.security.oauth.PrincipalOauth2UserService;
@@ -52,6 +56,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	private final Environment environment;
 
+	private final ServletContext servletContext;
+
 	private final PrincipalOauth2UserService principalOauth2UserService;
 
 	@Bean
@@ -72,11 +78,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.disable();
 
 		http.addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
+			.addFilterBefore(new ServletContextFilter(servletContext), SecurityContextPersistenceFilter.class)
 			.addFilterBefore(new JwtAuthenticationFilter(authenticationManager(), userService),
 				UsernamePasswordAuthenticationFilter.class
 			)
 			.addFilterBefore(new JwtAuthorizationFilter(authenticationManager(), userService,
-					Arrays.stream(environment.getActiveProfiles()).anyMatch(env -> env.equalsIgnoreCase("prod"))),
+					servletContext, Arrays.stream(environment.getActiveProfiles()).anyMatch(env -> env.equalsIgnoreCase("prod"))),
 				BasicAuthenticationFilter.class
 			);
 
@@ -131,7 +138,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Bean
 	public AuthenticationSuccessHandler oauth2SuccessHandler() {
-		return new OAuth2SuccessHandler();
+		return new OAuth2SuccessHandler(servletContext);
 	}
 
 	@Bean

@@ -3,8 +3,10 @@ package com.toppings.server.domain_global.config.security.jwt.filter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import javax.servlet.FilterChain;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -33,6 +35,8 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
 	private final UserService userService;
 
+	private final ServletContext servletContext;
+
 	private static final Logger logger = LoggerFactory.getLogger(RequestLogAspect.class);
 
 	private final List<String> nonAuthUrl = List.of("none");
@@ -44,10 +48,12 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 	public JwtAuthorizationFilter(
 		AuthenticationManager authenticationManager,
 		UserService userService,
+		ServletContext servletContext,
 		boolean isProd
 	) {
 		super(authenticationManager);
 		this.userService = userService;
+		this.servletContext = servletContext;
 		this.isProd = isProd;
 	}
 

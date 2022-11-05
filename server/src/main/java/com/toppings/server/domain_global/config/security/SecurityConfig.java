@@ -46,99 +46,96 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private final UserService userService;
+	private final UserService userService;
 
-    private final CorsFilter corsFilter;
+	private final CorsFilter corsFilter;
 
-    private final Environment environment;
+	private final Environment environment;
 
-    private final PrincipalOauth2UserService principalOauth2UserService;
+	private final PrincipalOauth2UserService principalOauth2UserService;
 
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+	@Bean
+	public BCryptPasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http.cors()
-                .configurationSource(corsConfigurationSource())
-                .and()
-                .csrf()
-                .disable()
-                .formLogin()
-                .disable()
-                .httpBasic()
-                .disable();
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http.cors()
+			.configurationSource(corsConfigurationSource())
+			.and()
+			.csrf()
+			.disable()
+			.formLogin()
+			.disable()
+			.httpBasic()
+			.disable();
 
-        http.addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new JwtAuthenticationFilter(authenticationManager(), userService),
-                        UsernamePasswordAuthenticationFilter.class
-                )
-                .addFilterBefore(new JwtAuthorizationFilter(authenticationManager(), userService,
-                                Arrays.stream(environment.getActiveProfiles()).anyMatch(env -> env.equalsIgnoreCase("prod"))),
-                        BasicAuthenticationFilter.class
-                );
+		http.addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
+			.addFilterBefore(new JwtAuthenticationFilter(authenticationManager(), userService),
+				UsernamePasswordAuthenticationFilter.class
+			)
+			.addFilterBefore(new JwtAuthorizationFilter(authenticationManager(), userService,
+					Arrays.stream(environment.getActiveProfiles()).anyMatch(env -> env.equalsIgnoreCase("prod"))),
+				BasicAuthenticationFilter.class
+			);
 
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-        http.authorizeRequests().anyRequest().permitAll();
+		http.authorizeRequests().anyRequest().permitAll();
 
-        http.exceptionHandling()
-                .accessDeniedHandler(new JwtAuthenticationDeniedHandler())
-                .authenticationEntryPoint(new JwtAuthenticationEntryPoint());
+		http.exceptionHandling()
+			.accessDeniedHandler(new JwtAuthenticationDeniedHandler())
+			.authenticationEntryPoint(new JwtAuthenticationEntryPoint());
 
-        http.oauth2Login()
-                .successHandler(oauth2SuccessHandler())
-                .failureHandler(oauth2FailHandler())
-                .userInfoEndpoint()
-                .userService(principalOauth2UserService);
+		http.oauth2Login()
+			.successHandler(oauth2SuccessHandler())
+			.failureHandler(oauth2FailHandler())
+			.userInfoEndpoint()
+			.userService(principalOauth2UserService);
 
-        http.logout()
-                .logoutUrl("/logout")
-                .logoutSuccessHandler(logoutSuccessHandler())
-                .invalidateHttpSession(true)
-                .deleteCookies(JwtProperties.JWT_REFRESH_HEADER);
-    }
+		http.logout()
+			.logoutUrl("/logout")
+			.logoutSuccessHandler(logoutSuccessHandler())
+			.invalidateHttpSession(true)
+			.deleteCookies(JwtProperties.JWT_REFRESH_HEADER);
+	}
 
-    @Override
-    public void configure(WebSecurity web) throws Exception {
-        web.ignoring().requestMatchers(PathRequest.toStaticResources().atCommonLocations());
-    }
+	@Override
+	public void configure(WebSecurity web) throws Exception {
+		web.ignoring().requestMatchers(PathRequest.toStaticResources().atCommonLocations());
+	}
 
-    @Bean
-    public LogoutSuccessHandler logoutSuccessHandler() {
-        return new CustomLogoutSuccessHandler();
-    }
+	@Bean
+	public LogoutSuccessHandler logoutSuccessHandler() {
+		return new CustomLogoutSuccessHandler();
+	}
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        if (Arrays.stream(environment.getActiveProfiles()).anyMatch(env -> env.equalsIgnoreCase("prod")))
-            configuration.setAllowedOrigins(CorsProperties.prodUrls);
-        else
-            configuration.setAllowedOrigins(CorsProperties.devUrls);
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration configuration = new CorsConfiguration();
+		if (Arrays.stream(environment.getActiveProfiles()).anyMatch(env -> env.equalsIgnoreCase("prod")))
+			configuration.setAllowedOrigins(CorsProperties.prodUrls);
+		else
+			configuration.setAllowedOrigins(CorsProperties.devUrls);
 
-        configuration.addAllowedHeader("*");
-        configuration.addAllowedMethod("*");
-        configuration.setAllowCredentials(true);
-        configuration.setMaxAge(3600L);
+		configuration.addAllowedHeader("*");
+		configuration.addAllowedMethod("*");
+		configuration.setAllowCredentials(true);
+		configuration.setMaxAge(3600L);
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
+		return source;
+	}
 
-    @Bean
-    public AuthenticationSuccessHandler oauth2SuccessHandler() {
-        boolean isProd =
-                Arrays.stream(environment.getActiveProfiles()).anyMatch(env -> env.equalsIgnoreCase("prod"));
-        return new OAuth2SuccessHandler(userService, isProd);
-    }
+	@Bean
+	public AuthenticationSuccessHandler oauth2SuccessHandler() {
+		return new OAuth2SuccessHandler();
+	}
 
-    @Bean
-    public AuthenticationFailureHandler oauth2FailHandler() {
-        return new OAuth2FailHandler();
-    }
-
+	@Bean
+	public AuthenticationFailureHandler oauth2FailHandler() {
+		return new OAuth2FailHandler();
+	}
 }

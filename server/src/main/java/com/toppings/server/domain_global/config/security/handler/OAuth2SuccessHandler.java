@@ -9,22 +9,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.core.env.Environment;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import com.toppings.server.domain.user.service.UserService;
 import com.toppings.server.domain_global.config.security.auth.PrincipalDetails;
-import com.toppings.server.domain_global.config.security.jwt.JwtProperties;
 import com.toppings.server.domain_global.config.security.jwt.JwtUtils;
 
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
-
-	private final UserService userService;
-
-	private final boolean isProd;
-
-	public OAuth2SuccessHandler(UserService userService, boolean isProd) {
-		this.userService = userService;
-		this.isProd = isProd;
-	}
 
 	// OAuth2 로그인 과정을 성공적으로 거칠 경우 동작하는 메소드
 	// 요구사항에 따라 언제든 수정될 수 있다.
@@ -35,20 +25,21 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		Authentication authentication
 	) throws IOException, ServletException {
 		System.out.println("--------------- oauth2 success handler ---------------");
-		PrincipalDetails principalDetails = (PrincipalDetails)authentication.getPrincipal();
-		setTokenResponse(response, principalDetails);
-		String target = isProd ? "http://toppings.co.kr" : "http://dev.toppings.co.kr";
-		getRedirectStrategy().sendRedirect(request, response, target);
+		PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+		String accessToken = JwtUtils.createAccessToken(principalDetails.getUser());
+		String refreshToken = JwtUtils.createRefreshToken(principalDetails.getUser().getId());
+		String targetUrl = getTargetUrl(accessToken, refreshToken);
+		getRedirectStrategy().sendRedirect(request, response, targetUrl); // 나중에 도메인 주소로 변경
 	}
 
-	// 응답 헤더 및 쿠키 작업 (JWT 토큰 방식 사용)
-	private void setTokenResponse(
-		HttpServletResponse response,
-		PrincipalDetails principalDetails
+	private String getTargetUrl(
+		String accessToken,
+		String refreshToken
 	) {
-		String accessToken = JwtUtils.createAccessToken(principalDetails.getUser());
-		response.addHeader(JwtProperties.JWT_ACCESS_HEADER, accessToken);
-		JwtUtils.makeRefreshTokenCookie(response, principalDetails.getUser().getId());
+		return UriComponentsBuilder.fromUriString("http://127.0.0.1:3000/login/redirect")
+			.queryParam("accessToken", accessToken)
+			.queryParam("refreshToken", refreshToken)
+			.build().toUriString();
 	}
 }
 

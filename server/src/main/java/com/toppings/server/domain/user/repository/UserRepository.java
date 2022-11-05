@@ -19,7 +19,7 @@ public interface UserRepository extends JpaRepository<User, Long>, QueryDslUserR
 
 	Optional<User> findUserByUsername(String username);
 
-	Optional<User> findUserByUserIdAndDeleteYn(
+	Optional<User> findUserByIdAndDeleteYn(
 		Long userId,
 		String deleteYn
 	);

@@ -71,8 +71,9 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
 		String email,
 		String name
 	) {
+		String username = providerId + "_" + (email != null ? email : "none");
 		User user = User.builder()
-			.username(providerId + "_" + email)
+			.username(username)
 			.role(Auth.ROLE_USER)
 			.name(name)
 			.build();

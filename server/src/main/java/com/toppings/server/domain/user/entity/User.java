@@ -1,13 +1,6 @@
 package com.toppings.server.domain.user.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -21,6 +14,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -51,8 +46,8 @@ public class User extends BaseEntity {
 	@Column(name = "user_country", columnDefinition = "varchar(200)")
 	private String country;
 
-	@Column(name = "user_habit", columnDefinition = "text")
-	private String habit;
+	@ElementCollection(fetch = FetchType.EAGER)
+	private List<String> eatingHabit;
 
 	@Column(name = "user_role", columnDefinition = "varchar(20)")
 	@Enumerated(EnumType.STRING)

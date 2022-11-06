@@ -1,8 +1,8 @@
 package com.toppings.server.domain.user.service;
 
+import java.util.List;
 import java.util.Optional;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,7 +48,7 @@ public class UserService {
 	) {
 		User user = getUserById(id);
 		user.setCountry(request.getCountry());
-		user.setHabit(request.getHabit());
+		user.setEatingHabit(List.of(request.getHabit()));
 		return UserResponse.entityToDto(user);
 	}
 
@@ -60,7 +60,8 @@ public class UserService {
 		User user = getUserById(id);
 		user.setName(userModifyRequest.getName() != null ? userModifyRequest.getName() : user.getName());
 		user.setCountry(userModifyRequest.getCountry() != null ? userModifyRequest.getCountry() : user.getCountry());
-		user.setHabit(userModifyRequest.getHabit() != null ? userModifyRequest.getHabit() : user.getHabit());
+		user.setEatingHabit(userModifyRequest.getHabit() != null ?
+				List.of(userModifyRequest.getHabit()) : user.getEatingHabit());
 		return UserResponse.entityToDto(user);
 	}
 

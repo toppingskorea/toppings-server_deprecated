@@ -68,4 +68,9 @@ public class UserService {
 	private User getUserById(Long id) {
 		return userRepository.findById(id).orElseThrow(() -> new GeneralException(ResponseCode.BAD_REQUEST));
 	}
+
+	public boolean verifyRegister(Long id) {
+		User user = getUserById(id);
+		return user.getCountry() != null;
+	}
 }

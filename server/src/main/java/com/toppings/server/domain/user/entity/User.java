@@ -47,6 +47,11 @@ public class User extends BaseEntity {
 	private String country;
 
 	@ElementCollection(fetch = FetchType.EAGER)
+	@CollectionTable(
+		name = "t_eating_habit",
+		joinColumns = @JoinColumn(name = "user_id")
+	)
+	@Column(name = "user_habit", columnDefinition = "varchar(100)")
 	private List<String> eatingHabit;
 
 	@Column(name = "user_role", columnDefinition = "varchar(20)")

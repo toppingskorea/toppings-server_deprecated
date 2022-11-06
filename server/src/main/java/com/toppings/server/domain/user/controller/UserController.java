@@ -46,9 +46,17 @@ public class UserController {
 	}
 
 	/**
-	 * 유저 정보 조회
+	 * 유저 회원가입 검증
 	 */
-	@GetMapping("/me")
+	@GetMapping("/reg-check")
+	public ResponseEntity<?> verifyRegister(@AuthenticationPrincipal Long id) {
+		return ResponseEntity.ok(ApiDataResponse.of(userService.verifyRegister(id)));
+	}
+
+	/**
+	 * 유저 전체 정보 조회
+	 */
+	@GetMapping
 	public ResponseEntity<?> getUser(@AuthenticationPrincipal Long id) {
 		return ResponseEntity.ok(ApiDataResponse.of(""));
 	}
@@ -58,7 +66,7 @@ public class UserController {
 	 */
 	@PutMapping
 	public ResponseEntity<?> modifyUser(
-		@Valid @RequestBody UserModifyRequest userRegisterRequest,
+		@RequestBody UserModifyRequest userRegisterRequest,
 		@AuthenticationPrincipal Long id
 	) {
 		return ResponseEntity.ok(ApiDataResponse.of(userService.modifyUser(userRegisterRequest, id)));

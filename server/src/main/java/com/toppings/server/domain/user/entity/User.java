@@ -63,9 +63,11 @@ public class User extends BaseEntity {
 
 	@Column(name = "delete_yn", columnDefinition = "varchar(1) default 'N'")
 	private String deleteYn;
-	
+
+	// 음식점
+
 	// 좋아요
-	
+
 	// 스크랩
 	
 	// 리뷰

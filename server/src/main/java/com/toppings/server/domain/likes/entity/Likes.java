@@ -24,4 +24,8 @@ public class Likes extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "likes_id")
     private Long id;
+
+    // 유저
+
+    // 음식점
 }

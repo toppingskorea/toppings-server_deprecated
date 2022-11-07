@@ -47,6 +47,9 @@ public class UserService {
 		Long id
 	) {
 		User user = getUserById(id);
+		if (user.getCountry() != null)
+			throw new GeneralException(ResponseCode.DUPLICATED_USER);
+
 		user.setCountry(request.getCountry());
 		user.setEatingHabit(List.of(request.getHabit()));
 		return UserResponse.entityToDto(user);

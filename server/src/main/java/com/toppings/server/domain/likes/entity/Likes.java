@@ -28,11 +28,6 @@ public class Likes extends BaseEntity {
     @Column(name = "likes_id")
     private Long id;
 
-    private String country;
-
-    @ElementCollection(fetch = FetchType.EAGER)
-    private List<String> eatingHabit;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurant_id")
     private Restaurant restaurant;

@@ -34,6 +34,9 @@ public class Restaurant extends BaseEntity {
     @Column(name = "restaurant_address", columnDefinition = "varchar(150)")
     private String address;
 
+    @Column(name = "restaurant_zipcode", columnDefinition = "varchar(50)")
+    private String zipcode;
+
     @Column(name = "restaurant_latitude")
     private Double latitude;
 
@@ -43,17 +46,18 @@ public class Restaurant extends BaseEntity {
     @Column(name = "delete_yn", columnDefinition = "varchar(1) default 'N'")
     private String deleteYn;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "restaurant_type", columnDefinition = "varchar(100)")
-    private FoodType type;
+    @Column(name = "restaurant_type", columnDefinition = "varchar(50)")
+    private String type;
+
+    @Column(name = "restaurant_like_count")
+    private Integer likeCount;
+
+    @Column(name = "restaurant_scrap_count")
+    private Integer scrapCount;
     
     // 사진 경로랑 주소
 
-    // 좋아요
-
-    // 식습관
+    // 식습관 / 국가
 
     // 리뷰
-
-    // 스크랩
 }

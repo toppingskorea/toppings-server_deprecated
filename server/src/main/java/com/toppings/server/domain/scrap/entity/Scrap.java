@@ -23,4 +23,8 @@ public class Scrap extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "scrap_id")
     private Long id;
+
+    // 유저
+
+    // 음식점
 }

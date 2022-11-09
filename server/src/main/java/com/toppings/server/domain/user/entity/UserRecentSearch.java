@@ -2,6 +2,8 @@ package com.toppings.server.domain.user.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -10,6 +12,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import com.toppings.server.domain.user.constant.RecentType;
 import com.toppings.server.domain_global.entity.BaseEntity;
 
 import lombok.AllArgsConstructor;
@@ -36,6 +39,13 @@ public class UserRecentSearch extends BaseEntity {
 	@Column(name = "recent_id")
 	private Long id;
 
-	@Column(name = "recent_keyword")
+	@Column(name = "recent_keyword", columnDefinition = "varchar(200)")
 	private String keyword;
+
+	@Column(name = "recent_content", columnDefinition = "text")
+	private String content;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "recent_type", columnDefinition = "varchar(50)")
+	private String type;
 }

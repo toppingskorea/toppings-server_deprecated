@@ -47,6 +47,9 @@ public class UserService {
 		Long id
 	) {
 		User user = getUserById(id);
+		if (user.getCountry() != null)
+			throw new GeneralException(ResponseCode.DUPLICATED_USER);
+
 		user.setCountry(request.getCountry());
 		user.setEatingHabit(List.of(request.getHabit()));
 		return UserResponse.entityToDto(user);
@@ -67,5 +70,10 @@ public class UserService {
 
 	private User getUserById(Long id) {
 		return userRepository.findById(id).orElseThrow(() -> new GeneralException(ResponseCode.BAD_REQUEST));
+	}
+
+	public boolean verifyRegister(Long id) {
+		User user = getUserById(id);
+		return user.getCountry() != null;
 	}
 }

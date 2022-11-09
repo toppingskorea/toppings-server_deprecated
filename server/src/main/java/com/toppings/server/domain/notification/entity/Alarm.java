@@ -23,4 +23,11 @@ public class Alarm extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "alarm_id")
     private Long id;
+
+    @Column(name = "alarm_content", columnDefinition = "text")
+    private String content;
+
+    // 알람 종류 (좋아요 / 리뷰 / 스크랩)
+
+    // 유저
 }

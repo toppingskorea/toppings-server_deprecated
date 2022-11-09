@@ -67,14 +67,14 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 		String method = request.getMethod();
 		if (isDomainCheck(request) && isNonAuthUrl(requestUrl, method)) {
 			String accessToken = getAccessToken(request);
-			String refreshToken = getRefreshToken(request);
+			// String refreshToken = getRefreshToken(request);
 			if (idValidAccessToken(accessToken)) {
 				logger.debug("accessToken : " + accessToken);
 				addAuthenticationTokenInSecurityContext(accessToken);
-			} else if (isValidRefreshToken(refreshToken)) {
+			} /* else if (isValidRefreshToken(refreshToken)) {
 				logger.debug("refreshToken : " + refreshToken);
 				addAuthenticationAfterRefreshTokenValidation(response, refreshToken);
-			}
+			}*/
 		}
 		chain.doFilter(request, response);
 	}

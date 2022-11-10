@@ -56,6 +56,7 @@ public class Restaurant extends BaseEntity {
     private Integer scrapCount;
     
     // 사진 경로랑 주소
+    private String images;
 
     // 식습관 / 국가
 

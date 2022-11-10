@@ -3,6 +3,7 @@ package com.toppings.server.domain.user.controller;
 import javax.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,6 +31,7 @@ public class UserController {
 	 * 회원가입
 	 */
 	@PostMapping
+	@PreAuthorize("hasRole('ROLE_USER')")
 	public ResponseEntity<?> registerUser(
 		@Valid @RequestBody UserRegisterRequest userRegisterRequest,
 		@AuthenticationPrincipal Long id
@@ -41,6 +43,7 @@ public class UserController {
 	 * 유저 목록 조회 (admin)
 	 */
 	@GetMapping("/admin")
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	public ResponseEntity<?> getUsersForAdmin() {
 		return ResponseEntity.ok(ApiDataResponse.of(""));
 	}
@@ -49,14 +52,16 @@ public class UserController {
 	 * 유저 회원가입 검증
 	 */
 	@GetMapping("/reg-check")
+	@PreAuthorize("hasRole('ROLE_USER')")
 	public ResponseEntity<?> verifyRegister(@AuthenticationPrincipal Long id) {
 		return ResponseEntity.ok(ApiDataResponse.of(userService.verifyRegister(id)));
 	}
 
 	/**
-	 * 유저 전체 정보 조회
+	 * 유저 정보 조회
 	 */
 	@GetMapping
+	@PreAuthorize("hasRole('ROLE_USER')")
 	public ResponseEntity<?> getUser(@AuthenticationPrincipal Long id) {
 		return ResponseEntity.ok(ApiDataResponse.of(""));
 	}
@@ -65,6 +70,7 @@ public class UserController {
 	 * 유저 프로필 수정
 	 */
 	@PutMapping
+	@PreAuthorize("hasRole('ROLE_USER')")
 	public ResponseEntity<?> modifyUser(
 		@RequestBody UserModifyRequest userRegisterRequest,
 		@AuthenticationPrincipal Long id

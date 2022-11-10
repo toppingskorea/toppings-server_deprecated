@@ -51,7 +51,7 @@ public class UserService {
 			throw new GeneralException(ResponseCode.DUPLICATED_USER);
 
 		user.setCountry(request.getCountry());
-		user.setEatingHabit(List.of(request.getHabit()));
+		user.setHabits(List.of(request.getHabit()));
 		return UserResponse.entityToDto(user);
 	}
 
@@ -63,8 +63,8 @@ public class UserService {
 		User user = getUserById(id);
 		user.setName(userModifyRequest.getName() != null ? userModifyRequest.getName() : user.getName());
 		user.setCountry(userModifyRequest.getCountry() != null ? userModifyRequest.getCountry() : user.getCountry());
-		user.setEatingHabit(userModifyRequest.getHabit() != null ?
-				List.of(userModifyRequest.getHabit()) : user.getEatingHabit());
+		user.setHabits(userModifyRequest.getHabit() != null ?
+				List.of(userModifyRequest.getHabit()) : user.getHabits());
 		return UserResponse.entityToDto(user);
 	}
 

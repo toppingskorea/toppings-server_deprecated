@@ -23,14 +23,14 @@ public class UserResponse {
 
 	private String country;
 
-	private List<String> habit;
+	private List<String> habits;
 
 	public static UserResponse entityToDto(User user) {
 		return UserResponse.builder()
 			.id(user.getId())
 			.name(user.getName())
 			.country(user.getCountry())
-			.habit(user.getEatingHabit())
+			.habits(user.getHabits())
 			.build();
 	}
 }

@@ -52,7 +52,7 @@ public class User extends BaseEntity {
 		joinColumns = @JoinColumn(name = "user_id")
 	)
 	@Column(name = "user_habit", columnDefinition = "varchar(100)")
-	private List<String> eatingHabit;
+	private List<String> habits;
 
 	@Column(name = "user_role", columnDefinition = "varchar(20)")
 	@Enumerated(EnumType.STRING)

@@ -24,12 +24,4 @@ public class RecentResponse {
     private String content;
 
     private SearchCategory category;
-
-    private String name;
-
-    private String country;
-
-    private List<String> habits;
-
-    private Long count;
 }

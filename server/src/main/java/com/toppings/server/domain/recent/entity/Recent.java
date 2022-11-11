@@ -44,6 +44,4 @@ public class Recent extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
-
-    private Long restaurantId;
 }

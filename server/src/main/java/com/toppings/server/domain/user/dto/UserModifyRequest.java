@@ -1,6 +1,6 @@
 package com.toppings.server.domain.user.dto;
 
-import javax.validation.constraints.NotBlank;
+import com.toppings.server.domain.user.constant.Habit;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,5 +17,5 @@ public class UserModifyRequest {
 
 	private String country;
 
-	private String habit;
+	private Habit habit;
 }

@@ -33,5 +33,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 		@Param("delYn") String delYn
 	);
 
-	Optional<User> findUserByRefreshTokenAndDeleteYn(String refreshToken, String delYn);
+	Optional<User> findUserByRefreshTokenAndDeleteYn(
+		String refreshToken,
+		String delYn
+	);
 }

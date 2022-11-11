@@ -62,9 +62,10 @@ public class UserService {
 	) {
 		User user = getUserById(id);
 		user.setName(userModifyRequest.getName() != null ? userModifyRequest.getName() : user.getName());
-		user.setCountry(userModifyRequest.getCountry() != null ? userModifyRequest.getCountry() : user.getCountry());
+		user.setCountry(
+			userModifyRequest.getCountry() != null ? userModifyRequest.getCountry() : user.getCountry());
 		user.setHabits(userModifyRequest.getHabit() != null ?
-				List.of(userModifyRequest.getHabit()) : user.getHabits());
+			List.of(userModifyRequest.getHabit()) : user.getHabits());
 		return UserResponse.entityToDto(user);
 	}
 

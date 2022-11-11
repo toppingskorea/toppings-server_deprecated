@@ -1,6 +1,7 @@
 package com.toppings.server.domain.recent.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,8 +27,11 @@ public class RecentService {
 
 	private final UserRepository userRepository;
 
+	/**
+	 * 최근 검색어 등록
+	 */
 	@Transactional
-	public Long register(
+	public RecentResponse register(
 		RecentRequest recentRequest,
 		Long id
 	) {
@@ -38,29 +42,42 @@ public class RecentService {
 		recentRepository
 			.findRecentByRecentRequest(recentRequest, user)
 			.ifPresent(recentRepository::delete);
-
-		Recent dbRecent = recentRepository.save(RecentRequest.dtoToEntity(recentRequest, user));
-		return dbRecent.getId();
+		Recent recent = recentRepository.save(RecentRequest.dtoToEntity(recentRequest, user));
+		return RecentResponse.entityToDto(recent);
 	}
 
-	public List<RecentResponse> getRecents(
+	/**
+	 * 최근 검색어 목록 조회
+	 */
+	public List<RecentResponse> findAll(
 		RecentType type,
 		Long id
 	) {
+		// TODO 성능상 where 절이 추가되는것 보다 type 을 여기서 분기하고 조회 메소드를 하나 더 추가하는게 나을수도?
 		return recentRepository.findRecents(type, id);
 	}
 
+	/**
+	 * 최근 검색어 삭제
+	 */
 	@Transactional
-	public Long removeOneRecent(Long id) {
+	public Long removeOne(Long id) {
 		recentRepository.deleteById(id);
 		return id;
 	}
 
+	/**
+	 * 최근 검색어 전체 삭제
+	 */
 	@Transactional
-	public Boolean removeAllRecent(Long id) {
+	public List<Long> removeAll(Long id) {
 		User user = getUserById(id);
+		List<Long> recentIds = recentRepository.findRecentByUser(user)
+			.stream()
+			.map(Recent::getId)
+			.collect(Collectors.toList());
 		recentRepository.deleteAllByUser(user);
-		return true;
+		return recentIds;
 	}
 
 	private User getUserById(Long id) {

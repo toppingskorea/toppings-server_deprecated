@@ -42,7 +42,7 @@ public class UserService {
 	 * 회원 가입
 	 */
 	@Transactional
-	public UserResponse registerUser(
+	public UserResponse register(
 		UserRegisterRequest request,
 		Long id
 	) {
@@ -56,7 +56,7 @@ public class UserService {
 	}
 
 	@Transactional
-	public UserResponse modifyUser(
+	public UserResponse modify(
 		UserModifyRequest userModifyRequest,
 		Long id
 	) {

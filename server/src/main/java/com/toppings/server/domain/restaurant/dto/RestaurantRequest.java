@@ -1,6 +1,13 @@
 package com.toppings.server.domain.restaurant.dto;
 
+import java.util.List;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 import com.toppings.server.domain.restaurant.constant.FoodType;
+import com.toppings.server.domain.restaurant.entity.Restaurant;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,18 +20,41 @@ import lombok.NoArgsConstructor;
 @Builder
 public class RestaurantRequest {
 
+	@NotBlank(message = "이름을 확인해주세요.")
 	private String name;
 
+	@NotBlank(message = "설명을 확인해주세요.")
 	private String description;
 
+	@NotBlank(message = "주소를 확인해주세요.")
 	private String address;
 
+	@NotBlank(message = "우편번호를 확인해주세요.")
 	private String zipcode;
 
-	private String latitude;
+	@NotNull(message = "위도를 확인해주세요.")
+	private Double latitude;
 
-	private String longitude;
+	@NotNull(message = "경도를 확인해주세요.")
+	private Double longitude;
 
+	@NotNull(message = "타입을 확인해주세요.")
 	private FoodType type;
 
+	@NotNull(message = "이미지를 확인해주세요")
+	@Size(min = 1, message = "이미지를 확인해주세요")
+	private List<String> images;
+
+	public static Restaurant dtoToEntity(RestaurantRequest request) {
+		return Restaurant.builder()
+			.name(request.getName())
+			.description(request.getDescription())
+			.address(request.getAddress())
+			.zipcode(request.getZipcode())
+			.latitude(request.getLatitude())
+			.longitude(request.getLongitude())
+			.type(request.getType())
+			.images(request.getImages())
+			.build();
+	}
 }

@@ -1,5 +1,7 @@
 package com.toppings.server.domain.restaurant.entity;
 
+import java.util.List;
+
 import com.toppings.server.domain.restaurant.constant.FoodType;
 import com.toppings.server.domain_global.entity.BaseEntity;
 import lombok.*;
@@ -46,8 +48,9 @@ public class Restaurant extends BaseEntity {
     @Column(name = "delete_yn", columnDefinition = "varchar(1) default 'N'")
     private String deleteYn;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "restaurant_type", columnDefinition = "varchar(50)")
-    private String type;
+    private FoodType type;
 
     @Column(name = "restaurant_like_count")
     private Integer likeCount;
@@ -56,7 +59,13 @@ public class Restaurant extends BaseEntity {
     private Integer scrapCount;
     
     // 사진 경로랑 주소
-    private String images;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+        name = "t_restaurant_attach",
+        joinColumns = @JoinColumn(name = "restaurant_id")
+    )
+    @Column(name = "restaurant_image", columnDefinition = "longtext")
+    private List<String> images;
 
     // 식습관 / 국가
 

@@ -35,7 +35,7 @@ public class UserController {
 		@Valid @RequestBody UserRegisterRequest userRegisterRequest,
 		@AuthenticationPrincipal Long id
 	) {
-		return ResponseEntity.ok(ApiDataResponse.of(userService.registerUser(userRegisterRequest, id)));
+		return ResponseEntity.ok(ApiDataResponse.of(userService.register(userRegisterRequest, id)));
 	}
 
 	/**
@@ -74,7 +74,7 @@ public class UserController {
 		@RequestBody UserModifyRequest userRegisterRequest,
 		@AuthenticationPrincipal Long id
 	) {
-		return ResponseEntity.ok(ApiDataResponse.of(userService.modifyUser(userRegisterRequest, id)));
+		return ResponseEntity.ok(ApiDataResponse.of(userService.modify(userRegisterRequest, id)));
 	}
 
 	/**

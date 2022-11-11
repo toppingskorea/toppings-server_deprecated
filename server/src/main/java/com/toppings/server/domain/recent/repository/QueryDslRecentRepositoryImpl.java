@@ -33,7 +33,8 @@ public class QueryDslRecentRepositoryImpl implements QueryDslRecentRepository {
 		Long id
 	) {
 		return queryFactory.select(
-			Projections.fields(RecentResponse.class, recent.id, recent.keyword, recent.content, recent.category))
+			Projections.fields(RecentResponse.class, recent.id, recent.keyword, recent.content, recent.type,
+				recent.category))
 			.from(recent)
 			.where(eqType(type), eqUserId(id))
 			.orderBy(recent.id.desc())
@@ -51,7 +52,8 @@ public class QueryDslRecentRepositoryImpl implements QueryDslRecentRepository {
 	) {
 		return Optional.ofNullable(queryFactory.select(recent)
 			.from(recent)
-			.where(likeKeyword(request), likeContent(request), eqUserId(user.getId()))
+			// TODO 해당 부분 전문 검색으로 바꾸고 싶다.
+			.where(likeKeyword(request), eqUserId(user.getId()))
 			.fetchOne());
 	}
 
@@ -59,11 +61,8 @@ public class QueryDslRecentRepositoryImpl implements QueryDslRecentRepository {
 		return id != null ? recent.user.id.eq(id) : null;
 	}
 
-	private BooleanExpression likeContent(RecentRequest request) {
-		return request != null && hasText(request.getContent()) ? recent.content.contains(request.getContent()) : null;
-	}
-
 	private BooleanExpression likeKeyword(RecentRequest request) {
-		return request != null && hasText(request.getKeyword()) ? recent.keyword.contains(request.getKeyword()) : null;
+		return request != null && hasText(request.getKeyword()) ?
+			recent.keyword.contains(request.getKeyword().trim()) : null;
 	}
 }

@@ -42,18 +42,18 @@ public class RecentController {
         RecentType type,
         @AuthenticationPrincipal Long id
     ) {
-        return ResponseEntity.ok(ApiDataResponse.of(recentService.getRecents(type, id)));
+        return ResponseEntity.ok(ApiDataResponse.of(recentService.findAll(type, id)));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> removeOneRecent(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiDataResponse.of(recentService.removeOneRecent(id)));
+        return ResponseEntity.ok(ApiDataResponse.of(recentService.removeOne(id)));
     }
 
     @DeleteMapping
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> removeAllRecent(@AuthenticationPrincipal Long id) {
-        return ResponseEntity.ok(ApiDataResponse.of(recentService.removeAllRecent(id)));
+        return ResponseEntity.ok(ApiDataResponse.of(recentService.removeAll(id)));
     }
 }

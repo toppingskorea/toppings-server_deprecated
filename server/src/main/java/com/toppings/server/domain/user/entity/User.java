@@ -76,6 +76,9 @@ public class User extends BaseEntity {
 	@Column(name = "delete_yn", columnDefinition = "varchar(1) default 'N'")
 	private String deleteYn;
 
+	@Column(name = "user_profile", columnDefinition = "longtext")
+	private String profile;
+
 	// 음식점
 
 	// 좋아요

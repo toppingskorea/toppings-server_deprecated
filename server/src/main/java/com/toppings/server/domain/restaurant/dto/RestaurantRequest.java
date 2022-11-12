@@ -32,6 +32,9 @@ public class RestaurantRequest {
 	@NotBlank(message = "우편번호를 확인해주세요.")
 	private String zipcode;
 
+	@NotBlank(message = "고유코드를 확인해주세요.")
+	private String code;
+
 	@NotNull(message = "위도를 확인해주세요.")
 	private Double latitude;
 
@@ -54,6 +57,7 @@ public class RestaurantRequest {
 			.latitude(request.getLatitude())
 			.longitude(request.getLongitude())
 			.type(request.getType())
+			.code(request.getCode())
 			.images(request.getImages())
 			.build();
 	}

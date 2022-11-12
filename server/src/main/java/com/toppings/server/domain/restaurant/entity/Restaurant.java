@@ -45,6 +45,9 @@ public class Restaurant extends BaseEntity {
     @Column(name = "restaurant_longitude")
     private Double longitude;
 
+    @Column(name = "restaurant_code", columnDefinition = "varchar(200)")
+    private String code;
+
     @Column(name = "delete_yn", columnDefinition = "varchar(1) default 'N'")
     private String deleteYn;
 

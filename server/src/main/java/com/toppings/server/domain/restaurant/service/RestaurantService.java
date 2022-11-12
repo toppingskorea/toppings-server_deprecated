@@ -21,6 +21,7 @@ public class RestaurantService {
 		/*
 			TODO:
 				- 다른사람에 의해 이미 등록된 음식점일 경우 어떻게 처리하는지?
+					- 이미 등록되어 있다면 이미 등록되었다는 예외를 던져주자.
 		 */
 
 		// restaurantRepository.findRestaurantByZipcode(request.getZipcode())

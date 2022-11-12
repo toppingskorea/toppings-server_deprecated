@@ -38,7 +38,7 @@ public class RestaurantController {
 	}
 
 	/**
-	 * 음식점 목록 조회하기
+	 * 음식점 목록 조회하기 (필터링)
 	 */
 	@GetMapping
 	@PreAuthorize("hasRole('ROLE_USER')")

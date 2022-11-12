@@ -3,6 +3,7 @@ package com.toppings.server.domain.restaurant.entity;
 import java.util.List;
 
 import com.toppings.server.domain.restaurant.constant.FoodType;
+import com.toppings.server.domain.user.entity.User;
 import com.toppings.server.domain_global.entity.BaseEntity;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
@@ -69,6 +70,10 @@ public class Restaurant extends BaseEntity {
     )
     @Column(name = "restaurant_image", columnDefinition = "longtext")
     private List<String> images;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     // 식습관 / 국가
 

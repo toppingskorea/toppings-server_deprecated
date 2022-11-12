@@ -8,5 +8,5 @@ import com.toppings.server.domain.restaurant.entity.Restaurant;
 
 public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
 
-	Optional<Restaurant> findRestaurantByZipcode(String zipCode);
+	Optional<Restaurant> findRestaurantByCode(String code);
 }

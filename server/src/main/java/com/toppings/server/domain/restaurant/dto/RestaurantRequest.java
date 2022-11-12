@@ -8,6 +8,7 @@ import javax.validation.constraints.Size;
 
 import com.toppings.server.domain.restaurant.constant.FoodType;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
+import com.toppings.server.domain.user.entity.User;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -48,7 +49,10 @@ public class RestaurantRequest {
 	@Size(min = 1, message = "이미지를 확인해주세요")
 	private List<String> images;
 
-	public static Restaurant dtoToEntity(RestaurantRequest request) {
+	public static Restaurant dtoToEntity(
+		RestaurantRequest request,
+		User user
+	) {
 		return Restaurant.builder()
 			.name(request.getName())
 			.description(request.getDescription())
@@ -59,6 +63,7 @@ public class RestaurantRequest {
 			.type(request.getType())
 			.code(request.getCode())
 			.images(request.getImages())
+			.user(user)
 			.build();
 	}
 }

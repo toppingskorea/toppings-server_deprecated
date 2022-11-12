@@ -3,9 +3,14 @@ package com.toppings.server.domain.restaurant.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.toppings.common.constants.ResponseCode;
+import com.toppings.common.exception.GeneralException;
 import com.toppings.server.domain.restaurant.dto.RestaurantRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantResponse;
+import com.toppings.server.domain.restaurant.entity.Restaurant;
 import com.toppings.server.domain.restaurant.repository.RestaurantRepository;
+import com.toppings.server.domain.user.entity.User;
+import com.toppings.server.domain.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -16,17 +21,22 @@ public class RestaurantService {
 
 	private final RestaurantRepository restaurantRepository;
 
+	private final UserRepository userRepository;
+
+	/**
+	 * 음식점 등록하기
+	 */
 	public RestaurantResponse register(RestaurantRequest request, Long id) {
+		User user = getUserById(id);
+		Restaurant restaurant = restaurantRepository.findRestaurantByCode(request.getCode()).orElse(null);
+		if (restaurant != null)
+			throw new GeneralException(ResponseCode.DUPLICATED_ITEM);
 
-		/*
-			TODO:
-				- 다른사람에 의해 이미 등록된 음식점일 경우 어떻게 처리하는지?
-					- 이미 등록되어 있다면 이미 등록되었다는 예외를 던져주자.
-		 */
+		Restaurant saveRestaurant = restaurantRepository.save(RestaurantRequest.dtoToEntity(request, user));
+		return RestaurantResponse.entityToDto(saveRestaurant);
+	}
 
-		// restaurantRepository.findRestaurantByZipcode(request.getZipcode())
-		// restaurantRepository.save()
-
-		return null;
+	private User getUserById(Long id) {
+		return userRepository.findById(id).orElseThrow(() -> new GeneralException(ResponseCode.BAD_REQUEST));
 	}
 }

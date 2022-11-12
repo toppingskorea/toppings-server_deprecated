@@ -1,8 +1,8 @@
 package com.toppings.server.domain.user.service;
 
+import java.util.List;
 import java.util.Optional;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,29 +42,39 @@ public class UserService {
 	 * 회원 가입
 	 */
 	@Transactional
-	public UserResponse registerUser(
+	public UserResponse register(
 		UserRegisterRequest request,
 		Long id
 	) {
 		User user = getUserById(id);
+		if (user.getCountry() != null)
+			throw new GeneralException(ResponseCode.DUPLICATED_USER);
+
 		user.setCountry(request.getCountry());
-		user.setHabit(request.getHabit());
+		user.setHabits(List.of(request.getHabit()));
 		return UserResponse.entityToDto(user);
 	}
 
 	@Transactional
-	public UserResponse modifyUser(
+	public UserResponse modify(
 		UserModifyRequest userModifyRequest,
 		Long id
 	) {
 		User user = getUserById(id);
 		user.setName(userModifyRequest.getName() != null ? userModifyRequest.getName() : user.getName());
-		user.setCountry(userModifyRequest.getCountry() != null ? userModifyRequest.getCountry() : user.getCountry());
-		user.setHabit(userModifyRequest.getHabit() != null ? userModifyRequest.getHabit() : user.getHabit());
+		user.setCountry(
+			userModifyRequest.getCountry() != null ? userModifyRequest.getCountry() : user.getCountry());
+		user.setHabits(userModifyRequest.getHabit() != null ?
+			List.of(userModifyRequest.getHabit()) : user.getHabits());
 		return UserResponse.entityToDto(user);
 	}
 
 	private User getUserById(Long id) {
 		return userRepository.findById(id).orElseThrow(() -> new GeneralException(ResponseCode.BAD_REQUEST));
+	}
+
+	public boolean verifyRegister(Long id) {
+		User user = getUserById(id);
+		return user.getCountry() != null;
 	}
 }

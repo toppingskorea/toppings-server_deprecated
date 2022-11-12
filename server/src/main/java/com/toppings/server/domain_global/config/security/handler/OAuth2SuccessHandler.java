@@ -2,11 +2,11 @@ package com.toppings.server.domain_global.config.security.handler;
 
 import java.io.IOException;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.core.env.Environment;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -15,6 +15,10 @@ import com.toppings.server.domain_global.config.security.auth.PrincipalDetails;
 import com.toppings.server.domain_global.config.security.jwt.JwtUtils;
 
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+
+	private final ServletContext servletContext;
+
+	public OAuth2SuccessHandler(ServletContext servletContext) {this.servletContext = servletContext;}
 
 	// OAuth2 로그인 과정을 성공적으로 거칠 경우 동작하는 메소드
 	// 요구사항에 따라 언제든 수정될 수 있다.
@@ -27,18 +31,19 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		System.out.println("--------------- oauth2 success handler ---------------");
 		PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
 		String accessToken = JwtUtils.createAccessToken(principalDetails.getUser());
-		String refreshToken = JwtUtils.createRefreshToken(principalDetails.getUser().getId());
-		String targetUrl = getTargetUrl(accessToken, refreshToken);
+		// String refreshToken = JwtUtils.createRefreshToken(principalDetails.getUser().getId());
+		String targetUrl = getTargetUrl(accessToken);
 		getRedirectStrategy().sendRedirect(request, response, targetUrl); // 나중에 도메인 주소로 변경
 	}
 
-	private String getTargetUrl(
-		String accessToken,
-		String refreshToken
-	) {
-		return UriComponentsBuilder.fromUriString("http://127.0.0.1:3000/login/redirect")
+	private String getTargetUrl(String accessToken) {
+		String redirectUri = (String) servletContext.getAttribute("redirectUri");
+		if (redirectUri == null)
+			redirectUri = "http://127.0.0.1:3000/login/redirect";
+
+		return UriComponentsBuilder.fromUriString(redirectUri)
 			.queryParam("accessToken", accessToken)
-			.queryParam("refreshToken", refreshToken)
+			// .queryParam("refreshToken", refreshToken)
 			.build().toUriString();
 	}
 }

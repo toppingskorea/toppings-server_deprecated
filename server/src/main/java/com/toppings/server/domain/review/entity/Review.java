@@ -1,5 +1,7 @@
 package com.toppings.server.domain.review.entity;
 
+import com.toppings.server.domain.restaurant.entity.Restaurant;
+import com.toppings.server.domain.user.entity.User;
 import com.toppings.server.domain_global.entity.BaseEntity;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
@@ -23,4 +25,12 @@ public class Review extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "review_id")
     private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "restaurant_id")
+    private Restaurant restaurant;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 }

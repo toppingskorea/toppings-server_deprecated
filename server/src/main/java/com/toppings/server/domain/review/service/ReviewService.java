@@ -12,6 +12,7 @@ import com.toppings.server.domain.review.dto.ReviewRequest;
 import com.toppings.server.domain.review.dto.ReviewResponse;
 import com.toppings.server.domain.review.entity.Review;
 import com.toppings.server.domain.review.repository.ReviewRepository;
+import com.toppings.server.domain.user.dto.UserResponse;
 import com.toppings.server.domain.user.entity.User;
 import com.toppings.server.domain.user.repository.UserRepository;
 
@@ -71,7 +72,9 @@ public class ReviewService {
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
 		ReviewModifyRequest.modifyReviewInfo(review, request);
-		return ReviewResponse.entityToDto(review);
+		ReviewResponse reviewResponse = ReviewResponse.entityToDto(review);
+		reviewResponse.setUser(UserResponse.entityToDto(user));
+		return reviewResponse;
 	}
 
 	/**
@@ -112,7 +115,9 @@ public class ReviewService {
 	}
 
 	public ReviewResponse findOne(Long reviewId) {
-
-		return null;
+		Review review = getReviewById(reviewId);
+		ReviewResponse reviewResponse = ReviewResponse.entityToDto(review);
+		reviewResponse.setUser(UserResponse.entityToDto(review.getUser()));
+		return reviewResponse;
 	}
 }

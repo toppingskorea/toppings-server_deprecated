@@ -44,9 +44,9 @@ public class UserService {
 	@Transactional
 	public UserResponse register(
 		UserRegisterRequest request,
-		Long id
+		Long userId
 	) {
-		User user = getUserById(id);
+		User user = getUserById(userId);
 		if (user.getCountry() != null)
 			throw new GeneralException(ResponseCode.DUPLICATED_USER);
 
@@ -58,9 +58,9 @@ public class UserService {
 	@Transactional
 	public UserResponse modify(
 		UserModifyRequest userModifyRequest,
-		Long id
+		Long userId
 	) {
-		User user = getUserById(id);
+		User user = getUserById(userId);
 		user.setName(userModifyRequest.getName() != null ? userModifyRequest.getName() : user.getName());
 		user.setCountry(
 			userModifyRequest.getCountry() != null ? userModifyRequest.getCountry() : user.getCountry());
@@ -73,8 +73,8 @@ public class UserService {
 		return userRepository.findById(id).orElseThrow(() -> new GeneralException(ResponseCode.BAD_REQUEST));
 	}
 
-	public boolean verifyRegister(Long id) {
-		User user = getUserById(id);
+	public boolean verifyRegister(Long userId) {
+		User user = getUserById(userId);
 		return user.getCountry() != null;
 	}
 }

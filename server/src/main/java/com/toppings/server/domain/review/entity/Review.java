@@ -1,5 +1,7 @@
 package com.toppings.server.domain.review.entity;
 
+import java.util.List;
+
 import com.toppings.server.domain.restaurant.entity.Restaurant;
 import com.toppings.server.domain.user.entity.User;
 import com.toppings.server.domain_global.entity.BaseEntity;
@@ -33,4 +35,15 @@ public class Review extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Column(name = "review_description", columnDefinition = "text")
+    private String description;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+        name = "t_review_attach",
+        joinColumns = @JoinColumn(name = "review_id")
+    )
+    @Column(name = "review_images", columnDefinition = "longtext")
+    private List<String> images;
 }

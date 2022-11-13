@@ -31,29 +31,29 @@ public class RecentController {
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> registerRecent(
         @Valid @RequestBody RecentRequest recentRequest,
-        @AuthenticationPrincipal Long id
+        @AuthenticationPrincipal Long userId
     ) {
-        return ResponseEntity.ok(ApiDataResponse.of(recentService.register(recentRequest, id)));
+        return ResponseEntity.ok(ApiDataResponse.of(recentService.register(recentRequest, userId)));
     }
 
     @GetMapping
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> getRecents(
         RecentType type,
-        @AuthenticationPrincipal Long id
+        @AuthenticationPrincipal Long userId
     ) {
-        return ResponseEntity.ok(ApiDataResponse.of(recentService.findAll(type, id)));
+        return ResponseEntity.ok(ApiDataResponse.of(recentService.findAll(type, userId)));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{recentId}")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> removeOneRecent(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiDataResponse.of(recentService.removeOne(id)));
+    public ResponseEntity<?> removeOneRecent(@PathVariable Long recentId) {
+        return ResponseEntity.ok(ApiDataResponse.of(recentService.removeOne(recentId)));
     }
 
     @DeleteMapping
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> removeAllRecent(@AuthenticationPrincipal Long id) {
-        return ResponseEntity.ok(ApiDataResponse.of(recentService.removeAll(id)));
+    public ResponseEntity<?> removeAllRecent(@AuthenticationPrincipal Long userid) {
+        return ResponseEntity.ok(ApiDataResponse.of(recentService.removeAll(userid)));
     }
 }

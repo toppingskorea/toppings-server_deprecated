@@ -18,6 +18,9 @@ import com.toppings.common.dto.ApiDataResponse;
 import com.toppings.server.domain.restaurant.dto.RestaurantModifyRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantRequest;
 import com.toppings.server.domain.restaurant.service.RestaurantService;
+import com.toppings.server.domain.review.dto.ReviewModifyRequest;
+import com.toppings.server.domain.review.dto.ReviewRequest;
+import com.toppings.server.domain.review.service.ReviewService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -43,14 +46,15 @@ public class RestaurantController {
 	/**
 	 * 음식점 수정하기
 	 */
-	@PutMapping("/{id}")
+	@PutMapping("/{restaurantId}")
 	@PreAuthorize("hasRole('ROLE_USER')")
 	public ResponseEntity<?> modifyRestaurant(
 		@RequestBody RestaurantModifyRequest restaurantModifyRequest,
-		@PathVariable Long id,
+		@PathVariable Long restaurantId,
 		@AuthenticationPrincipal Long userId
 	) {
-		return ResponseEntity.ok(ApiDataResponse.of(restaurantService.modify(restaurantModifyRequest, id, userId)));
+		return ResponseEntity.ok(
+			ApiDataResponse.of(restaurantService.modify(restaurantModifyRequest, restaurantId, userId)));
 	}
 
 	/**
@@ -59,24 +63,46 @@ public class RestaurantController {
 	@GetMapping
 	@PreAuthorize("hasRole('ROLE_USER')")
 	public ResponseEntity<?> getRestaurants() {
-		return ResponseEntity.ok(ApiDataResponse.of(""));
+		return ResponseEntity.ok(ApiDataResponse.of(restaurantService.findAll()));
 	}
 
 	/**
 	 * 음식점 상세 조회하기
 	 */
-	@GetMapping("/{id}")
+	@GetMapping("/{restaurantId}")
 	@PreAuthorize("hasRole('ROLE_USER')")
-	public ResponseEntity<?> getRestaurant(@PathVariable Long id) {
-		return ResponseEntity.ok(ApiDataResponse.of(""));
+	public ResponseEntity<?> getRestaurant(@PathVariable Long restaurantId) {
+		return ResponseEntity.ok(ApiDataResponse.of(restaurantService.findOne(restaurantId)));
 	}
 
-	@DeleteMapping("/{id}")
+	@DeleteMapping("/{restaurantId}")
 	@PreAuthorize("hasRole('ROLE_USER')")
 	public ResponseEntity<?> removeRestaurant(
-		@PathVariable Long id,
+		@PathVariable Long restaurantId,
 		@AuthenticationPrincipal Long userId
 	) {
-		return ResponseEntity.ok(ApiDataResponse.of(restaurantService.remove(id, userId)));
+		return ResponseEntity.ok(ApiDataResponse.of(restaurantService.remove(restaurantId, userId)));
+	}
+
+	// ---- review
+	private final ReviewService reviewService;
+
+	@PostMapping("/{restaurantId}/review")
+	@PreAuthorize("hasRole('ROLE_USER')")
+	public ResponseEntity<?> registerReview(
+		@Valid @RequestBody ReviewRequest request,
+		@PathVariable Long restaurantId,
+		@AuthenticationPrincipal Long userId
+	) {
+		return ResponseEntity.ok(ApiDataResponse.of(reviewService.register(request, restaurantId, userId)));
+	}
+
+	@GetMapping("/{restaurantId}/review")
+	@PreAuthorize("hasRole('ROLE_USER')")
+	public ResponseEntity<?> getReviews(
+		@PathVariable Long restaurantId,
+		@AuthenticationPrincipal Long userId
+	) {
+		return ResponseEntity.ok(ApiDataResponse.of(reviewService.findAll(restaurantId, userId)));
 	}
 }

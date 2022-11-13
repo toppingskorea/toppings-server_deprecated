@@ -30,9 +30,9 @@ public class RestaurantService {
 	@Transactional
 	public RestaurantResponse register(
 		RestaurantRequest request,
-		Long id
+		Long userId
 	) {
-		User user = getUserById(id);
+		User user = getUserById(userId);
 		Restaurant restaurant = restaurantRepository.findRestaurantByCode(request.getCode()).orElse(null);
 		if (restaurant != null)
 			throw new GeneralException(ResponseCode.DUPLICATED_ITEM);
@@ -51,12 +51,13 @@ public class RestaurantService {
 	@Transactional
 	public RestaurantResponse modify(
 		RestaurantModifyRequest request,
-		Long id,
+		Long restaurantId,
 		Long userId
 	) {
-		Restaurant restaurant = getRestaurantById(id);
+		Restaurant restaurant = getRestaurantById(restaurantId);
 		if (verifyRestaurantAndUser(userId, restaurant))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
+
 		RestaurantModifyRequest.setRestaurantInfo(request, restaurant);
 		RestaurantModifyRequest.setMapInfo(request, restaurant);
 		return RestaurantResponse.entityToDto(restaurant);
@@ -77,11 +78,25 @@ public class RestaurantService {
 	/**
 	 * 음식점 삭제하기
 	 */
-	public Long remove(Long id, Long userId) {
-		Restaurant restaurant = getRestaurantById(id);
+	public Long remove(
+		Long restaurantId,
+		Long userId
+	) {
+		Restaurant restaurant = getRestaurantById(restaurantId);
 		if (verifyRestaurantAndUser(userId, restaurant))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
-		restaurantRepository.deleteById(id);
-		return id;
+
+		restaurantRepository.deleteById(restaurantId);
+		return restaurantId;
+	}
+
+	public Object findAll() {
+
+		return null;
+	}
+
+	public RestaurantResponse findOne(Long restaurantId) {
+		Restaurant restaurant = getRestaurantById(restaurantId);
+		return null;
 	}
 }

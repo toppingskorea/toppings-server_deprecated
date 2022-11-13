@@ -33,9 +33,9 @@ public class UserController {
 	@PreAuthorize("hasRole('ROLE_USER')")
 	public ResponseEntity<?> registerUser(
 		@Valid @RequestBody UserRegisterRequest userRegisterRequest,
-		@AuthenticationPrincipal Long id
+		@AuthenticationPrincipal Long userId
 	) {
-		return ResponseEntity.ok(ApiDataResponse.of(userService.register(userRegisterRequest, id)));
+		return ResponseEntity.ok(ApiDataResponse.of(userService.register(userRegisterRequest, userId)));
 	}
 
 	/**
@@ -52,8 +52,8 @@ public class UserController {
 	 */
 	@GetMapping("/reg-check")
 	@PreAuthorize("hasRole('ROLE_USER')")
-	public ResponseEntity<?> verifyRegister(@AuthenticationPrincipal Long id) {
-		return ResponseEntity.ok(ApiDataResponse.of(userService.verifyRegister(id)));
+	public ResponseEntity<?> verifyRegister(@AuthenticationPrincipal Long userId) {
+		return ResponseEntity.ok(ApiDataResponse.of(userService.verifyRegister(userId)));
 	}
 
 	/**
@@ -61,7 +61,7 @@ public class UserController {
 	 */
 	@GetMapping
 	@PreAuthorize("hasRole('ROLE_USER')")
-	public ResponseEntity<?> getUser(@AuthenticationPrincipal Long id) {
+	public ResponseEntity<?> getUser(@AuthenticationPrincipal Long userId) {
 		return ResponseEntity.ok(ApiDataResponse.of(""));
 	}
 
@@ -72,9 +72,9 @@ public class UserController {
 	@PreAuthorize("hasRole('ROLE_USER')")
 	public ResponseEntity<?> modifyUser(
 		@RequestBody UserModifyRequest userRegisterRequest,
-		@AuthenticationPrincipal Long id
+		@AuthenticationPrincipal Long userId
 	) {
-		return ResponseEntity.ok(ApiDataResponse.of(userService.modify(userRegisterRequest, id)));
+		return ResponseEntity.ok(ApiDataResponse.of(userService.modify(userRegisterRequest, userId)));
 	}
 
 	/**

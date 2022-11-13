@@ -5,14 +5,17 @@ import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.toppings.common.dto.ApiDataResponse;
+import com.toppings.server.domain.restaurant.dto.RestaurantModifyRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantRequest;
 import com.toppings.server.domain.restaurant.service.RestaurantService;
 
@@ -38,6 +41,19 @@ public class RestaurantController {
 	}
 
 	/**
+	 * 음식점 수정하기
+	 */
+	@PutMapping("/{id}")
+	@PreAuthorize("hasRole('ROLE_USER')")
+	public ResponseEntity<?> modifyRestaurant(
+		@RequestBody RestaurantModifyRequest restaurantModifyRequest,
+		@PathVariable Long id,
+		@AuthenticationPrincipal Long userId
+	) {
+		return ResponseEntity.ok(ApiDataResponse.of(restaurantService.modify(restaurantModifyRequest, id, userId)));
+	}
+
+	/**
 	 * 음식점 목록 조회하기 (필터링)
 	 */
 	@GetMapping
@@ -55,4 +71,12 @@ public class RestaurantController {
 		return ResponseEntity.ok(ApiDataResponse.of(""));
 	}
 
+	@DeleteMapping("/{id}")
+	@PreAuthorize("hasRole('ROLE_USER')")
+	public ResponseEntity<?> removeRestaurant(
+		@PathVariable Long id,
+		@AuthenticationPrincipal Long userId
+	) {
+		return ResponseEntity.ok(ApiDataResponse.of(restaurantService.remove(id, userId)));
+	}
 }

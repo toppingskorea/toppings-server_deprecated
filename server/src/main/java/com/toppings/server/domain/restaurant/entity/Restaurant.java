@@ -71,11 +71,9 @@ public class Restaurant extends BaseEntity {
     @Column(name = "restaurant_image", columnDefinition = "longtext")
     private List<String> images;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
-
-    // 식습관 / 국가
 
     // 리뷰
 }

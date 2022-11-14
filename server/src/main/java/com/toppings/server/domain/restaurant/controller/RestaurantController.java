@@ -18,6 +18,7 @@ import com.toppings.common.dto.ApiDataResponse;
 import com.toppings.server.domain.likes.service.LikeService;
 import com.toppings.server.domain.restaurant.dto.RestaurantModifyRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantRequest;
+import com.toppings.server.domain.restaurant.dto.RestaurantSearchRequest;
 import com.toppings.server.domain.restaurant.service.RestaurantService;
 import com.toppings.server.domain.review.dto.ReviewModifyRequest;
 import com.toppings.server.domain.review.dto.ReviewRequest;
@@ -70,7 +71,7 @@ public class RestaurantController {
 	 */
 	@GetMapping
 	@PreAuthorize("hasRole('ROLE_USER')")
-	public ResponseEntity<?> getRestaurants() {
+	public ResponseEntity<?> getRestaurants(RestaurantSearchRequest restaurantSearchRequest) {
 		return ResponseEntity.ok(ApiDataResponse.of(restaurantService.findAll()));
 	}
 

@@ -15,12 +15,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.toppings.common.dto.ApiDataResponse;
+import com.toppings.server.domain.likes.service.LikeService;
 import com.toppings.server.domain.restaurant.dto.RestaurantModifyRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantRequest;
 import com.toppings.server.domain.restaurant.service.RestaurantService;
 import com.toppings.server.domain.review.dto.ReviewModifyRequest;
 import com.toppings.server.domain.review.dto.ReviewRequest;
 import com.toppings.server.domain.review.service.ReviewService;
+import com.toppings.server.domain.scrap.service.ScrapService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -30,6 +32,12 @@ import lombok.RequiredArgsConstructor;
 public class RestaurantController {
 
 	private final RestaurantService restaurantService;
+
+	private final ReviewService reviewService;
+
+	private final LikeService likeService;
+
+	private final ScrapService scrapService;
 
 	/**
 	 * 음식점 등록하기
@@ -75,6 +83,9 @@ public class RestaurantController {
 		return ResponseEntity.ok(ApiDataResponse.of(restaurantService.findOne(restaurantId)));
 	}
 
+	/**
+	 * 음식점 삭제하기
+	 */
 	@DeleteMapping("/{restaurantId}")
 	@PreAuthorize("hasRole('ROLE_USER')")
 	public ResponseEntity<?> removeRestaurant(
@@ -85,8 +96,10 @@ public class RestaurantController {
 	}
 
 	// ---- review
-	private final ReviewService reviewService;
 
+	/**
+	 * 음식점 리뷰 등록하기
+	 */
 	@PostMapping("/{restaurantId}/review")
 	@PreAuthorize("hasRole('ROLE_USER')")
 	public ResponseEntity<?> registerReview(
@@ -97,6 +110,9 @@ public class RestaurantController {
 		return ResponseEntity.ok(ApiDataResponse.of(reviewService.register(request, restaurantId, userId)));
 	}
 
+	/**
+	 * 음식점 리뷰 목록 조회하기
+	 */
 	@GetMapping("/{restaurantId}/review")
 	@PreAuthorize("hasRole('ROLE_USER')")
 	public ResponseEntity<?> getReviews(
@@ -104,5 +120,57 @@ public class RestaurantController {
 		@AuthenticationPrincipal Long userId
 	) {
 		return ResponseEntity.ok(ApiDataResponse.of(reviewService.findAll(restaurantId, userId)));
+	}
+
+	// ---- like
+
+	/**
+	 * 음식점 좋아요
+	 */
+	@PostMapping("/{restaurantId}/like")
+	@PreAuthorize("hasRole('ROLE_USER')")
+	public ResponseEntity<?> doLike(
+		@PathVariable Long restaurantId,
+		@AuthenticationPrincipal Long userId
+	) {
+		return ResponseEntity.ok(ApiDataResponse.of(likeService.register(restaurantId, userId)));
+	}
+
+	/**
+	 * 음식점 좋아요 취소
+	 */
+	@DeleteMapping("/{restaurantId}/like")
+	@PreAuthorize("hasRole('ROLE_USER')")
+	public ResponseEntity<?> doUnLike(
+		@PathVariable Long restaurantId,
+		@AuthenticationPrincipal Long userId
+	) {
+		return ResponseEntity.ok(ApiDataResponse.of(likeService.remove(restaurantId, userId)));
+	}
+
+	// ---- scrap
+
+	/**
+	 * 음식점 스크랩
+	 */
+	@PostMapping("/{restaurantId}/scrap")
+	@PreAuthorize("hasRole('ROLE_USER')")
+	public ResponseEntity<?> doScrap(
+		@PathVariable Long restaurantId,
+		@AuthenticationPrincipal Long userId
+	) {
+		return ResponseEntity.ok(ApiDataResponse.of(scrapService.register(restaurantId, userId)));
+	}
+
+	/**
+	 * 음식점 스크랩 취소
+	 */
+	@DeleteMapping("/{restaurantId}/scrap")
+	@PreAuthorize("hasRole('ROLE_USER')")
+	public ResponseEntity<?> doUnScrap(
+		@PathVariable Long restaurantId,
+		@AuthenticationPrincipal Long userId
+	) {
+		return ResponseEntity.ok(ApiDataResponse.of(scrapService.remove(restaurantId, userId)));
 	}
 }

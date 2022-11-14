@@ -27,6 +27,9 @@ public class RecentController {
 
     private final RecentService recentService;
 
+    /**
+     * 최근검색어 등록하기
+     */
     @PostMapping
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> registerRecent(
@@ -36,6 +39,9 @@ public class RecentController {
         return ResponseEntity.ok(ApiDataResponse.of(recentService.register(recentRequest, userId)));
     }
 
+    /**
+     * 최근검색어 목록 조회하기
+     */
     @GetMapping
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> getRecents(
@@ -45,12 +51,18 @@ public class RecentController {
         return ResponseEntity.ok(ApiDataResponse.of(recentService.findAll(type, userId)));
     }
 
+    /**
+     * 최근검색어 삭제하기
+     */
     @DeleteMapping("/{recentId}")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> removeOneRecent(@PathVariable Long recentId) {
         return ResponseEntity.ok(ApiDataResponse.of(recentService.removeOne(recentId)));
     }
 
+    /**
+     * 최근검색어 전체 삭제하기
+     */
     @DeleteMapping
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> removeAllRecent(@AuthenticationPrincipal Long userid) {

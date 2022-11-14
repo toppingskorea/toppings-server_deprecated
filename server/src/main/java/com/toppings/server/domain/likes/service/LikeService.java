@@ -11,4 +11,20 @@ import org.springframework.transaction.annotation.Transactional;
 public class LikeService {
 
     private final LikeRepository likeRepository;
+
+	public Object register(
+		Long restaurantId,
+		Long userId
+	) {
+
+		return null;
+	}
+
+	public Object remove(
+		Long restaurantId,
+		Long userId
+	) {
+
+		return null;
+	}
 }

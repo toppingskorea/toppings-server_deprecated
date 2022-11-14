@@ -24,12 +24,18 @@ public class ReviewController {
 
 	private final ReviewService reviewService;
 
+	/**
+	 * 리뷰 상세 조회하기
+	 */
 	@GetMapping("/{reviewId}")
 	@PreAuthorize("hasRole('ROLE_USER')")
 	public ResponseEntity<?> getReview(@PathVariable Long reviewId) {
 		return ResponseEntity.ok(ApiDataResponse.of(reviewService.findOne(reviewId)));
 	}
 
+	/**
+	 * 리뷰 수정하기
+	 */
 	@PutMapping("/{reviewId}")
 	@PreAuthorize("hasRole('ROLE_USER')")
 	public ResponseEntity<?> modifyReview(
@@ -40,6 +46,9 @@ public class ReviewController {
 		return ResponseEntity.ok(ApiDataResponse.of(reviewService.modify(request, reviewId, userId)));
 	}
 
+	/**
+	 * 리뷰 삭제하기
+	 */
 	@DeleteMapping("/{reviewId}")
 	@PreAuthorize("hasRole('ROLE_USER')")
 	public ResponseEntity<?> removeReview(

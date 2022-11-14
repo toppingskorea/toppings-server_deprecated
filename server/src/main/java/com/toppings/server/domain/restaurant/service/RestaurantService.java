@@ -97,6 +97,7 @@ public class RestaurantService {
 
 	public RestaurantResponse findOne(Long restaurantId) {
 		Restaurant restaurant = getRestaurantById(restaurantId);
+		// TODO : 식습관 / 국적별 좋아요 퍼센트 작업 추가
 		return null;
 	}
 }

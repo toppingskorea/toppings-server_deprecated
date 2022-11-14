@@ -1,5 +1,7 @@
 package com.toppings.server.domain.review.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -106,7 +108,7 @@ public class ReviewService {
 		return !review.getUser().getId().equals(user.getId());
 	}
 
-	public Object findAll(
+	public List<ReviewResponse> findAll(
 		Long restaurantId,
 		Long userId
 	) {

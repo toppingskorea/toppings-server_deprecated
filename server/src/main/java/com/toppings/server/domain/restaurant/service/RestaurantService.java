@@ -79,6 +79,7 @@ public class RestaurantService {
 	/**
 	 * 음식점 삭제하기
 	 */
+	@Transactional
 	public Long remove(
 		Long restaurantId,
 		Long userId

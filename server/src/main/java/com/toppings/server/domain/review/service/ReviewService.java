@@ -13,6 +13,7 @@ import com.toppings.server.domain.review.dto.ReviewModifyRequest;
 import com.toppings.server.domain.review.dto.ReviewRequest;
 import com.toppings.server.domain.review.dto.ReviewResponse;
 import com.toppings.server.domain.review.entity.Review;
+import com.toppings.server.domain.review.entity.ReviewAttach;
 import com.toppings.server.domain.review.repository.ReviewRepository;
 import com.toppings.server.domain.user.dto.UserResponse;
 import com.toppings.server.domain.user.entity.User;
@@ -124,8 +125,7 @@ public class ReviewService {
 		Long userId
 	) {
 		Review review = getReviewById(reviewId);
-		User user = getUserById(userId);
-		ReviewResponse reviewResponse = ReviewResponse.entityToDto(review, user);
+		ReviewResponse reviewResponse = ReviewResponse.entityToDto(review, review.getUser());
 		reviewResponse.setIsMine(review.getUser().getId().equals(userId));
 		return reviewResponse;
 	}

@@ -8,6 +8,7 @@ import javax.persistence.ElementCollection;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.toppings.server.domain.restaurant.constant.FoodType;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
 
@@ -20,6 +21,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class RestaurantResponse {
 
 	private Long id;

@@ -28,7 +28,6 @@ public class ReviewController {
 	 * 리뷰 상세 조회하기
 	 */
 	@GetMapping("/{reviewId}")
-	@PreAuthorize("hasRole('ROLE_USER')")
 	public ResponseEntity<?> getReview(
 		@PathVariable Long reviewId,
 		@AuthenticationPrincipal Long userId

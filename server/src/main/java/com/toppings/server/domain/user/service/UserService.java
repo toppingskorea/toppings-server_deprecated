@@ -77,4 +77,16 @@ public class UserService {
 		User user = getUserById(userId);
 		return user.getCountry() != null;
 	}
+
+	public Object findScrapByUser(Long userId) {
+		return null;
+	}
+
+	public Object findRestaurantByUser(Long userId) {
+		return null;
+	}
+
+	public Object findReviewByUser(Long userId) {
+		return null;
+	}
 }

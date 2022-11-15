@@ -56,10 +56,10 @@ public class Restaurant extends BaseEntity {
     @Column(name = "restaurant_type", columnDefinition = "varchar(50)")
     private FoodType type;
 
-    @Column(name = "restaurant_like_count")
+    @Column(name = "restaurant_like_count", columnDefinition = "default 0")
     private Integer likeCount;
 
-    @Column(name = "restaurant_scrap_count")
+    @Column(name = "restaurant_scrap_count", columnDefinition = "default 0")
     private Integer scrapCount;
     
     // 사진 경로랑 주소
@@ -75,5 +75,5 @@ public class Restaurant extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    // 리뷰
+    // 좋아요
 }

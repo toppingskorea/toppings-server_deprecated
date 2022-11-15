@@ -29,8 +29,11 @@ public class ReviewController {
 	 */
 	@GetMapping("/{reviewId}")
 	@PreAuthorize("hasRole('ROLE_USER')")
-	public ResponseEntity<?> getReview(@PathVariable Long reviewId) {
-		return ResponseEntity.ok(ApiDataResponse.of(reviewService.findOne(reviewId)));
+	public ResponseEntity<?> getReview(
+		@PathVariable Long reviewId,
+		@AuthenticationPrincipal Long userId
+	) {
+		return ResponseEntity.ok(ApiDataResponse.of(reviewService.findOne(reviewId, userId)));
 	}
 
 	/**

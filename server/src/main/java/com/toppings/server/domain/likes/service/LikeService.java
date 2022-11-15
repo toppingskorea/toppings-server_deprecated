@@ -30,6 +30,7 @@ public class LikeService {
 		Restaurant restaurant = getRestaurantById(restaurantId);
 
 		Likes like = likeRepository.save(getLikes(userId, restaurant));
+		restaurant.setLikeCount(restaurant.getLikeCount() + 1);
 		return like.getId();
 	}
 
@@ -59,6 +60,7 @@ public class LikeService {
 			.orElseThrow(() -> new GeneralException(ResponseCode.BAD_REQUEST));
 
 		likeRepository.deleteById(like.getId());
+		restaurant.setLikeCount(restaurant.getLikeCount() == 0 ? 0 : restaurant.getLikeCount() - 1);
 		return like.getId();
 	}
 

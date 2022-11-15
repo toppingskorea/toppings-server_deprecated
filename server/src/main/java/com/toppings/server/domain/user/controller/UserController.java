@@ -80,12 +80,27 @@ public class UserController {
 	/**
 	 * 유저 스크랩 조회
 	 */
+	@GetMapping("/scrap")
+	@PreAuthorize("hasRole('ROLE_USER')")
+	public ResponseEntity<?> getScrapByUser(@AuthenticationPrincipal Long userId) {
+		return ResponseEntity.ok(ApiDataResponse.of(userService.findScrapByUser(userId)));
+	}
 
 	/**
 	 * 유저 게시글 조회
 	 */
+	@GetMapping("/restaurant")
+	@PreAuthorize("hasRole('ROLE_USER')")
+	public ResponseEntity<?> getRestaurantByUser(@AuthenticationPrincipal Long userId) {
+		return ResponseEntity.ok(ApiDataResponse.of(userService.findRestaurantByUser(userId)));
+	}
 
 	/**
 	 * 유저 리뷰 조회
 	 */
+	@GetMapping("/review")
+	@PreAuthorize("hasRole('ROLE_USER')")
+	public ResponseEntity<?> getReviewByUser(@AuthenticationPrincipal Long userId) {
+		return ResponseEntity.ok(ApiDataResponse.of(userService.findReviewByUser(userId)));
+	}
 }

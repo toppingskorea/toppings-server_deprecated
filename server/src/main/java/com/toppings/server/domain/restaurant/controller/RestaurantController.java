@@ -20,7 +20,6 @@ import com.toppings.server.domain.restaurant.dto.RestaurantModifyRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantSearchRequest;
 import com.toppings.server.domain.restaurant.service.RestaurantService;
-import com.toppings.server.domain.review.dto.ReviewModifyRequest;
 import com.toppings.server.domain.review.dto.ReviewRequest;
 import com.toppings.server.domain.review.service.ReviewService;
 import com.toppings.server.domain.scrap.service.ScrapService;

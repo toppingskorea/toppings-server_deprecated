@@ -30,6 +30,7 @@ public class ScrapService {
 		Restaurant restaurant = getRestaurantById(restaurantId);
 
 		Scrap scrap = scrapRepository.save(getScrap(userId, restaurant));
+		restaurant.setScrapCount(restaurant.getScrapCount() + 1);
 		return scrap.getId();
 	}
 
@@ -54,6 +55,7 @@ public class ScrapService {
 			.orElseThrow(() -> new GeneralException(ResponseCode.BAD_REQUEST));
 
 		scrapRepository.deleteById(scrap.getId());
+		restaurant.setScrapCount(restaurant.getScrapCount() == 0 ? 0 : restaurant.getScrapCount() - 1);
 		return scrap.getId();
 	}
 

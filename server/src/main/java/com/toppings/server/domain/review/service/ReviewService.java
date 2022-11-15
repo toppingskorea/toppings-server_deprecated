@@ -74,9 +74,7 @@ public class ReviewService {
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
 		ReviewModifyRequest.modifyReviewInfo(review, request);
-		ReviewResponse reviewResponse = ReviewResponse.entityToDto(review);
-		reviewResponse.setUser(UserResponse.entityToDto(user));
-		return reviewResponse;
+		return ReviewResponse.entityToDto(review);
 	}
 
 	/**
@@ -108,18 +106,27 @@ public class ReviewService {
 		return !review.getUser().getId().equals(user.getId());
 	}
 
+	/**
+	 * 음석점 댓글 목록 조회
+	 */
 	public List<ReviewResponse> findAll(
 		Long restaurantId,
 		Long userId
 	) {
-
-		return null;
+		return reviewRepository.findReviewByRestaurantId(restaurantId, userId);
 	}
 
-	public ReviewResponse findOne(Long reviewId) {
+	/**
+	 * 댓글 상세 조회
+	 */
+	public ReviewResponse findOne(
+		Long reviewId,
+		Long userId
+	) {
 		Review review = getReviewById(reviewId);
-		ReviewResponse reviewResponse = ReviewResponse.entityToDto(review);
-		reviewResponse.setUser(UserResponse.entityToDto(review.getUser()));
+		User user = getUserById(userId);
+		ReviewResponse reviewResponse = ReviewResponse.entityToDto(review, user);
+		reviewResponse.setIsMine(review.getUser().getId().equals(userId));
 		return reviewResponse;
 	}
 }

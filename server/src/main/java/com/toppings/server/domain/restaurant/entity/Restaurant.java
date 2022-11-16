@@ -56,20 +56,15 @@ public class Restaurant extends BaseEntity {
     @Column(name = "restaurant_type", columnDefinition = "varchar(50)")
     private FoodType type;
 
-    @Column(name = "restaurant_like_count", columnDefinition = "default 0")
+    @Column(name = "restaurant_like_count", columnDefinition = "int default 0")
     private Integer likeCount;
 
-    @Column(name = "restaurant_scrap_count", columnDefinition = "default 0")
+    @Column(name = "restaurant_scrap_count", columnDefinition = "int default 0")
     private Integer scrapCount;
     
     // 사진 경로랑 주소
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(
-        name = "t_restaurant_attach",
-        joinColumns = @JoinColumn(name = "restaurant_id")
-    )
-    @Column(name = "restaurant_image", columnDefinition = "longtext")
-    private List<String> images;
+    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<RestaurantAttach> images;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

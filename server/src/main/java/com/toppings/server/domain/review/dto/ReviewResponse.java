@@ -29,7 +29,7 @@ public class ReviewResponse {
 
 	private String description;
 
-	private List<String> images;
+	private List<ReviewAttachResponse> images;
 
 	@JsonSerialize(using= LocalDateTimeSerializer.class)
 	@JsonDeserialize(using= LocalDateTimeDeserializer.class)
@@ -39,8 +39,6 @@ public class ReviewResponse {
 	private String name;
 
 	private String country;
-
-	private List<Habit> habits;
 
 	private Boolean isMine;
 
@@ -52,10 +50,8 @@ public class ReviewResponse {
 			.id(review.getId())
 			.description(review.getDescription())
 			.modifiedAt(review.getUpdateDate())
-			.images(review.getImages())
 			.name(user.getName())
 			.country(user.getCountry())
-			.habits(user.getHabits())
 			.build();
 	}
 
@@ -64,7 +60,6 @@ public class ReviewResponse {
 			.id(review.getId())
 			.description(review.getDescription())
 			.modifiedAt(review.getUpdateDate())
-			.images(review.getImages())
 			.build();
 	}
 }

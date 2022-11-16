@@ -1,10 +1,9 @@
 package com.toppings.server.domain.user.dto;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.toppings.server.domain.user.constant.Habit;
-import com.toppings.server.domain.user.entity.User;
+import com.toppings.server.domain.user.constant.HabitTitle;
+import com.toppings.server.domain.user.entity.UserHabit;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,21 +15,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserResponse {
+public class UserHabitResponse {
 
-	private Long id;
+	private HabitTitle title;
 
-	private String name;
+	private Habit content;
 
-	private String country;
-
-	private List<UserHabitResponse> habits;
-
-	public static UserResponse entityToDto(User user) {
-		return UserResponse.builder()
-			.id(user.getId())
-			.name(user.getName())
-			.country(user.getCountry())
+	public static UserHabitResponse entityToDto(UserHabit userHabit) {
+		return UserHabitResponse.builder()
+			.title(userHabit.getTitle())
+			.content(userHabit.getContent())
 			.build();
 	}
 }

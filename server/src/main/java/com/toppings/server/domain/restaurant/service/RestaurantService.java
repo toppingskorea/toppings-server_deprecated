@@ -1,14 +1,22 @@
 package com.toppings.server.domain.restaurant.service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.toppings.common.constants.ResponseCode;
 import com.toppings.common.exception.GeneralException;
+import com.toppings.server.domain.restaurant.dto.RestaurantAttachRequest;
+import com.toppings.server.domain.restaurant.dto.RestaurantAttachResponse;
 import com.toppings.server.domain.restaurant.dto.RestaurantModifyRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantResponse;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
+import com.toppings.server.domain.restaurant.entity.RestaurantAttach;
+import com.toppings.server.domain.restaurant.repository.RestaurantAttachRepository;
 import com.toppings.server.domain.restaurant.repository.RestaurantRepository;
 import com.toppings.server.domain.user.entity.User;
 import com.toppings.server.domain.user.repository.UserRepository;
@@ -23,6 +31,8 @@ public class RestaurantService {
 	private final RestaurantRepository restaurantRepository;
 
 	private final UserRepository userRepository;
+
+	private final RestaurantAttachRepository restaurantAttachRepository;
 
 	/**
 	 * 음식점 등록하기
@@ -39,7 +49,25 @@ public class RestaurantService {
 			throw new GeneralException(ResponseCode.DUPLICATED_ITEM);
 
 		Restaurant saveRestaurant = restaurantRepository.save(RestaurantRequest.dtoToEntity(request, user));
-		return RestaurantResponse.entityToDto(saveRestaurant);
+		List<RestaurantAttachResponse> restaurantAttachResponses = registerRestaurantAttach(request, saveRestaurant);
+
+		RestaurantResponse restaurantResponse = RestaurantResponse.entityToDto(saveRestaurant);
+		restaurantResponse.setImages(restaurantAttachResponses);
+		return restaurantResponse;
+	}
+
+	private List<RestaurantAttachResponse> registerRestaurantAttach(
+		RestaurantRequest request,
+		Restaurant restaurant
+	) {
+		List<RestaurantAttach> restaurantAttaches = new ArrayList<>();
+		for (RestaurantAttachRequest restaurantAttachRequest : request.getImages())
+			restaurantAttaches.add(RestaurantAttachRequest.dtoToEntity(restaurantAttachRequest, restaurant));
+		restaurantAttachRepository.saveAll(restaurantAttaches);
+
+		return restaurantAttaches.stream()
+			.map(RestaurantAttachResponse::dtoToEntity)
+			.collect(Collectors.toList());
 	}
 
 	private User getUserById(Long id) {
@@ -61,7 +89,31 @@ public class RestaurantService {
 
 		RestaurantModifyRequest.setRestaurantInfo(request, restaurant);
 		RestaurantModifyRequest.setMapInfo(request, restaurant);
-		return RestaurantResponse.entityToDto(restaurant);
+
+		List<RestaurantAttachResponse> restaurantAttachResponses = modifyRestaurantAttach(request, restaurant);
+		RestaurantResponse restaurantResponse = RestaurantResponse.entityToDto(restaurant);
+		restaurantResponse.setImages(restaurantAttachResponses);
+		return restaurantResponse;
+	}
+
+	private List<RestaurantAttachResponse> modifyRestaurantAttach(
+		RestaurantModifyRequest request,
+		Restaurant restaurant
+	) {
+		// 기존 이미지 제거
+		restaurantAttachRepository.deleteAllByIdInBatch(
+			restaurant.getImages().stream().map(RestaurantAttach::getId).collect(Collectors.toList()));
+
+		// 신규 이미지 등록
+		List<RestaurantAttach> restaurantAttaches = new ArrayList<>();
+		if (request.getImages() != null && !request.getImages().isEmpty())
+			for (RestaurantAttachRequest restaurantAttachRequest : request.getImages())
+				restaurantAttaches.add(RestaurantAttachRequest.dtoToEntity(restaurantAttachRequest, restaurant));
+		restaurantAttachRepository.saveAll(restaurantAttaches);
+
+		return restaurantAttaches.stream()
+			.map(RestaurantAttachResponse::dtoToEntity)
+			.collect(Collectors.toList());
 	}
 
 	private boolean verifyRestaurantAndUser(

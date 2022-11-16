@@ -62,7 +62,7 @@ public class UserController {
 	@GetMapping
 	@PreAuthorize("hasRole('ROLE_USER')")
 	public ResponseEntity<?> getUser(@AuthenticationPrincipal Long userId) {
-		return ResponseEntity.ok(ApiDataResponse.of(""));
+		return ResponseEntity.ok(ApiDataResponse.of(userService.findOne(userId)));
 	}
 
 	/**

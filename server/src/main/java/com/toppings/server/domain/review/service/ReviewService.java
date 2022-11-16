@@ -1,6 +1,8 @@
 package com.toppings.server.domain.review.service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,12 +11,15 @@ import com.toppings.common.constants.ResponseCode;
 import com.toppings.common.exception.GeneralException;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
 import com.toppings.server.domain.restaurant.repository.RestaurantRepository;
+import com.toppings.server.domain.review.dto.ReviewAttachRequest;
+import com.toppings.server.domain.review.dto.ReviewAttachResponse;
 import com.toppings.server.domain.review.dto.ReviewModifyRequest;
 import com.toppings.server.domain.review.dto.ReviewRequest;
 import com.toppings.server.domain.review.dto.ReviewResponse;
 import com.toppings.server.domain.review.entity.Review;
+import com.toppings.server.domain.review.entity.ReviewAttach;
+import com.toppings.server.domain.review.repository.ReviewAttachRepository;
 import com.toppings.server.domain.review.repository.ReviewRepository;
-import com.toppings.server.domain.user.dto.UserResponse;
 import com.toppings.server.domain.user.entity.User;
 import com.toppings.server.domain.user.repository.UserRepository;
 
@@ -31,6 +36,8 @@ public class ReviewService {
 
 	private final RestaurantRepository restaurantRepository;
 
+	private final ReviewAttachRepository reviewAttachRepository;
+
 	/**
 	 * 댓글 등록하기
 	 */
@@ -42,12 +49,31 @@ public class ReviewService {
 	) {
 		User user = getUserById(userId);
 		Restaurant restaurant = getRestaurantById(restaurantId);
+
 		Review review = ReviewRequest.dtoToEntity(request);
 		review.setUser(user);
 		review.setRestaurant(restaurant);
 
 		Review saveReview = reviewRepository.save(review);
-		return ReviewResponse.entityToDto(saveReview);
+		List<ReviewAttachResponse> reviewAttachResponses = registerReviewAttach(request, saveReview);
+
+		ReviewResponse reviewResponse = ReviewResponse.entityToDto(saveReview);
+		reviewResponse.setImages(reviewAttachResponses);
+		return reviewResponse;
+	}
+
+	private List<ReviewAttachResponse> registerReviewAttach(
+		ReviewRequest request,
+		Review review
+	) {
+		List<ReviewAttach> reviewAttaches = new ArrayList<>();
+		for (ReviewAttachRequest reviewAttachRequest : request.getImages())
+			reviewAttaches.add(ReviewAttachRequest.dtoToEntity(reviewAttachRequest, review));
+		reviewAttachRepository.saveAll(reviewAttaches);
+
+		return reviewAttaches.stream()
+			.map(ReviewAttachResponse::entityToDto)
+			.collect(Collectors.toList());
 	}
 
 	private Restaurant getRestaurantById(Long id) {
@@ -74,7 +100,26 @@ public class ReviewService {
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
 		ReviewModifyRequest.modifyReviewInfo(review, request);
-		return ReviewResponse.entityToDto(review);
+
+		List<ReviewAttachResponse> reviewAttachResponses = modifyReviewAttach(request, review);
+		ReviewResponse reviewResponse = ReviewResponse.entityToDto(review);
+		reviewResponse.setImages(reviewAttachResponses);
+		return reviewResponse;
+	}
+
+	private List<ReviewAttachResponse> modifyReviewAttach(
+		ReviewModifyRequest request,
+		Review review
+	) {
+		List<ReviewAttach> reviewAttaches = new ArrayList<>();
+		if (request.getImages() != null && !request.getImages().isEmpty())
+			for (ReviewAttachRequest reviewAttachRequest : request.getImages())
+				reviewAttaches.add(ReviewAttachRequest.dtoToEntity(reviewAttachRequest, review));
+		reviewAttachRepository.saveAll(reviewAttaches);
+
+		return reviewAttaches.stream()
+			.map(ReviewAttachResponse::entityToDto)
+			.collect(Collectors.toList());
 	}
 
 	/**

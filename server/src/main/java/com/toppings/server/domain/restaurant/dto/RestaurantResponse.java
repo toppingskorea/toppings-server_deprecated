@@ -44,7 +44,7 @@ public class RestaurantResponse {
 		joinColumns = @JoinColumn(name = "user_id")
 	)
 	@Column(name = "user_habit", columnDefinition = "varchar(100)")
-	private List<String> images;
+	private List<RestaurantAttachResponse> images;
 
 	private String code;
 
@@ -74,7 +74,6 @@ public class RestaurantResponse {
 			.latitude(restaurant.getLatitude())
 			.longitude(restaurant.getLongitude())
 			.code(restaurant.getCode())
-			.images(restaurant.getImages())
 			.build();
 	}
 }

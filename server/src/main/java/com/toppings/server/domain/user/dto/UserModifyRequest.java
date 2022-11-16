@@ -1,5 +1,7 @@
 package com.toppings.server.domain.user.dto;
 
+import java.util.List;
+
 import com.toppings.server.domain.user.constant.Habit;
 
 import lombok.AllArgsConstructor;
@@ -17,5 +19,7 @@ public class UserModifyRequest {
 
 	private String country;
 
-	private Habit habit;
+	private List<UserHabitRequest> habit;
+
+	private String profile;
 }

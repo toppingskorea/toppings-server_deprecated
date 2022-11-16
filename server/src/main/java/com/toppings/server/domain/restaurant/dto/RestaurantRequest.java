@@ -47,7 +47,7 @@ public class RestaurantRequest {
 
 	@NotNull(message = "이미지를 확인해주세요")
 	@Size(min = 1, message = "이미지를 확인해주세요")
-	private List<String> images;
+	private List<RestaurantAttachRequest> images;
 
 	public static Restaurant dtoToEntity(
 		RestaurantRequest request,
@@ -62,7 +62,6 @@ public class RestaurantRequest {
 			.longitude(request.getLongitude())
 			.type(request.getType())
 			.code(request.getCode())
-			.images(request.getImages())
 			.user(user)
 			.build();
 	}

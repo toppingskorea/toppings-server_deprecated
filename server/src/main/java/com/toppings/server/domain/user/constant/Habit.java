@@ -12,7 +12,6 @@ public enum Habit {
     NoSugar,
 
     // Religion
-    Religion,
     Buddhism,
     Hinduism,
     Islam

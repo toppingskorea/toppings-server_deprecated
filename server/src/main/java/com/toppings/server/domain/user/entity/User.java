@@ -2,6 +2,7 @@ package com.toppings.server.domain.user.entity;
 
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -13,6 +14,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.DynamicInsert;
@@ -58,13 +60,8 @@ public class User extends BaseEntity {
 	@Column(name = "user_country", columnDefinition = "varchar(200)")
 	private String country;
 
-	@ElementCollection(fetch = FetchType.EAGER)
-	@CollectionTable(
-		name = "t_eating_habit",
-		joinColumns = @JoinColumn(name = "user_id")
-	)
-	@Column(name = "user_habit", columnDefinition = "varchar(100)")
-	private List<Habit> habits;
+	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+	private List<UserHabit> habits;
 
 	@Column(name = "user_role", columnDefinition = "varchar(20)")
 	@Enumerated(EnumType.STRING)

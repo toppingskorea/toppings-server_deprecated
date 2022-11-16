@@ -39,11 +39,6 @@ public class Review extends BaseEntity {
     @Column(name = "review_description", columnDefinition = "text")
     private String description;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(
-        name = "t_review_attach",
-        joinColumns = @JoinColumn(name = "review_id")
-    )
-    @Column(name = "review_images", columnDefinition = "longtext")
-    private List<String> images;
+    @OneToMany(mappedBy = "review", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<ReviewAttach> images;
 }

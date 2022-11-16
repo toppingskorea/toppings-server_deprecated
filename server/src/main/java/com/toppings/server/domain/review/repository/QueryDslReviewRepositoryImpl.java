@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.toppings.server.domain.review.dto.ReviewResponse;
 
@@ -28,11 +30,15 @@ public class QueryDslReviewRepositoryImpl implements QueryDslReviewRepository {
 		return queryFactory.select(
 			Projections.fields(ReviewResponse.class, review.id, review.description, review.images,
 				review.updateDate.as("modifiedAt"), review.user.name, review.user.country, review.user.habits,
-				review.user.id.eq(userId).as("isMine")
+				getIsMine(userId)
 			))
 			.from(review)
 			.where(review.restaurant.id.eq(restaurantId))
 			.orderBy(review.updateDate.desc())
 			.fetch();
+	}
+
+	private BooleanExpression getIsMine(Long userId) {
+		return userId != null ? review.user.id.eq(userId).as("isMine") : Expressions.asBoolean(false).as("isMine");
 	}
 }

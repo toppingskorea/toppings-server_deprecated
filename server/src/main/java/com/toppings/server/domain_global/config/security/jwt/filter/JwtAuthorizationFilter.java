@@ -35,8 +35,6 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
 	private final UserService userService;
 
-	private final ServletContext servletContext;
-
 	private static final Logger logger = LoggerFactory.getLogger(RequestLogAspect.class);
 
 	private final List<String> nonAuthUrl = List.of("none");
@@ -48,12 +46,10 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 	public JwtAuthorizationFilter(
 		AuthenticationManager authenticationManager,
 		UserService userService,
-		ServletContext servletContext,
 		boolean isProd
 	) {
 		super(authenticationManager);
 		this.userService = userService;
-		this.servletContext = servletContext;
 		this.isProd = isProd;
 	}
 
@@ -70,6 +66,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 			// String refreshToken = getRefreshToken(request);
 			if (idValidAccessToken(accessToken)) {
 				logger.debug("accessToken : " + accessToken);
+				System.out.println("accessToken : " + accessToken);
 				addAuthenticationTokenInSecurityContext(accessToken);
 			} /* else if (isValidRefreshToken(refreshToken)) {
 				logger.debug("refreshToken : " + refreshToken);

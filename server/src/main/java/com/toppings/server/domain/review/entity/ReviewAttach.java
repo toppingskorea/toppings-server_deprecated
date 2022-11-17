@@ -41,7 +41,7 @@ public class ReviewAttach {
 	private String image;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "reivew_id")
+	@JoinColumn(name = "review_id")
 	@JsonIgnoreProperties({"images"})
 	@ToString.Exclude
 	@JsonIgnore

@@ -32,11 +32,6 @@ public class UserService {
 
 	private final UserHabitRepository userHabitRepository;
 
-
-	public User findUserByToken(String token) {
-		return userRepository.findUserByToken(token).orElseThrow(() -> new GeneralException(ResponseCode.BAD_REQUEST));
-	}
-
 	/**
 	 * 회원 가입
 	 */

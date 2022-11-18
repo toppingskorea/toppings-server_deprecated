@@ -75,9 +75,7 @@ public class UserService {
 		Long userId
 	) {
 		User user = getUserById(userId);
-		user.setName(request.getName() != null ? request.getName() : user.getName());
-		user.setCountry(
-			request.getCountry() != null ? request.getCountry() : user.getCountry());
+		UserModifyRequest.modifyUserInfo(request, user);
 		List<UserHabitResponse> userHabitResponses = modifyUserHabit(request, user);
 
 		UserResponse userResponse = UserResponse.entityToDto(user);
@@ -95,10 +93,11 @@ public class UserService {
 
 		// 신규 식습관 등록
 		List<UserHabit> userHabits = new ArrayList<>();
-		if (request.getHabit() != null && !request.getHabit().isEmpty())
+		if (request.getHabit() != null && !request.getHabit().isEmpty()) {
 			for (UserHabitRequest habitRequest : request.getHabit())
 				userHabits.add(UserHabitRequest.createUserHabit(habitRequest, user));
-		userHabitRepository.saveAll(userHabits);
+			userHabitRepository.saveAll(userHabits);
+		}
 
 		return userHabits.stream()
 			.map(UserHabitResponse::entityToDto)

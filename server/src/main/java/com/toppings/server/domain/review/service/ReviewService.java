@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.toppings.common.constants.ResponseCode;
 import com.toppings.common.exception.GeneralException;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
+import com.toppings.server.domain.restaurant.entity.RestaurantAttach;
 import com.toppings.server.domain.restaurant.repository.RestaurantRepository;
 import com.toppings.server.domain.review.dto.ReviewAttachRequest;
 import com.toppings.server.domain.review.dto.ReviewAttachResponse;
@@ -112,10 +113,18 @@ public class ReviewService {
 		Review review
 	) {
 		List<ReviewAttach> reviewAttaches = new ArrayList<>();
-		if (request.getImages() != null && !request.getImages().isEmpty())
+		if (request.getImages() != null && !request.getImages().isEmpty()) {
+			// 기존 이미지 제거
+			reviewAttachRepository.deleteAllByIdInBatch(
+				review.getImages().stream().map(ReviewAttach::getId).collect(Collectors.toList()));
+
+			// 신규 이미지 등록
 			for (ReviewAttachRequest reviewAttachRequest : request.getImages())
 				reviewAttaches.add(ReviewAttachRequest.dtoToEntity(reviewAttachRequest, review));
-		reviewAttachRepository.saveAll(reviewAttaches);
+			reviewAttachRepository.saveAll(reviewAttaches);
+		} else {
+			throw new GeneralException(ResponseCode.BAD_REQUEST);
+		}
 
 		return reviewAttaches.stream()
 			.map(ReviewAttachResponse::entityToDto)

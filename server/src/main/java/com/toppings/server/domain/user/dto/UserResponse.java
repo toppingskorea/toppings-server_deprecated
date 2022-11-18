@@ -26,11 +26,14 @@ public class UserResponse {
 
 	private List<UserHabitResponse> habits;
 
+	private String profile;
+
 	public static UserResponse entityToDto(User user) {
 		return UserResponse.builder()
 			.id(user.getId())
 			.name(user.getName())
 			.country(user.getCountry())
+			.profile(user.getProfile())
 			.build();
 	}
 }

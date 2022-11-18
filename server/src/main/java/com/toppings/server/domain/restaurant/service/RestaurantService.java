@@ -101,16 +101,19 @@ public class RestaurantService {
 		RestaurantModifyRequest request,
 		Restaurant restaurant
 	) {
-		// 기존 이미지 제거
-		restaurantAttachRepository.deleteAllByIdInBatch(
-			restaurant.getImages().stream().map(RestaurantAttach::getId).collect(Collectors.toList()));
-
-		// 신규 이미지 등록
 		List<RestaurantAttach> restaurantAttaches = new ArrayList<>();
-		if (request.getImages() != null && !request.getImages().isEmpty())
+		if (request.getImages() != null && !request.getImages().isEmpty()) {
+			// 기존 이미지 제거
+			restaurantAttachRepository.deleteAllByIdInBatch(
+				restaurant.getImages().stream().map(RestaurantAttach::getId).collect(Collectors.toList()));
+
+			// 신규 이미지 등록
 			for (RestaurantAttachRequest restaurantAttachRequest : request.getImages())
 				restaurantAttaches.add(RestaurantAttachRequest.dtoToEntity(restaurantAttachRequest, restaurant));
-		restaurantAttachRepository.saveAll(restaurantAttaches);
+			restaurantAttachRepository.saveAll(restaurantAttaches);
+		} else {
+			throw new GeneralException(ResponseCode.BAD_REQUEST);
+		}
 
 		return restaurantAttaches.stream()
 			.map(RestaurantAttachResponse::dtoToEntity)

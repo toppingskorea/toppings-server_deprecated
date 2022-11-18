@@ -37,10 +37,6 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
 	private static final Logger logger = LoggerFactory.getLogger(RequestLogAspect.class);
 
-	private final List<String> nonAuthUrl = List.of("none");
-
-	private final List<String> nonAuthPathVariableUrl = List.of("none");
-
 	private final boolean isProd;
 
 	public JwtAuthorizationFilter(
@@ -59,19 +55,13 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 		HttpServletResponse response,
 		FilterChain chain
 	) throws IOException, ServletException {
-		String requestUrl = request.getRequestURI();
-		String method = request.getMethod();
-		if (isDomainCheck(request) && isNonAuthUrl(requestUrl, method)) {
+		if (isDomainCheck(request)) {
 			String accessToken = getAccessToken(request);
-			// String refreshToken = getRefreshToken(request);
 			if (idValidAccessToken(accessToken)) {
 				logger.debug("accessToken : " + accessToken);
 				System.out.println("accessToken : " + accessToken);
 				addAuthenticationTokenInSecurityContext(accessToken);
-			} /* else if (isValidRefreshToken(refreshToken)) {
-				logger.debug("refreshToken : " + refreshToken);
-				addAuthenticationAfterRefreshTokenValidation(response, refreshToken);
-			}*/
+			}
 		}
 		chain.doFilter(request, response);
 	}
@@ -90,84 +80,11 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 			return true;
 	}
 
-	private boolean isPathVariable(String url) {
-		String subUrl = url.substring(url.lastIndexOf("/") + 1);
-		return subUrl.chars().allMatch(Character::isDigit);
-	}
-
-	private String getUrlWithoutPathVariable(String url) {
-		return url.substring(url.indexOf("/"), url.lastIndexOf("/"));
-	}
-
-	private boolean isNonAuthPathVariableUrl(
-		String url,
-		String method
-	) {
-		return isPathVariable(url) && method.equals("GET") && nonAuthPathVariableUrl.contains(
-			getUrlWithoutPathVariable(url));
-	}
-
-	private boolean isNonAuthUrl(
-		String requestUrl,
-		String method
-	) {
-		if (nonAuthUrl.contains(requestUrl))
-			return false;
-		else
-			return !isNonAuthPathVariableUrl(requestUrl, method);
-	}
-
-	private void addAuthenticationAfterRefreshTokenValidation(
-		HttpServletResponse response,
-		String refreshToken
-	) {
-		User user = userService.findUserByRefreshToken(refreshToken).orElse(null);
-		if (user != null) {
-			String newAccessToken = createNewAccessToken(response, user);
-			logger.debug("newAccessToken : " + newAccessToken);
-			addAuthenticationTokenInSecurityContext(newAccessToken);
-			// String newRefreshToken = JwtUtils.makeRefreshTokenCookie(response, user.getUserId());
-			// userRepository.updateUserRefreshTokenByUserId(user.getUserId(), newRefreshToken);
-			/*
-				- 리프레시 토큰 탈취
-					- 악의적인 사용자가 리프레시 토큰 탈취 시 access token 을 만료시간까지 계속 발급받을 수 있다.
-				- 대응방안
-					1. refresh token 을 access token 과 같이 갱신 후 refresh token 이 다르면 폐기
-					2. access token 도 같이 1대1로 저장 후 다를 경우 폐기 (redis)
-			*/
-		} /*else {
-			logger.info("remove refresh token cookie");
-			Long userId = JwtUtils.getUserId(refreshToken);
-			userRepository.updateUserRefreshTokenByUserId(userId, null);
-			removeRefreshTokenCookie(response);
-		}*/
-	}
-
-	private void removeRefreshTokenCookie(HttpServletResponse response) {
-		Cookie refreshTokenCookie = new Cookie(JwtProperties.JWT_REFRESH_HEADER, null);
-		refreshTokenCookie.setMaxAge(0);
-		response.addCookie(refreshTokenCookie);
-	}
-
-	private String createNewAccessToken(
-		HttpServletResponse response,
-		User user
-	) {
-		String newAccessToken = JwtUtils.createAccessToken(user);
-		response.addHeader(JwtProperties.JWT_ACCESS_HEADER, newAccessToken);
-		return newAccessToken;
-	}
-
-	private String createNewAccessTokenWithOutHeader(User user) {
-		return JwtUtils.createAccessToken(user);
-	}
-
 	private void addAuthenticationTokenInSecurityContext(String accessToken) {
 		Long userId = JwtUtils.getUserId(accessToken);
-		String role = JwtUtils.getUserRole(accessToken);
-		logger.debug("role : " + role);
 		logger.debug("userId : " + userId);
-		SecurityContextHolder.getContext().setAuthentication(getAuthenticationToken(userId, role));
+		SecurityContextHolder.getContext()
+			.setAuthentication(getAuthenticationToken(userId, userService.findUserRole(userId)));
 	}
 
 	private UsernamePasswordAuthenticationToken getAuthenticationToken(
@@ -181,28 +98,12 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 		return null;
 	}
 
-	private String getRefreshToken(HttpServletRequest request) {
-		try {
-			return Arrays.stream(request.getCookies())
-				.filter(cookie -> cookie.getName().equals(JwtProperties.JWT_REFRESH_HEADER))
-				.findFirst()
-				.map(Cookie::getValue)
-				.orElse(null);
-		} catch (Exception e) {
-			return null;
-		}
-	}
-
 	private String getAccessToken(HttpServletRequest request) {
 		String bearerToken = request.getHeader(JwtProperties.JWT_ACCESS_HEADER);
 		if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(JwtProperties.TOKEN_PREFIX))
 			return bearerToken.substring(7);
 		else
 			return null;
-	}
-
-	private boolean isValidRefreshToken(String refreshToken) {
-		return refreshToken != null && JwtUtils.validateToken(refreshToken);
 	}
 
 	private boolean idValidAccessToken(String accessToken) {

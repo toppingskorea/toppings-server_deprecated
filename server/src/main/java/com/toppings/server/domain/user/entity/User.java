@@ -67,8 +67,8 @@ public class User extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	private Auth role;
 
-	@Column(name = "refresh_token", columnDefinition = "varchar(200)")
-	private String refreshToken;
+	@Column(name = "user_token", columnDefinition = "varchar(255)")
+	private String token;
 
 	@Column(name = "delete_yn", columnDefinition = "varchar(1) default 'N'")
 	private String deleteYn;

@@ -19,22 +19,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	Optional<User> findUserByUsername(String username);
 
-	Optional<User> findUserByIdAndDeleteYn(
-		Long userId,
-		String deleteYn
-	);
-
-	@Modifying(clearAutomatically = true)
-	@Transactional
-	@Query("UPDATE User u SET u.refreshToken = :refreshToken WHERE u.id = :userId AND u.deleteYn = :delYn")
-	void updateUserRefreshTokenByUserId(
-		@Param("userId") Long userId,
-		@Param("refreshToken") String refreshToken,
-		@Param("delYn") String delYn
-	);
-
-	Optional<User> findUserByRefreshTokenAndDeleteYn(
-		String refreshToken,
-		String delYn
-	);
+	Optional<User> findUserByToken(String token);
 }

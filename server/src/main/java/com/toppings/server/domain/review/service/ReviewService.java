@@ -12,6 +12,7 @@ import com.toppings.common.exception.GeneralException;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
 import com.toppings.server.domain.restaurant.repository.RestaurantRepository;
 import com.toppings.server.domain.review.dto.ReviewAttachRequest;
+import com.toppings.server.domain.review.dto.ReviewListResponse;
 import com.toppings.server.domain.review.dto.ReviewModifyRequest;
 import com.toppings.server.domain.review.dto.ReviewRequest;
 import com.toppings.server.domain.review.dto.ReviewResponse;
@@ -53,6 +54,7 @@ public class ReviewService {
 		Review review = ReviewRequest.dtoToEntity(request);
 		review.setUser(user);
 		review.setRestaurant(restaurant);
+		review.setThumbnail(request.getImages().get(0));
 
 		Review saveReview = reviewRepository.save(review);
 		List<String> images = registerReviewAttach(request, saveReview);
@@ -97,11 +99,11 @@ public class ReviewService {
 		if (verifyReviewAndUser(review, userId))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
-		ReviewModifyRequest.modifyReviewInfo(review, request);
-
-		List<String> reviewAttachResponses = modifyReviewAttach(request, review);
+		List<String> images = modifyReviewAttach(request, review);
 		ReviewResponse reviewResponse = ReviewResponse.entityToDto(review);
-		reviewResponse.setImages(reviewAttachResponses);
+		reviewResponse.setImages(images);
+
+		ReviewModifyRequest.modifyReviewInfo(review, request, images.get(0));
 		return reviewResponse;
 	}
 
@@ -167,7 +169,7 @@ public class ReviewService {
 	/**
 	 * 음석점 댓글 목록 조회
 	 */
-	public List<ReviewResponse> findAll(
+	public List<ReviewListResponse> findAll(
 		Long restaurantId,
 		Long userId
 	) {

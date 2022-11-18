@@ -41,4 +41,7 @@ public class Review extends BaseEntity {
 
     @OneToMany(mappedBy = "review", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<ReviewAttach> images;
+
+    @Column(name = "review_thumbnail", columnDefinition = "longtext")
+    private String thumbnail;
 }

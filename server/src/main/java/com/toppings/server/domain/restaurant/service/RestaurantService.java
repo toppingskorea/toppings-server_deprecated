@@ -42,7 +42,7 @@ public class RestaurantService {
 		RestaurantRequest request,
 		Long userId
 	) {
-		// TODO: user 만들 때 그냥 빌더로 만들지 고민
+		// TODO: user 만들 때 그냥 빌더로 만들지 고민 + 맨 처음 이미지가 목록 이미지라서 따로 저장할까 고민
 		User user = getUserById(userId);
 		Restaurant restaurant = restaurantRepository.findRestaurantByCode(request.getCode()).orElse(null);
 		if (restaurant != null)

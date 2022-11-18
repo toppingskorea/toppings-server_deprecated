@@ -73,5 +73,8 @@ public class Restaurant extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Column(name = "restaurant_thumbnail", columnDefinition = "longtext")
+    private String thumbnail;
+
     // 좋아요
 }

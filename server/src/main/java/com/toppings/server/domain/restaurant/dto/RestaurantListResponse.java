@@ -2,12 +2,6 @@ package com.toppings.server.domain.restaurant.dto;
 
 import java.util.List;
 
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.toppings.server.domain.restaurant.constant.FoodType;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
@@ -22,7 +16,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class RestaurantResponse {
+public class RestaurantListResponse {
 
 	private Long id;
 
@@ -38,9 +32,7 @@ public class RestaurantResponse {
 
 	private FoodType type;
 
-	private List<String> images;
-
-	private String code;
+	private String images;
 
 	// 좋아요 갯수
 	private Long likeCount;
@@ -53,10 +45,8 @@ public class RestaurantResponse {
 
 	private Boolean isLike;
 
-	private Boolean isScrap;
-
-	public static RestaurantResponse entityToDto(Restaurant restaurant) {
-		return RestaurantResponse.builder()
+	public static RestaurantListResponse entityToDto(Restaurant restaurant) {
+		return RestaurantListResponse.builder()
 			.id(restaurant.getId())
 			.name(restaurant.getName())
 			.type(restaurant.getType())
@@ -64,7 +54,6 @@ public class RestaurantResponse {
 			.description(restaurant.getDescription())
 			.latitude(restaurant.getLatitude())
 			.longitude(restaurant.getLongitude())
-			.code(restaurant.getCode())
 			.build();
 	}
 }

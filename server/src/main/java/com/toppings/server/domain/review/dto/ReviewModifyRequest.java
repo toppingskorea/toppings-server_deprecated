@@ -23,7 +23,12 @@ public class ReviewModifyRequest {
 
 	private List<String> images;
 
-	public static void modifyReviewInfo(Review review, ReviewModifyRequest request) {
+	public static void modifyReviewInfo(
+		Review review,
+		ReviewModifyRequest request,
+		String image
+	) {
 		review.setDescription(request.getDescription() != null ? request.getDescription() : review.getDescription());
+		review.setThumbnail(image);
 	}
 }

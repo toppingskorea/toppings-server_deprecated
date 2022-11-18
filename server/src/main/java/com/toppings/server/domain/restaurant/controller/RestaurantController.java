@@ -114,7 +114,6 @@ public class RestaurantController {
 	 * 음식점 리뷰 목록 조회하기
 	 */
 	@GetMapping("/{restaurantId}/review")
-	// @PreAuthorize("hasRole('ROLE_USER')")
 	public ResponseEntity<?> getReviews(
 		@PathVariable Long restaurantId,
 		@AuthenticationPrincipal Long userId

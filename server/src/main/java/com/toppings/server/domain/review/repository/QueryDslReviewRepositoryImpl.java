@@ -28,17 +28,18 @@ public class QueryDslReviewRepositoryImpl implements QueryDslReviewRepository {
 		Long userId
 	) {
 		return queryFactory.select(
-			Projections.fields(ReviewResponse.class, review.id, review.description, review.images,
-				review.updateDate.as("modifiedAt"), review.user.name, review.user.country, review.user.habits,
-				getIsMine(userId)
+			Projections.fields(ReviewResponse.class, review.id, review.description,
+				review.updateDate.as("modifiedAt"), review.user.name, review.user.country,
+				getIsMine(userId).as("isMine")
 			))
 			.from(review)
+			.innerJoin(review.user)
 			.where(review.restaurant.id.eq(restaurantId))
 			.orderBy(review.updateDate.desc())
 			.fetch();
 	}
 
 	private BooleanExpression getIsMine(Long userId) {
-		return userId != null ? review.user.id.eq(userId).as("isMine") : Expressions.asBoolean(false).as("isMine");
+		return userId != null ? review.user.id.eq(userId) : Expressions.asBoolean(false);
 	}
 }

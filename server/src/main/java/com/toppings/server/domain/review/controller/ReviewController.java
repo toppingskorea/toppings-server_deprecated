@@ -52,7 +52,7 @@ public class ReviewController {
 	 * 리뷰 삭제하기
 	 */
 	@DeleteMapping("/{reviewId}")
-	@PreAuthorize("hasRole('ROLE_USER')")
+	@PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
 	public ResponseEntity<?> removeReview(
 		@PathVariable Long reviewId,
 		@AuthenticationPrincipal Long userId

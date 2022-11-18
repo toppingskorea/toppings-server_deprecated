@@ -20,6 +20,7 @@ import com.toppings.server.domain.review.entity.Review;
 import com.toppings.server.domain.review.entity.ReviewAttach;
 import com.toppings.server.domain.review.repository.ReviewAttachRepository;
 import com.toppings.server.domain.review.repository.ReviewRepository;
+import com.toppings.server.domain.user.constant.Auth;
 import com.toppings.server.domain.user.entity.User;
 import com.toppings.server.domain.user.repository.UserRepository;
 
@@ -95,8 +96,7 @@ public class ReviewService {
 		Long userId
 	) {
 		Review review = getReviewById(reviewId);
-		User user = getUserById(userId);
-		if (verifyReviewAndUser(review, user))
+		if (verifyReviewAndUser(review, userId))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
 		ReviewModifyRequest.modifyReviewInfo(review, request);
@@ -148,8 +148,16 @@ public class ReviewService {
 		Review review,
 		User user
 	) {
-		return !review.getUser().getId().equals(user.getId());
+		return !user.getRole().equals(Auth.ROLE_ADMIN) && !review.getUser().getId().equals(user.getId());
 	}
+
+	private boolean verifyReviewAndUser(
+		Review review,
+		Long userId
+	) {
+		return !review.getUser().getId().equals(userId);
+	}
+
 
 	/**
 	 * 음석점 댓글 목록 조회

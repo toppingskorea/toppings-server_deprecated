@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.toppings.common.constants.ResponseCode;
 import com.toppings.common.exception.GeneralException;
+import com.toppings.server.domain.user.constant.Auth;
 import com.toppings.server.domain.user.dto.UserHabitRequest;
 import com.toppings.server.domain.user.dto.UserHabitResponse;
 import com.toppings.server.domain.user.dto.UserModifyRequest;
@@ -32,21 +33,6 @@ public class UserService {
 	private final UserHabitRepository userHabitRepository;
 
 	/**
-	 * Refresh token 수정
-	 */
-	@Transactional
-	public void updateUserRefreshTokenByUserId(
-		Long userId,
-		String refreshToken
-	) {
-		userRepository.updateUserRefreshTokenByUserId(userId, refreshToken, "N");
-	}
-
-	public Optional<User> findUserByRefreshToken(String refreshToken) {
-		return userRepository.findUserByRefreshTokenAndDeleteYn(refreshToken, "N");
-	}
-
-	/**
 	 * 회원 가입
 	 */
 	@Transactional
@@ -59,6 +45,7 @@ public class UserService {
 			throw new GeneralException(ResponseCode.DUPLICATED_USER);
 
 		user.setCountry(request.getCountry());
+		user.setRole(Auth.ROLE_USER);
 		List<UserHabitResponse> userHabitResponses = registerUserHabit(request, user);
 		UserResponse userResponse = UserResponse.entityToDto(user);
 		userResponse.setHabits(userHabitResponses);
@@ -129,6 +116,15 @@ public class UserService {
 		User user = getUserById(userId);
 		return user.getCountry() != null;
 	}
+
+	/**
+	 * 회원 권한 조회
+	 */
+	public String findUserRole(Long userId) {
+		User user = getUserById(userId);
+		return user.getRole().name();
+	}
+
 
 	/**
 	 * 회원 정보 조회

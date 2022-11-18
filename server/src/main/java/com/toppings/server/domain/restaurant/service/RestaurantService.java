@@ -18,6 +18,7 @@ import com.toppings.server.domain.restaurant.entity.Restaurant;
 import com.toppings.server.domain.restaurant.entity.RestaurantAttach;
 import com.toppings.server.domain.restaurant.repository.RestaurantAttachRepository;
 import com.toppings.server.domain.restaurant.repository.RestaurantRepository;
+import com.toppings.server.domain.user.constant.Auth;
 import com.toppings.server.domain.user.entity.User;
 import com.toppings.server.domain.user.repository.UserRepository;
 
@@ -117,6 +118,13 @@ public class RestaurantService {
 	}
 
 	private boolean verifyRestaurantAndUser(
+		User user,
+		Restaurant restaurant
+	) {
+		return !user.getRole().equals(Auth.ROLE_ADMIN) && !restaurant.getUser().getId().equals(user.getId());
+	}
+
+	private boolean verifyRestaurantAndUser(
 		Long userId,
 		Restaurant restaurant
 	) {
@@ -137,7 +145,8 @@ public class RestaurantService {
 		Long userId
 	) {
 		Restaurant restaurant = getRestaurantById(restaurantId);
-		if (verifyRestaurantAndUser(userId, restaurant))
+		User user = getUserById(userId);
+		if (verifyRestaurantAndUser(user, restaurant))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
 		restaurantRepository.deleteById(restaurantId);

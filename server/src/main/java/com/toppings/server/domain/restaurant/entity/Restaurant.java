@@ -61,6 +61,9 @@ public class Restaurant extends BaseEntity {
 
     @Column(name = "restaurant_scrap_count", columnDefinition = "int default 0")
     private Integer scrapCount;
+
+    @Column(name = "public_yn", columnDefinition = "varchar(1) default 'N'")
+    private String publicYn;
     
     // 사진 경로랑 주소
     @OneToMany(mappedBy = "restaurant", cascade = CascadeType.REMOVE, orphanRemoval = true)

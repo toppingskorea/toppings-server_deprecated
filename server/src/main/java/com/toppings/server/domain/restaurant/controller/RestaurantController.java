@@ -87,7 +87,7 @@ public class RestaurantController {
 	 * 음식점 삭제하기
 	 */
 	@DeleteMapping("/{restaurantId}")
-	@PreAuthorize("hasRole('ROLE_USER')")
+	@PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
 	public ResponseEntity<?> removeRestaurant(
 		@PathVariable Long restaurantId,
 		@AuthenticationPrincipal Long userId

@@ -30,7 +30,7 @@ public class UserController {
 	 * 회원가입
 	 */
 	@PostMapping
-	@PreAuthorize("hasRole('ROLE_USER')")
+	@PreAuthorize("hasRole('ROLE_TEMP')")
 	public ResponseEntity<?> registerUser(
 		@Valid @RequestBody UserRegisterRequest userRegisterRequest,
 		@AuthenticationPrincipal Long userId
@@ -51,7 +51,7 @@ public class UserController {
 	 * 유저 회원가입 검증
 	 */
 	@GetMapping("/reg-check")
-	@PreAuthorize("hasRole('ROLE_USER')")
+	@PreAuthorize("hasRole('ROLE_TEMP') or hasRole('ROLE_USER')")
 	public ResponseEntity<?> verifyRegister(@AuthenticationPrincipal Long userId) {
 		return ResponseEntity.ok(ApiDataResponse.of(userService.verifyRegister(userId)));
 	}

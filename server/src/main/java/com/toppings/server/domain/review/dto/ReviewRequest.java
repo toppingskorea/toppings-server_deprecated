@@ -25,7 +25,7 @@ public class ReviewRequest {
 
 	@NotNull(message = "이미지를 확인해주세요")
 	@Size(min = 1, message = "이미지를 확인해주세요")
-	private List<ReviewAttachRequest> images;
+	private List<String> images;
 
 	public static Review dtoToEntity(ReviewRequest request) {
 		return Review.builder()

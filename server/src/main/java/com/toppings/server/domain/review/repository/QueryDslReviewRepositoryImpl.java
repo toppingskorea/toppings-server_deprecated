@@ -32,7 +32,6 @@ public class QueryDslReviewRepositoryImpl implements QueryDslReviewRepository {
 	) {
 		return queryFactory.select(
 			Projections.fields(ReviewResponse.class, review.id, review.description,
-				Projections.list(Projections.fields(ReviewAttachResponse.class, reviewAttach.image.as("name"))),
 				review.updateDate.as("modifiedAt"), review.user.name, review.user.country,
 				getIsMine(userId).as("isMine")
 			))

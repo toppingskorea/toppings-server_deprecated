@@ -38,13 +38,7 @@ public class RestaurantResponse {
 
 	private FoodType type;
 
-	@ElementCollection(fetch = FetchType.EAGER)
-	@CollectionTable(
-		name = "t_eating_habit",
-		joinColumns = @JoinColumn(name = "user_id")
-	)
-	@Column(name = "user_habit", columnDefinition = "varchar(100)")
-	private List<RestaurantAttachResponse> images;
+	private List<String> images;
 
 	private String code;
 

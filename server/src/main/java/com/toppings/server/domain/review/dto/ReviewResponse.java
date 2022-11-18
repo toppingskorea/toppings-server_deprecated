@@ -29,7 +29,7 @@ public class ReviewResponse {
 
 	private String description;
 
-	private List<ReviewAttachResponse> images;
+	private List<String> images;
 
 	@JsonSerialize(using= LocalDateTimeSerializer.class)
 	@JsonDeserialize(using= LocalDateTimeDeserializer.class)

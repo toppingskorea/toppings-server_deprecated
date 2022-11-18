@@ -16,9 +16,9 @@ public class ReviewAttachRequest {
 
 	private String name;
 
-	public static ReviewAttach dtoToEntity(ReviewAttachRequest request, Review review) {
+	public static ReviewAttach dtoToEntity(String name, Review review) {
 		return ReviewAttach.builder()
-			.image(request.getName())
+			.image(name)
 			.review(review)
 			.build();
 	}

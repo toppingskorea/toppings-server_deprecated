@@ -21,7 +21,7 @@ public class ReviewModifyRequest {
 
 	private String description;
 
-	private List<ReviewAttachRequest> images;
+	private List<String> images;
 
 	public static void modifyReviewInfo(Review review, ReviewModifyRequest request) {
 		review.setDescription(request.getDescription() != null ? request.getDescription() : review.getDescription());

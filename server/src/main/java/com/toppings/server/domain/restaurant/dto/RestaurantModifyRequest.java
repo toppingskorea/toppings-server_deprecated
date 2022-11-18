@@ -37,7 +37,7 @@ public class RestaurantModifyRequest {
 
 	private FoodType type;
 
-	private List<RestaurantAttachRequest> images;
+	private List<String> images;
 
 	public static void setRestaurantInfo(
 		RestaurantModifyRequest request,

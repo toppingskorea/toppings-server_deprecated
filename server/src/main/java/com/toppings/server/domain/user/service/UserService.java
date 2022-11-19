@@ -130,8 +130,8 @@ public class UserService {
 	 * 회원 권한 조회
 	 */
 	public String findUserRole(Long userId) {
-		User user = getUserById(userId);
-		return user.getRole().name();
+		User user = userRepository.findById(userId).orElse(null);
+		return user != null ? user.getRole().name() : Auth.ROLE_TEMP.name();
 	}
 
 
@@ -173,7 +173,7 @@ public class UserService {
 
 	@Transactional
 	public Long removeUser(Long userId) {
-		userRepository.deleteById(userId);
+		userRepository.findById(userId).ifPresent(userRepository::delete);
 		return userId;
 	}
 }

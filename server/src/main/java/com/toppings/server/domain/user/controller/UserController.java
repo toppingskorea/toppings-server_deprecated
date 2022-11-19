@@ -5,6 +5,7 @@ import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -102,5 +103,11 @@ public class UserController {
 	@PreAuthorize("hasRole('ROLE_USER')")
 	public ResponseEntity<?> getReviewByUser(@AuthenticationPrincipal Long userId) {
 		return ResponseEntity.ok(ApiDataResponse.of(userService.findReviewByUser(userId)));
+	}
+
+	@DeleteMapping
+	@PreAuthorize("hasRole('ROLE_TEMP') or hasRole('ROLE_USER')")
+	public ResponseEntity<?> removeUser(@AuthenticationPrincipal Long userId) {
+		return ResponseEntity.ok(ApiDataResponse.of(userService.removeUser(userId)));
 	}
 }

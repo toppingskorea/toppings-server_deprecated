@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.toppings.common.constants.ResponseCode;
 import com.toppings.common.exception.GeneralException;
 import com.toppings.server.domain.likes.repository.LikeRepository;
+import com.toppings.server.domain.restaurant.dto.RestaurantResponse;
 import com.toppings.server.domain.review.repository.ReviewRepository;
 import com.toppings.server.domain.scrap.repository.ScrapRepository;
 import com.toppings.server.domain.user.constant.Auth;
@@ -150,7 +151,7 @@ public class UserService {
 	/**
 	 * 회원 스크랩 정보 조회
 	 */
-	public Object findScrapByUser(Long userId) {
+	public List<RestaurantResponse> findScrapByUser(Long userId) {
 
 
 		return null;
@@ -159,14 +160,20 @@ public class UserService {
 	/**
 	 * 회원 게시물 정보 조회
 	 */
-	public Object findRestaurantByUser(Long userId) {
+	public List<RestaurantResponse> findRestaurantByUser(Long userId) {
 		return null;
 	}
 
 	/**
 	 * 회원 리뷰단 게시물 정보 조회
 	 */
-	public Object findReviewByUser(Long userId) {
+	public List<RestaurantResponse> findReviewByUser(Long userId) {
 		return null;
+	}
+
+	@Transactional
+	public Long removeUser(Long userId) {
+		userRepository.deleteById(userId);
+		return userId;
 	}
 }

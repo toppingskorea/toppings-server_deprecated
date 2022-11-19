@@ -62,6 +62,7 @@ public class RestaurantRequest {
 			.longitude(request.getLongitude())
 			.type(request.getType())
 			.code(request.getCode())
+			.thumbnail(request.getImages().get(0))
 			.user(user)
 			.build();
 	}

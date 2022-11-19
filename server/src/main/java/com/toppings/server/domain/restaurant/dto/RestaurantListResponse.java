@@ -32,7 +32,7 @@ public class RestaurantListResponse {
 
 	private FoodType type;
 
-	private String images;
+	private String thumbnail;
 
 	// 좋아요 갯수
 	private Long likeCount;

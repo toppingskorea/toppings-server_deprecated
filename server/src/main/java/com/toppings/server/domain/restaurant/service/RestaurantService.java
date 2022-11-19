@@ -87,12 +87,12 @@ public class RestaurantService {
 		if (verifyRestaurantAndUser(userId, restaurant))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
-		RestaurantModifyRequest.setRestaurantInfo(request, restaurant);
-		RestaurantModifyRequest.setMapInfo(request, restaurant);
-
 		List<String> images = modifyRestaurantAttach(request, restaurant);
 		RestaurantResponse restaurantResponse = RestaurantResponse.entityToDto(restaurant);
 		restaurantResponse.setImages(images);
+
+		RestaurantModifyRequest.setRestaurantInfo(request, restaurant, images.get(0));
+		RestaurantModifyRequest.setMapInfo(request, restaurant);
 		return restaurantResponse;
 	}
 

@@ -1,6 +1,7 @@
 package com.toppings.server.domain.review.repository;
 
 import static com.toppings.server.domain.review.entity.QReview.*;
+import static com.toppings.server.domain.review.entity.QReviewAttach.*;
 
 import java.util.List;
 
@@ -11,7 +12,10 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.toppings.server.domain.review.dto.ReviewAttachResponse;
+import com.toppings.server.domain.review.dto.ReviewListResponse;
 import com.toppings.server.domain.review.dto.ReviewResponse;
+import com.toppings.server.domain.review.entity.ReviewAttach;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,12 +27,12 @@ public class QueryDslReviewRepositoryImpl implements QueryDslReviewRepository {
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	public List<ReviewResponse> findReviewByRestaurantId(
+	public List<ReviewListResponse> findReviewByRestaurantId(
 		Long restaurantId,
 		Long userId
 	) {
 		return queryFactory.select(
-			Projections.fields(ReviewResponse.class, review.id, review.description,
+			Projections.fields(ReviewListResponse.class, review.id, review.description, review.thumbnail,
 				review.updateDate.as("modifiedAt"), review.user.name, review.user.country,
 				getIsMine(userId).as("isMine")
 			))

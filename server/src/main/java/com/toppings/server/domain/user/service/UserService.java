@@ -10,6 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.toppings.common.constants.ResponseCode;
 import com.toppings.common.exception.GeneralException;
+import com.toppings.server.domain.likes.repository.LikeRepository;
+import com.toppings.server.domain.review.repository.ReviewRepository;
+import com.toppings.server.domain.scrap.repository.ScrapRepository;
 import com.toppings.server.domain.user.constant.Auth;
 import com.toppings.server.domain.user.dto.UserHabitRequest;
 import com.toppings.server.domain.user.dto.UserHabitResponse;
@@ -31,6 +34,12 @@ public class UserService {
 	private final UserRepository userRepository;
 
 	private final UserHabitRepository userHabitRepository;
+
+	private final LikeRepository likeRepository;
+
+	private final ScrapRepository scrapRepository;
+
+	private final ReviewRepository reviewRepository;
 
 	/**
 	 * 회원 가입
@@ -75,9 +84,7 @@ public class UserService {
 		Long userId
 	) {
 		User user = getUserById(userId);
-		user.setName(request.getName() != null ? request.getName() : user.getName());
-		user.setCountry(
-			request.getCountry() != null ? request.getCountry() : user.getCountry());
+		UserModifyRequest.modifyUserInfo(request, user);
 		List<UserHabitResponse> userHabitResponses = modifyUserHabit(request, user);
 
 		UserResponse userResponse = UserResponse.entityToDto(user);
@@ -95,10 +102,11 @@ public class UserService {
 
 		// 신규 식습관 등록
 		List<UserHabit> userHabits = new ArrayList<>();
-		if (request.getHabit() != null && !request.getHabit().isEmpty())
+		if (request.getHabit() != null && !request.getHabit().isEmpty()) {
 			for (UserHabitRequest habitRequest : request.getHabit())
 				userHabits.add(UserHabitRequest.createUserHabit(habitRequest, user));
-		userHabitRepository.saveAll(userHabits);
+			userHabitRepository.saveAll(userHabits);
+		}
 
 		return userHabits.stream()
 			.map(UserHabitResponse::entityToDto)
@@ -143,6 +151,8 @@ public class UserService {
 	 * 회원 스크랩 정보 조회
 	 */
 	public Object findScrapByUser(Long userId) {
+
+
 		return null;
 	}
 

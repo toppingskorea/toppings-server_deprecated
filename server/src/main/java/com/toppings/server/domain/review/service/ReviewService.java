@@ -12,7 +12,7 @@ import com.toppings.common.exception.GeneralException;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
 import com.toppings.server.domain.restaurant.repository.RestaurantRepository;
 import com.toppings.server.domain.review.dto.ReviewAttachRequest;
-import com.toppings.server.domain.review.dto.ReviewAttachResponse;
+import com.toppings.server.domain.review.dto.ReviewListResponse;
 import com.toppings.server.domain.review.dto.ReviewModifyRequest;
 import com.toppings.server.domain.review.dto.ReviewRequest;
 import com.toppings.server.domain.review.dto.ReviewResponse;
@@ -54,26 +54,26 @@ public class ReviewService {
 		Review review = ReviewRequest.dtoToEntity(request);
 		review.setUser(user);
 		review.setRestaurant(restaurant);
+		review.setThumbnail(request.getImages().get(0));
 
 		Review saveReview = reviewRepository.save(review);
-		List<ReviewAttachResponse> reviewAttachResponses = registerReviewAttach(request, saveReview);
-
+		List<String> images = registerReviewAttach(request, saveReview);
 		ReviewResponse reviewResponse = ReviewResponse.entityToDto(saveReview);
-		reviewResponse.setImages(reviewAttachResponses);
+		reviewResponse.setImages(images);
 		return reviewResponse;
 	}
 
-	private List<ReviewAttachResponse> registerReviewAttach(
+	private List<String> registerReviewAttach(
 		ReviewRequest request,
 		Review review
 	) {
 		List<ReviewAttach> reviewAttaches = new ArrayList<>();
-		for (ReviewAttachRequest reviewAttachRequest : request.getImages())
-			reviewAttaches.add(ReviewAttachRequest.dtoToEntity(reviewAttachRequest, review));
+		for (String image : request.getImages())
+			reviewAttaches.add(ReviewAttachRequest.dtoToEntity(image, review));
 		reviewAttachRepository.saveAll(reviewAttaches);
 
 		return reviewAttaches.stream()
-			.map(ReviewAttachResponse::entityToDto)
+			.map(ReviewAttach::getImage)
 			.collect(Collectors.toList());
 	}
 
@@ -99,26 +99,34 @@ public class ReviewService {
 		if (verifyReviewAndUser(review, userId))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
-		ReviewModifyRequest.modifyReviewInfo(review, request);
-
-		List<ReviewAttachResponse> reviewAttachResponses = modifyReviewAttach(request, review);
+		List<String> images = modifyReviewAttach(request, review);
 		ReviewResponse reviewResponse = ReviewResponse.entityToDto(review);
-		reviewResponse.setImages(reviewAttachResponses);
+		reviewResponse.setImages(images);
+
+		ReviewModifyRequest.modifyReviewInfo(review, request, images.get(0));
 		return reviewResponse;
 	}
 
-	private List<ReviewAttachResponse> modifyReviewAttach(
+	private List<String> modifyReviewAttach(
 		ReviewModifyRequest request,
 		Review review
 	) {
 		List<ReviewAttach> reviewAttaches = new ArrayList<>();
-		if (request.getImages() != null && !request.getImages().isEmpty())
-			for (ReviewAttachRequest reviewAttachRequest : request.getImages())
-				reviewAttaches.add(ReviewAttachRequest.dtoToEntity(reviewAttachRequest, review));
-		reviewAttachRepository.saveAll(reviewAttaches);
+		if (request.getImages() != null && !request.getImages().isEmpty()) {
+			// 기존 이미지 제거
+			reviewAttachRepository.deleteAllByIdInBatch(
+				review.getImages().stream().map(ReviewAttach::getId).collect(Collectors.toList()));
+
+			// 신규 이미지 등록
+			for (String image : request.getImages())
+				reviewAttaches.add(ReviewAttachRequest.dtoToEntity(image, review));
+			reviewAttachRepository.saveAll(reviewAttaches);
+		} else {
+			throw new GeneralException(ResponseCode.BAD_REQUEST);
+		}
 
 		return reviewAttaches.stream()
-			.map(ReviewAttachResponse::entityToDto)
+			.map(ReviewAttach::getImage)
 			.collect(Collectors.toList());
 	}
 
@@ -158,11 +166,10 @@ public class ReviewService {
 		return !review.getUser().getId().equals(userId);
 	}
 
-
 	/**
 	 * 음석점 댓글 목록 조회
 	 */
-	public List<ReviewResponse> findAll(
+	public List<ReviewListResponse> findAll(
 		Long restaurantId,
 		Long userId
 	) {

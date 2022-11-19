@@ -4,14 +4,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-import com.toppings.server.domain.review.entity.Review;
-import com.toppings.server.domain.user.constant.Habit;
-import com.toppings.server.domain.user.entity.User;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,14 +18,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class ReviewResponse {
+public class ReviewListResponse {
 
 	private Long id;
 
 	private String description;
 
-	private List<String> images;
+	private String thumbnail;
 
 	@JsonSerialize(using= LocalDateTimeSerializer.class)
 	@JsonDeserialize(using= LocalDateTimeDeserializer.class)
@@ -41,25 +36,4 @@ public class ReviewResponse {
 	private String country;
 
 	private Boolean isMine;
-
-	public static ReviewResponse entityToDto(
-		Review review,
-		User user
-	) {
-		return ReviewResponse.builder()
-			.id(review.getId())
-			.description(review.getDescription())
-			.modifiedAt(review.getUpdateDate())
-			.name(user.getName())
-			.country(user.getCountry())
-			.build();
-	}
-
-	public static ReviewResponse entityToDto(Review review) {
-		return ReviewResponse.builder()
-			.id(review.getId())
-			.description(review.getDescription())
-			.modifiedAt(review.getUpdateDate())
-			.build();
-	}
 }

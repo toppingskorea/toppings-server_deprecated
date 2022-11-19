@@ -37,17 +37,19 @@ public class RestaurantModifyRequest {
 
 	private FoodType type;
 
-	private List<RestaurantAttachRequest> images;
+	private List<String> images;
 
 	public static void setRestaurantInfo(
 		RestaurantModifyRequest request,
-		Restaurant restaurant
+		Restaurant restaurant,
+		String image
 	) {
 		restaurant.setName(request.getName() != null ? request.getName() : restaurant.getName());
 		restaurant.setAddress(request.getAddress() != null ? request.getAddress() : restaurant.getAddress());
 		restaurant.setDescription(
 			request.getDescription() != null ? request.getDescription() : restaurant.getDescription());
 		restaurant.setType(request.getType() != null ? request.getType() : restaurant.getType());
+		restaurant.setThumbnail(image);
 	}
 
 	public static void setMapInfo(

@@ -18,9 +18,9 @@ public class RestaurantAttachResponse {
 	
 	private String name;
 
-	public static RestaurantAttachResponse dtoToEntity(RestaurantAttach restaurantAttach) {
+	public static RestaurantAttachResponse dtoToEntity(String name) {
 		return RestaurantAttachResponse.builder()
-			.name(restaurantAttach.getImage())
+			.name(name)
 			.build();
 	}
 }

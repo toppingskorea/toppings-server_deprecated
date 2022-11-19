@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.toppings.common.constants.ResponseCode;
 import com.toppings.common.exception.GeneralException;
 import com.toppings.server.domain.restaurant.dto.RestaurantAttachRequest;
-import com.toppings.server.domain.restaurant.dto.RestaurantAttachResponse;
 import com.toppings.server.domain.restaurant.dto.RestaurantModifyRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantResponse;
@@ -43,31 +42,31 @@ public class RestaurantService {
 		RestaurantRequest request,
 		Long userId
 	) {
-		// TODO: user 만들 때 그냥 빌더로 만들지 고민
+		// TODO: user 만들 때 그냥 빌더로 만들지 고민 + 맨 처음 이미지가 목록 이미지라서 따로 저장할까 고민
 		User user = getUserById(userId);
 		Restaurant restaurant = restaurantRepository.findRestaurantByCode(request.getCode()).orElse(null);
 		if (restaurant != null)
 			throw new GeneralException(ResponseCode.DUPLICATED_ITEM);
 
 		Restaurant saveRestaurant = restaurantRepository.save(RestaurantRequest.dtoToEntity(request, user));
-		List<RestaurantAttachResponse> restaurantAttachResponses = registerRestaurantAttach(request, saveRestaurant);
+		List<String> images = registerRestaurantAttach(request, saveRestaurant);
 
 		RestaurantResponse restaurantResponse = RestaurantResponse.entityToDto(saveRestaurant);
-		restaurantResponse.setImages(restaurantAttachResponses);
+		restaurantResponse.setImages(images);
 		return restaurantResponse;
 	}
 
-	private List<RestaurantAttachResponse> registerRestaurantAttach(
+	private List<String> registerRestaurantAttach(
 		RestaurantRequest request,
 		Restaurant restaurant
 	) {
 		List<RestaurantAttach> restaurantAttaches = new ArrayList<>();
-		for (RestaurantAttachRequest restaurantAttachRequest : request.getImages())
-			restaurantAttaches.add(RestaurantAttachRequest.dtoToEntity(restaurantAttachRequest, restaurant));
+		for (String image : request.getImages())
+			restaurantAttaches.add(RestaurantAttachRequest.dtoToEntity(image, restaurant));
 		restaurantAttachRepository.saveAll(restaurantAttaches);
 
 		return restaurantAttaches.stream()
-			.map(RestaurantAttachResponse::dtoToEntity)
+			.map(RestaurantAttach::getImage)
 			.collect(Collectors.toList());
 	}
 
@@ -88,32 +87,35 @@ public class RestaurantService {
 		if (verifyRestaurantAndUser(userId, restaurant))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
-		RestaurantModifyRequest.setRestaurantInfo(request, restaurant);
-		RestaurantModifyRequest.setMapInfo(request, restaurant);
-
-		List<RestaurantAttachResponse> restaurantAttachResponses = modifyRestaurantAttach(request, restaurant);
+		List<String> images = modifyRestaurantAttach(request, restaurant);
 		RestaurantResponse restaurantResponse = RestaurantResponse.entityToDto(restaurant);
-		restaurantResponse.setImages(restaurantAttachResponses);
+		restaurantResponse.setImages(images);
+
+		RestaurantModifyRequest.setRestaurantInfo(request, restaurant, images.get(0));
+		RestaurantModifyRequest.setMapInfo(request, restaurant);
 		return restaurantResponse;
 	}
 
-	private List<RestaurantAttachResponse> modifyRestaurantAttach(
+	private List<String> modifyRestaurantAttach(
 		RestaurantModifyRequest request,
 		Restaurant restaurant
 	) {
-		// 기존 이미지 제거
-		restaurantAttachRepository.deleteAllByIdInBatch(
-			restaurant.getImages().stream().map(RestaurantAttach::getId).collect(Collectors.toList()));
-
-		// 신규 이미지 등록
 		List<RestaurantAttach> restaurantAttaches = new ArrayList<>();
-		if (request.getImages() != null && !request.getImages().isEmpty())
-			for (RestaurantAttachRequest restaurantAttachRequest : request.getImages())
-				restaurantAttaches.add(RestaurantAttachRequest.dtoToEntity(restaurantAttachRequest, restaurant));
-		restaurantAttachRepository.saveAll(restaurantAttaches);
+		if (request.getImages() != null && !request.getImages().isEmpty()) {
+			// 기존 이미지 제거
+			restaurantAttachRepository.deleteAllByIdInBatch(
+				restaurant.getImages().stream().map(RestaurantAttach::getId).collect(Collectors.toList()));
+
+			// 신규 이미지 등록
+			for (String image : request.getImages())
+				restaurantAttaches.add(RestaurantAttachRequest.dtoToEntity(image, restaurant));
+			restaurantAttachRepository.saveAll(restaurantAttaches);
+		} else {
+			throw new GeneralException(ResponseCode.BAD_REQUEST);
+		}
 
 		return restaurantAttaches.stream()
-			.map(RestaurantAttachResponse::dtoToEntity)
+			.map(RestaurantAttach::getImage)
 			.collect(Collectors.toList());
 	}
 

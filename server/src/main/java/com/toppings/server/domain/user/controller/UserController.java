@@ -105,8 +105,16 @@ public class UserController {
 		return ResponseEntity.ok(ApiDataResponse.of(userService.findReviewByUser(userId)));
 	}
 
+	/**
+	 * 유저 권한 조회
+	 */
+	@GetMapping("/role")
+	@PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_TEMP')")
+	public ResponseEntity<?> getUserRole(@AuthenticationPrincipal Long userId) {
+		return ResponseEntity.ok(ApiDataResponse.of(userService.findUserRole(userId)));
+	}
+
 	@DeleteMapping
-	@PreAuthorize("hasRole('ROLE_TEMP') or hasRole('ROLE_USER')")
 	public ResponseEntity<?> removeUser(@AuthenticationPrincipal Long userId) {
 		return ResponseEntity.ok(ApiDataResponse.of(userService.removeUser(userId)));
 	}

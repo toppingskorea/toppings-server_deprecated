@@ -97,13 +97,14 @@ public class UserService {
 		UserModifyRequest request,
 		User user
 	) {
-		// 기존 식습관 제거
-		userHabitRepository.deleteAllByIdInBatch(
-			user.getHabits().stream().map(UserHabit::getId).collect(Collectors.toList()));
-
-		// 신규 식습관 등록
-		List<UserHabit> userHabits = new ArrayList<>();
+		List<UserHabit> userHabits = user.getHabits();
 		if (request.getHabit() != null && !request.getHabit().isEmpty()) {
+			// 기존 식습관 제거
+			userHabits.clear();
+			userHabitRepository.deleteAllByIdInBatch(
+				user.getHabits().stream().map(UserHabit::getId).collect(Collectors.toList()));
+
+			// 신규 식습관 등록
 			for (UserHabitRequest habitRequest : request.getHabit())
 				userHabits.add(UserHabitRequest.createUserHabit(habitRequest, user));
 			userHabitRepository.saveAll(userHabits);

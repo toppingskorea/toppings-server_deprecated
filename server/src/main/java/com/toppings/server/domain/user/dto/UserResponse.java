@@ -30,6 +30,12 @@ public class UserResponse {
 
 	private String profile;
 
+	private Integer postCount;
+
+	private Integer scrapCount;
+
+	private Integer reviewCount;
+
 	public static UserResponse entityToDto(User user) {
 		return UserResponse.builder()
 			.id(user.getId())

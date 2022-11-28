@@ -139,7 +139,6 @@ public class UserService {
 		return user != null ? user.getRole().name() : Auth.ROLE_TEMP.name();
 	}
 
-
 	/**
 	 * 회원 정보 조회
 	 */
@@ -150,6 +149,10 @@ public class UserService {
 		userResponse.setHabits(userHabits.stream()
 			.map(UserHabitResponse::entityToDto)
 			.collect(Collectors.toList()));
+
+		userResponse.setPostCount(user.getRestaurants().size());
+		userResponse.setScrapCount(user.getScraps().size());
+		userResponse.setReviewCount(user.getReviews().size());
 		return userResponse;
 	}
 

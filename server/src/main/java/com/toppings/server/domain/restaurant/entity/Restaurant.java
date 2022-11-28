@@ -2,6 +2,8 @@ package com.toppings.server.domain.restaurant.entity;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.toppings.server.domain.likes.entity.Likes;
 import com.toppings.server.domain.restaurant.constant.FoodType;
 import com.toppings.server.domain.user.entity.User;
@@ -72,6 +74,9 @@ public class Restaurant extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @JsonIgnoreProperties({"restaurants"})
+    @ToString.Exclude
+    @JsonIgnore
     private User user;
 
     @Column(name = "restaurant_thumbnail", columnDefinition = "longtext")

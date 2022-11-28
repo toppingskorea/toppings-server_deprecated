@@ -71,10 +71,10 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
 		String email,
 		String name
 	) {
-		String username = providerId + "_" + (email != null ? email : "none");
 		User user = User.builder()
-			.username(username)
+			.username(providerId)
 			.role(Auth.ROLE_TEMP)
+			.email(email)
 			.name(name)
 			.build();
 		userRepository.save(user);

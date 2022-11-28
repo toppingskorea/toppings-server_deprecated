@@ -2,6 +2,7 @@ package com.toppings.server.domain.restaurant.entity;
 
 import java.util.List;
 
+import com.toppings.server.domain.likes.entity.Likes;
 import com.toppings.server.domain.restaurant.constant.FoodType;
 import com.toppings.server.domain.user.entity.User;
 import com.toppings.server.domain_global.entity.BaseEntity;
@@ -75,6 +76,4 @@ public class Restaurant extends BaseEntity {
 
     @Column(name = "restaurant_thumbnail", columnDefinition = "longtext")
     private String thumbnail;
-
-    // 좋아요
 }

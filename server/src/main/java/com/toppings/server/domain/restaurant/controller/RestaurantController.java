@@ -69,18 +69,22 @@ public class RestaurantController {
 	 * 음식점 목록 조회하기 (필터링)
 	 */
 	@GetMapping
-	@PreAuthorize("hasRole('ROLE_USER')")
-	public ResponseEntity<?> getRestaurants(RestaurantSearchRequest restaurantSearchRequest) {
-		return ResponseEntity.ok(ApiDataResponse.of(restaurantService.findAll()));
+	public ResponseEntity<?> getRestaurants(
+		@Valid RestaurantSearchRequest restaurantSearchRequest,
+		@AuthenticationPrincipal Long userId
+	) {
+		return ResponseEntity.ok(ApiDataResponse.of(restaurantService.findAll(restaurantSearchRequest, userId)));
 	}
 
 	/**
 	 * 음식점 상세 조회하기
 	 */
 	@GetMapping("/{restaurantId}")
-	@PreAuthorize("hasRole('ROLE_USER')")
-	public ResponseEntity<?> getRestaurant(@PathVariable Long restaurantId) {
-		return ResponseEntity.ok(ApiDataResponse.of(restaurantService.findOne(restaurantId)));
+	public ResponseEntity<?> getRestaurant(
+		@PathVariable Long restaurantId,
+		@AuthenticationPrincipal Long userId
+	) {
+		return ResponseEntity.ok(ApiDataResponse.of(restaurantService.findOne(restaurantId, userId)));
 	}
 
 	/**

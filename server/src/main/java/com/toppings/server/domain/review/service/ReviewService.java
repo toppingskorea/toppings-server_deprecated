@@ -54,7 +54,6 @@ public class ReviewService {
 		Review review = ReviewRequest.dtoToEntity(request);
 		review.setUser(user);
 		review.setRestaurant(restaurant);
-		review.setThumbnail(request.getImages().get(0));
 
 		Review saveReview = reviewRepository.save(review);
 		List<String> images = registerReviewAttach(request, saveReview);

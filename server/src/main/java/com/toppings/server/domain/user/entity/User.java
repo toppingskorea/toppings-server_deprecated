@@ -20,6 +20,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import com.toppings.server.domain.likes.entity.Likes;
 import com.toppings.server.domain.user.constant.Auth;
 import com.toppings.server.domain.user.constant.Habit;
 import com.toppings.server.domain_global.entity.BaseEntity;
@@ -54,6 +55,9 @@ public class User extends BaseEntity {
 	@Column(name = "user_name", columnDefinition = "varchar(100)")
 	private String name;
 
+	@Column(name = "user_email", columnDefinition = "varchar(255)")
+	private String email;
+
 	@Column(name = "user_pw", columnDefinition = "varchar(200)")
 	private String password;
 
@@ -73,9 +77,11 @@ public class User extends BaseEntity {
 	@Column(name = "user_profile", columnDefinition = "longtext")
 	private String profile;
 
-	// 음식점
-
 	// 좋아요
+	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+	private List<Likes> likes;
+
+	// 음식점
 
 	// 스크랩
 

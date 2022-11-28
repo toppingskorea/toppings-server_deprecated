@@ -22,6 +22,8 @@ public class UserResponse {
 
 	private String name;
 
+	private String email;
+
 	private String country;
 
 	private List<UserHabitResponse> habits;
@@ -32,6 +34,7 @@ public class UserResponse {
 		return UserResponse.builder()
 			.id(user.getId())
 			.name(user.getName())
+			.email(user.getEmail())
 			.country(user.getCountry())
 			.profile(user.getProfile())
 			.build();

@@ -2,6 +2,7 @@ package com.toppings.server.domain.review.repository;
 
 import java.util.List;
 
+import com.toppings.server.domain.restaurant.dto.RestaurantListResponse;
 import com.toppings.server.domain.review.dto.ReviewListResponse;
 import com.toppings.server.domain.review.dto.ReviewResponse;
 
@@ -11,4 +12,6 @@ public interface QueryDslReviewRepository {
 		Long restaurantId,
 		Long userId
 	);
+
+	List<RestaurantListResponse> findRestaurantByUserForReview(Long userId);
 }

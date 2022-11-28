@@ -27,6 +27,9 @@ public class Recent extends BaseEntity {
     @Column(name = "recent_id")
     private Long id;
 
+    @Column(name = "restaurant_id")
+    private Long restaurantId;
+
     @Column(name = "recent_keyword", columnDefinition = "varchar(200)")
     private String keyword;
 

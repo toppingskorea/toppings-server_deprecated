@@ -4,5 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.toppings.server.domain.user.entity.UserHabit;
 
-public interface UserHabitRepository extends JpaRepository<UserHabit, Long> {
+public interface UserHabitRepository extends JpaRepository<UserHabit, Long>, QueryDslUserHabitRepository {
+
 }

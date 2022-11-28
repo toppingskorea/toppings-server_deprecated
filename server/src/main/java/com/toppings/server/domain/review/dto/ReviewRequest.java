@@ -6,7 +6,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import com.toppings.server.domain.recent.dto.RecentRequest;
 import com.toppings.server.domain.review.entity.Review;
 
 import lombok.AllArgsConstructor;
@@ -30,6 +29,7 @@ public class ReviewRequest {
 	public static Review dtoToEntity(ReviewRequest request) {
 		return Review.builder()
 			.description(request.getDescription())
+			.thumbnail(request.getImages().get(0))
 			.build();
 	}
 }

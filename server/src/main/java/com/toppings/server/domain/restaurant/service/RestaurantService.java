@@ -1,6 +1,9 @@
 package com.toppings.server.domain.restaurant.service;
 
+import static org.springframework.util.StringUtils.*;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -9,16 +12,21 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.toppings.common.constants.ResponseCode;
 import com.toppings.common.exception.GeneralException;
+import com.toppings.server.domain.likes.repository.LikeRepository;
 import com.toppings.server.domain.restaurant.dto.RestaurantAttachRequest;
+import com.toppings.server.domain.restaurant.dto.RestaurantListResponse;
 import com.toppings.server.domain.restaurant.dto.RestaurantModifyRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantResponse;
+import com.toppings.server.domain.restaurant.dto.RestaurantSearchRequest;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
 import com.toppings.server.domain.restaurant.entity.RestaurantAttach;
 import com.toppings.server.domain.restaurant.repository.RestaurantAttachRepository;
 import com.toppings.server.domain.restaurant.repository.RestaurantRepository;
+import com.toppings.server.domain.scrap.repository.ScrapRepository;
 import com.toppings.server.domain.user.constant.Auth;
 import com.toppings.server.domain.user.entity.User;
+import com.toppings.server.domain.user.repository.UserHabitRepository;
 import com.toppings.server.domain.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -34,6 +42,12 @@ public class RestaurantService {
 
 	private final RestaurantAttachRepository restaurantAttachRepository;
 
+	private final LikeRepository likeRepository;
+
+	private final UserHabitRepository userHabitRepository;
+
+	private final ScrapRepository scrapRepository;
+
 	/**
 	 * 음식점 등록하기
 	 */
@@ -42,16 +56,16 @@ public class RestaurantService {
 		RestaurantRequest request,
 		Long userId
 	) {
-		// TODO: user 만들 때 그냥 빌더로 만들지 고민 + 맨 처음 이미지가 목록 이미지라서 따로 저장할까 고민
-		User user = getUserById(userId);
-		Restaurant restaurant = restaurantRepository.findRestaurantByCode(request.getCode()).orElse(null);
+		// TODO: user 만들 때 그냥 빌더로 만들지 고민
+		final User user = getUserById(userId);
+		final Restaurant restaurant = restaurantRepository.findRestaurantByCode(request.getCode()).orElse(null);
 		if (restaurant != null)
 			throw new GeneralException(ResponseCode.DUPLICATED_ITEM);
 
-		Restaurant saveRestaurant = restaurantRepository.save(RestaurantRequest.dtoToEntity(request, user));
+		final Restaurant saveRestaurant = restaurantRepository.save(RestaurantRequest.dtoToEntity(request, user));
 		List<String> images = registerRestaurantAttach(request, saveRestaurant);
 
-		RestaurantResponse restaurantResponse = RestaurantResponse.entityToDto(saveRestaurant);
+		final RestaurantResponse restaurantResponse = RestaurantResponse.entityToDto(saveRestaurant);
 		restaurantResponse.setImages(images);
 		return restaurantResponse;
 	}
@@ -60,7 +74,7 @@ public class RestaurantService {
 		RestaurantRequest request,
 		Restaurant restaurant
 	) {
-		List<RestaurantAttach> restaurantAttaches = new ArrayList<>();
+		final List<RestaurantAttach> restaurantAttaches = new ArrayList<>();
 		for (String image : request.getImages())
 			restaurantAttaches.add(RestaurantAttachRequest.dtoToEntity(image, restaurant));
 		restaurantAttachRepository.saveAll(restaurantAttaches);
@@ -83,12 +97,12 @@ public class RestaurantService {
 		Long restaurantId,
 		Long userId
 	) {
-		Restaurant restaurant = getRestaurantById(restaurantId);
+		final Restaurant restaurant = getRestaurantById(restaurantId);
 		if (verifyRestaurantAndUser(userId, restaurant))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
-		List<String> images = modifyRestaurantAttach(request, restaurant);
-		RestaurantResponse restaurantResponse = RestaurantResponse.entityToDto(restaurant);
+		final List<String> images = modifyRestaurantAttach(request, restaurant);
+		final RestaurantResponse restaurantResponse = RestaurantResponse.entityToDto(restaurant);
 		restaurantResponse.setImages(images);
 
 		RestaurantModifyRequest.setRestaurantInfo(request, restaurant, images.get(0));
@@ -146,8 +160,8 @@ public class RestaurantService {
 		Long restaurantId,
 		Long userId
 	) {
-		Restaurant restaurant = getRestaurantById(restaurantId);
-		User user = getUserById(userId);
+		final Restaurant restaurant = getRestaurantById(restaurantId);
+		final User user = getUserById(userId);
 		if (verifyRestaurantAndUser(user, restaurant))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
@@ -155,14 +169,127 @@ public class RestaurantService {
 		return restaurantId;
 	}
 
-	public Object findAll() {
+	/**
+	 *	음식점 목록 검색
+	 */
+	public List<RestaurantListResponse> findAll(
+		RestaurantSearchRequest searchRequest,
+		Long userId
+	) {
+		final List<RestaurantListResponse> restaurantListResponses;
+		switch (searchRequest.getType()) {
+			case Map:
+				restaurantListResponses = getRestaurantListResponsesForMap(searchRequest);
+				break;
 
-		return null;
+			case Name:
+				restaurantListResponses = getRestaurantListResponsesForName(searchRequest);
+				break;
+
+			case Habit:
+				restaurantListResponses = getRestaurantListResponsesForHabit(searchRequest);
+				break;
+
+			case Country:
+				restaurantListResponses = getRestaurantListResponsesforCountry(searchRequest);
+				break;
+
+			default:
+				restaurantListResponses = Collections.emptyList();
+		}
+
+		if (userId != null)
+			setIsLike(restaurantListResponses, userId);
+		return restaurantListResponses;
 	}
 
-	public RestaurantResponse findOne(Long restaurantId) {
-		Restaurant restaurant = getRestaurantById(restaurantId);
-		// TODO : 식습관 / 국적별 좋아요 퍼센트 작업 추가
-		return null;
+	private void setIsLike(
+		List<RestaurantListResponse> restaurantListResponses,
+		Long userId
+	) {
+		final List<Long> likesIds = getMyLikesIds(getUserById(userId));
+		restaurantListResponses.forEach(restaurant -> restaurant.setLike(likesIds.contains(restaurant.getId())));
+	}
+
+	private List<RestaurantListResponse> getRestaurantListResponsesforCountry(RestaurantSearchRequest searchRequest) {
+		if (isNullCountry(searchRequest))
+			throw new GeneralException(ResponseCode.BAD_REQUEST);
+
+		return likeRepository.findRestaurantIdByUserCountry(searchRequest.getCountry());
+	}
+
+	private List<RestaurantListResponse> getRestaurantListResponsesForHabit(RestaurantSearchRequest searchRequest) {
+		if (isNullHabit(searchRequest))
+			throw new GeneralException(ResponseCode.BAD_REQUEST);
+
+		List<Long> ids = userHabitRepository.findUserIdByHabit(searchRequest);
+		return likeRepository.findRestaurantIdByUserHabit(ids);
+	}
+
+	private List<RestaurantListResponse> getRestaurantListResponsesForName(RestaurantSearchRequest searchRequest) {
+		if (isNullName(searchRequest))
+			throw new GeneralException(ResponseCode.BAD_REQUEST);
+
+		return restaurantRepository.findAllByRestaurantName(searchRequest.getName());
+	}
+
+	private List<RestaurantListResponse> getRestaurantListResponsesForMap(RestaurantSearchRequest searchRequest) {
+		if (isNullCoordinate(searchRequest))
+			throw new GeneralException(ResponseCode.BAD_REQUEST);
+
+		return restaurantRepository.findAllBySearchForMap(searchRequest);
+	}
+
+	private boolean isNullCountry(RestaurantSearchRequest searchRequest) {
+		return searchRequest.getCountry() == null || !hasText(searchRequest.getCountry());
+	}
+
+	private boolean isNullHabit(RestaurantSearchRequest searchRequest) {
+		return searchRequest.getHabit() == null || searchRequest.getHabitTitle() == null;
+	}
+
+	private boolean isNullName(RestaurantSearchRequest searchRequest) {
+		return searchRequest.getName() == null || !hasText(searchRequest.getName());
+	}
+
+	private boolean isNullCoordinate(RestaurantSearchRequest searchRequest) {
+		return searchRequest.getX1() == null || searchRequest.getX2() == null
+			|| searchRequest.getY1() == null || searchRequest.getY2() == null;
+	}
+
+	private List<Long> getMyLikesIds(User user) {
+		return likeRepository.findLikesByUser(user)
+			.stream()
+			.map(likes -> likes.getRestaurant().getId())
+			.collect(Collectors.toList());
+	}
+
+	/**
+	 *	음식점 상세 조회
+	 */
+	public RestaurantResponse findOne(
+		Long restaurantId,
+		Long userId
+	) {
+		final Restaurant restaurant = getRestaurantById(restaurantId);
+		final RestaurantResponse restaurantResponse = RestaurantResponse.entityToDto(restaurant);
+
+		final List<String> images = getRestaurantImages(restaurant);
+		restaurantResponse.setImages(images);
+		restaurantResponse.setWriter(restaurant.getUser().getName());
+
+		if (userId != null) {
+			User user = getUserById(userId);
+			restaurantResponse.setLike(likeRepository.findLikesByRestaurantAndUser(restaurant, user).isPresent());
+			restaurantResponse.setScrap(scrapRepository.findScrapByRestaurantAndUser(restaurant, user).isPresent());
+		}
+		return restaurantResponse;
+	}
+
+	private List<String> getRestaurantImages(Restaurant restaurant) {
+		return restaurant.getImages()
+			.stream()
+			.map(RestaurantAttach::getImage)
+			.collect(Collectors.toList());
 	}
 }

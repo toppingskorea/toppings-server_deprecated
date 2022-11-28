@@ -1,7 +1,5 @@
 package com.toppings.server.domain.restaurant.dto;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.toppings.server.domain.restaurant.constant.FoodType;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
@@ -24,9 +22,9 @@ public class RestaurantListResponse {
 
 	private String address;
 
-	private Double longitude;
-
 	private Double latitude;
+
+	private Double longitude;
 
 	private String description;
 
@@ -35,15 +33,12 @@ public class RestaurantListResponse {
 	private String thumbnail;
 
 	// 좋아요 갯수
-	private Long likeCount;
+	private Integer likeCount;
 
 	// 작성자
 	private String writer;
 
-	// 식습관 혹은 국적
-	private String content;
-
-	private Boolean isLike;
+	private boolean isLike;
 
 	public static RestaurantListResponse entityToDto(Restaurant restaurant) {
 		return RestaurantListResponse.builder()

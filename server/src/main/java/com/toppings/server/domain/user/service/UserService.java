@@ -11,7 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.toppings.common.constants.ResponseCode;
 import com.toppings.common.exception.GeneralException;
 import com.toppings.server.domain.likes.repository.LikeRepository;
+import com.toppings.server.domain.restaurant.dto.RestaurantListResponse;
 import com.toppings.server.domain.restaurant.dto.RestaurantResponse;
+import com.toppings.server.domain.restaurant.repository.RestaurantRepository;
 import com.toppings.server.domain.review.repository.ReviewRepository;
 import com.toppings.server.domain.scrap.repository.ScrapRepository;
 import com.toppings.server.domain.user.constant.Auth;
@@ -41,6 +43,8 @@ public class UserService {
 	private final ScrapRepository scrapRepository;
 
 	private final ReviewRepository reviewRepository;
+
+	private final RestaurantRepository restaurantRepository;
 
 	/**
 	 * 회원 가입
@@ -152,24 +156,49 @@ public class UserService {
 	/**
 	 * 회원 스크랩 정보 조회
 	 */
-	public List<RestaurantResponse> findScrapByUser(Long userId) {
-
-
-		return null;
+	public List<RestaurantListResponse> findScrapByUser(Long userId) {
+		User user = getUserById(userId);
+		List<RestaurantListResponse> restaurantListResponses
+			= scrapRepository.findRestaurantByUserForScrap(user.getId());
+		setIsLike(restaurantListResponses, user.getId());
+		return restaurantListResponses;
 	}
 
 	/**
 	 * 회원 게시물 정보 조회
 	 */
-	public List<RestaurantResponse> findRestaurantByUser(Long userId) {
-		return null;
+	public List<RestaurantListResponse> findRestaurantByUser(Long userId) {
+		User user = getUserById(userId);
+		List<RestaurantListResponse> restaurantListResponses
+			= restaurantRepository.findRestaurantByUser(user.getId());
+		setIsLike(restaurantListResponses, user.getId());
+		return restaurantListResponses;
 	}
 
 	/**
 	 * 회원 리뷰단 게시물 정보 조회
 	 */
-	public List<RestaurantResponse> findReviewByUser(Long userId) {
-		return null;
+	public List<RestaurantListResponse> findReviewByUser(Long userId) {
+		User user = getUserById(userId);
+		List<RestaurantListResponse> restaurantListResponses
+			= reviewRepository.findRestaurantByUserForReview(user.getId());
+		setIsLike(restaurantListResponses, user.getId());
+		return restaurantListResponses;
+	}
+
+	private List<Long> getMyLikesIds(User user) {
+		return likeRepository.findLikesByUser(user)
+			.stream()
+			.map(likes -> likes.getRestaurant().getId())
+			.collect(Collectors.toList());
+	}
+
+	private void setIsLike(
+		List<RestaurantListResponse> restaurantListResponses,
+		Long userId
+	) {
+		final List<Long> likesIds = getMyLikesIds(getUserById(userId));
+		restaurantListResponses.forEach(restaurant -> restaurant.setLike(likesIds.contains(restaurant.getId())));
 	}
 
 	@Transactional

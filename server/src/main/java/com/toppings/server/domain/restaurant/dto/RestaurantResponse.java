@@ -43,17 +43,14 @@ public class RestaurantResponse {
 	private String code;
 
 	// 좋아요 갯수
-	private Long likeCount;
+	private Integer likeCount;
 
 	// 작성자
 	private String writer;
 
-	// 식습관 혹은 국적
-	private String content;
+	private boolean isLike;
 
-	private Boolean isLike;
-
-	private Boolean isScrap;
+	private boolean isScrap;
 
 	public static RestaurantResponse entityToDto(Restaurant restaurant) {
 		return RestaurantResponse.builder()

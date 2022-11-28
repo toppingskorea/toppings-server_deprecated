@@ -1,6 +1,5 @@
 package com.toppings.server.domain.scrap.service;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,7 +10,8 @@ import com.toppings.server.domain.restaurant.repository.RestaurantRepository;
 import com.toppings.server.domain.scrap.entity.Scrap;
 import com.toppings.server.domain.scrap.repository.ScrapRepository;
 import com.toppings.server.domain.user.entity.User;
-import com.toppings.server.domain.user.repository.UserRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -28,19 +28,30 @@ public class ScrapService {
 		Long userId
 	) {
 		Restaurant restaurant = getRestaurantById(restaurantId);
+		User user = getUser(userId);
 
-		Scrap scrap = scrapRepository.save(getScrap(userId, restaurant));
+		if (isDuplicatedScrap(restaurant, user))
+			throw new GeneralException(ResponseCode.DUPLICATED_ITEM);
+
+		Scrap scrap = scrapRepository.save(getScrap(user, restaurant));
 		restaurant.setScrapCount(restaurant.getScrapCount() + 1);
 		return scrap.getId();
 	}
 
+	private boolean isDuplicatedScrap(
+		Restaurant restaurant,
+		User user
+	) {
+		return scrapRepository.findScrapByRestaurantAndUser(restaurant, user).isPresent();
+	}
+
 	private Scrap getScrap(
-		Long userId,
+		User user,
 		Restaurant restaurant
 	) {
 		return Scrap.builder()
 			.restaurant(restaurant)
-			.user(getUser(userId))
+			.user(user)
 			.build();
 	}
 

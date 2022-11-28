@@ -1,6 +1,7 @@
 package com.toppings.server.domain.recent.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -12,4 +13,10 @@ public interface RecentRepository extends JpaRepository<Recent, Long>, QueryDslR
 	void deleteAllByUser(User user);
 
 	List<Recent> findRecentByUser(User user);
+
+	Optional<Recent> findRecentByUserAndKeywordAndContent(
+		User user,
+		String keyword,
+		String content
+	);
 }

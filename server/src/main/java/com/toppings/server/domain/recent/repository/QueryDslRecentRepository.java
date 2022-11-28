@@ -15,9 +15,4 @@ public interface QueryDslRecentRepository {
 		RecentType type,
 		Long id
 	);
-
-	Optional<Recent> findRecentByRecentRequest(
-		RecentRequest request,
-		User user
-	);
 }

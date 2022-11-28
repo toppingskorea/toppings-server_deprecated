@@ -1,5 +1,6 @@
 package com.toppings.server.domain.likes.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,5 +16,5 @@ public interface LikeRepository extends JpaRepository<Likes, Long>, QueryDslLike
 		User user
 	);
 
-	Optional<Likes> findLikesByUser(User user);
+	List<Likes> findLikesByUser(User user);
 }

@@ -48,7 +48,7 @@ public class RecentRequest {
 	}
 
 	public static boolean verifyRestaurantType(RecentRequest recentRequest) {
-		return recentRequest.getType().equals(RecentType.Restaurant) && recentRequest.getCategory() == null;
+		return recentRequest.getType().equals(RecentType.Filter) && recentRequest.getCategory() == null;
 	}
 
 	public static boolean verifySearchCategory(RecentRequest recentRequest) {

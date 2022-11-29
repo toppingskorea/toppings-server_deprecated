@@ -29,19 +29,23 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		Authentication authentication
 	) throws IOException, ServletException {
 		System.out.println("--------------- oauth2 success handler ---------------");
-		PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+		PrincipalDetails principalDetails = (PrincipalDetails)authentication.getPrincipal();
 		String accessToken = JwtUtils.createAccessToken(principalDetails.getUser());
-		String targetUrl = getTargetUrl(accessToken);
+		String targetUrl = getTargetUrl(accessToken, principalDetails.getUser().getRole().name());
 		getRedirectStrategy().sendRedirect(request, response, targetUrl); // 나중에 도메인 주소로 변경
 	}
 
-	private String getTargetUrl(String accessToken) {
-		String redirectUri = (String) servletContext.getAttribute("redirectUri");
+	private String getTargetUrl(
+		String accessToken,
+		String role
+	) {
+		String redirectUri = (String)servletContext.getAttribute("redirectUri");
 		if (redirectUri == null)
 			redirectUri = "http://127.0.0.1:3000/login/redirect";
 
 		return UriComponentsBuilder.fromUriString(redirectUri)
 			.queryParam("accessToken", accessToken)
+			.queryParam("role", role)
 			.build().toUriString();
 	}
 }

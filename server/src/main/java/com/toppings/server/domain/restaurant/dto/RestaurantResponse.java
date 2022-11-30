@@ -8,6 +8,10 @@ import javax.persistence.ElementCollection;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.toppings.server.domain.restaurant.constant.FoodType;
+import com.toppings.server.domain.restaurant.entity.Restaurant;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,6 +21,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class RestaurantResponse {
 
 	private Long id;
@@ -31,21 +36,32 @@ public class RestaurantResponse {
 
 	private String description;
 
-	@ElementCollection(fetch = FetchType.EAGER)
-	@CollectionTable(
-		name = "t_eating_habit",
-		joinColumns = @JoinColumn(name = "user_id")
-	)
-	@Column(name = "user_habit", columnDefinition = "varchar(100)")
+	private FoodType type;
+
 	private List<String> images;
 
-	// 좋아요 갯수
+	private String code;
 
-	// 스크랩 갯수
+	// 좋아요 갯수
+	private Integer likeCount;
 
 	// 작성자
+	private String writer;
 
-	// 국적
+	private boolean isLike;
 
-	// 식습관
+	private boolean isScrap;
+
+	public static RestaurantResponse entityToDto(Restaurant restaurant) {
+		return RestaurantResponse.builder()
+			.id(restaurant.getId())
+			.name(restaurant.getName())
+			.type(restaurant.getType())
+			.address(restaurant.getAddress())
+			.description(restaurant.getDescription())
+			.latitude(restaurant.getLatitude())
+			.longitude(restaurant.getLongitude())
+			.code(restaurant.getCode())
+			.build();
+	}
 }

@@ -83,7 +83,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				UsernamePasswordAuthenticationFilter.class
 			)
 			.addFilterBefore(new JwtAuthorizationFilter(authenticationManager(), userService,
-					servletContext, Arrays.stream(environment.getActiveProfiles()).anyMatch(env -> env.equalsIgnoreCase("prod"))),
+				Arrays.stream(environment.getActiveProfiles()).anyMatch(env -> env.equalsIgnoreCase("prod"))),
 				BasicAuthenticationFilter.class
 			);
 

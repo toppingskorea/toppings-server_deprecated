@@ -59,7 +59,7 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
 		String providerId = oAuth2UserInfo.getProviderId();
 		String email = oAuth2UserInfo.getEmail();
 		String name = oAuth2UserInfo.getName();
-		User user = userRepository.findUserByUsername(providerId + "_" + email).orElse(null);
+		User user = userRepository.findUserByUsername(providerId).orElse(null);
 		if (user == null)
 			user = registerUser(providerId, email, name);
 		return user;
@@ -71,10 +71,10 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
 		String email,
 		String name
 	) {
-		String username = providerId + "_" + (email != null ? email : "none");
 		User user = User.builder()
-			.username(username)
-			.role(Auth.ROLE_USER)
+			.username(providerId)
+			.role(Auth.ROLE_TEMP)
+			.email(email)
 			.name(name)
 			.build();
 		userRepository.save(user);

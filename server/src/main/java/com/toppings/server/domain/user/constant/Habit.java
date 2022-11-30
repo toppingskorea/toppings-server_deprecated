@@ -8,11 +8,10 @@ public enum Habit {
     // Diet
     Vegan,
     Vegetarian,
-    LowCarb,
-    NoSugar,
+    Lowcarb,
+    Nosugar,
 
     // Religion
-    Religion,
     Buddhism,
     Hinduism,
     Islam

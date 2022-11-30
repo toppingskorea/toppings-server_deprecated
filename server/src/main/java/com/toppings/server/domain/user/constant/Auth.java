@@ -5,5 +5,5 @@ import lombok.Getter;
 @Getter
 public enum Auth {
 
-	ROLE_HEAD, ROLE_ADMIN, ROLE_USER
+	ROLE_ADMIN, ROLE_USER, ROLE_TEMP
 }

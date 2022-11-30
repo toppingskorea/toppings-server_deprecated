@@ -1,5 +1,9 @@
 package com.toppings.server.domain.review.entity;
 
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
 import com.toppings.server.domain.user.entity.User;
 import com.toppings.server.domain_global.entity.BaseEntity;
@@ -32,5 +36,17 @@ public class Review extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @JsonIgnoreProperties({"reviews"})
+    @ToString.Exclude
+    @JsonIgnore
     private User user;
+
+    @Column(name = "review_description", columnDefinition = "text")
+    private String description;
+
+    @OneToMany(mappedBy = "review", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<ReviewAttach> images;
+
+    @Column(name = "review_thumbnail", columnDefinition = "longtext")
+    private String thumbnail;
 }

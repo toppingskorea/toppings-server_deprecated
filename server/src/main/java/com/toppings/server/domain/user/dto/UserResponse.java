@@ -22,16 +22,27 @@ public class UserResponse {
 
 	private String name;
 
+	private String email;
+
 	private String country;
 
-	private List<Habit> habits;
+	private List<UserHabitResponse> habits;
+
+	private String profile;
+
+	private Integer postCount;
+
+	private Integer scrapCount;
+
+	private Integer reviewCount;
 
 	public static UserResponse entityToDto(User user) {
 		return UserResponse.builder()
 			.id(user.getId())
 			.name(user.getName())
+			.email(user.getEmail())
 			.country(user.getCountry())
-			.habits(user.getHabits())
+			.profile(user.getProfile())
 			.build();
 	}
 }

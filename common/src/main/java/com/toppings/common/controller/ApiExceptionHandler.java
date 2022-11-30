@@ -98,7 +98,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 		WebRequest request
 	) {
 		BindingResult bindingResult = ex.getBindingResult();
-		String message = null;
+		final String message;
 		if (Objects.equals(Objects.requireNonNull(bindingResult.getFieldError()).getCode(),
 			TypeMismatchException.ERROR_CODE))
 			message = ResponseCode.BAD_REQUEST.getMessage();

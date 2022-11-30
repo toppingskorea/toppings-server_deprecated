@@ -2,6 +2,7 @@ package com.toppings.server.domain.user.entity;
 
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -13,11 +14,17 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import com.toppings.server.domain.likes.entity.Likes;
+import com.toppings.server.domain.recent.entity.Recent;
+import com.toppings.server.domain.restaurant.entity.Restaurant;
+import com.toppings.server.domain.review.entity.Review;
+import com.toppings.server.domain.scrap.entity.Scrap;
 import com.toppings.server.domain.user.constant.Auth;
 import com.toppings.server.domain.user.constant.Habit;
 import com.toppings.server.domain_global.entity.BaseEntity;
@@ -52,26 +59,21 @@ public class User extends BaseEntity {
 	@Column(name = "user_name", columnDefinition = "varchar(100)")
 	private String name;
 
+	@Column(name = "user_email", columnDefinition = "varchar(255)")
+	private String email;
+
 	@Column(name = "user_pw", columnDefinition = "varchar(200)")
 	private String password;
 
 	@Column(name = "user_country", columnDefinition = "varchar(200)")
 	private String country;
 
-	@ElementCollection(fetch = FetchType.EAGER)
-	@CollectionTable(
-		name = "t_eating_habit",
-		joinColumns = @JoinColumn(name = "user_id")
-	)
-	@Column(name = "user_habit", columnDefinition = "varchar(100)")
-	private List<Habit> habits;
+	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+	private List<UserHabit> habits;
 
 	@Column(name = "user_role", columnDefinition = "varchar(20)")
 	@Enumerated(EnumType.STRING)
 	private Auth role;
-
-	@Column(name = "refresh_token", columnDefinition = "varchar(200)")
-	private String refreshToken;
 
 	@Column(name = "delete_yn", columnDefinition = "varchar(1) default 'N'")
 	private String deleteYn;
@@ -79,11 +81,23 @@ public class User extends BaseEntity {
 	@Column(name = "user_profile", columnDefinition = "longtext")
 	private String profile;
 
-	// 음식점
-
 	// 좋아요
+	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+	private List<Likes> likes;
+
+	// 음식점
+	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+	private List<Restaurant> restaurants;
 
 	// 스크랩
+	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+	private List<Scrap> scraps;
 
 	// 리뷰
+	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+	private List<Review> reviews;
+
+	// 최근 검색
+	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+	private List<Recent> recents;
 }

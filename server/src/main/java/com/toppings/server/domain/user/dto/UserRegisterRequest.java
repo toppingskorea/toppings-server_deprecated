@@ -1,8 +1,8 @@
 package com.toppings.server.domain.user.dto;
 
-import javax.validation.constraints.NotBlank;
+import java.util.List;
 
-import com.toppings.server.domain.user.constant.Habit;
+import javax.validation.constraints.NotBlank;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,5 +18,5 @@ public class UserRegisterRequest {
 	@NotBlank(message = "국적을 입력해주세요.")
 	private String country;
 
-	private Habit habit;
+	private List<UserHabitRequest> habit;
 }

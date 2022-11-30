@@ -1,6 +1,9 @@
 package com.toppings.server.domain.user.dto;
 
+import java.util.List;
+
 import com.toppings.server.domain.user.constant.Habit;
+import com.toppings.server.domain.user.entity.User;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,5 +20,14 @@ public class UserModifyRequest {
 
 	private String country;
 
-	private Habit habit;
+	private List<UserHabitRequest> habit;
+
+	private String profile;
+
+	public static void modifyUserInfo(UserModifyRequest request, User user) {
+		user.setName(request.getName() != null ? request.getName() : user.getName());
+		user.setCountry(
+			request.getCountry() != null ? request.getCountry() : user.getCountry());
+		user.setProfile(request.getProfile() != null ? request.getProfile() : user.getProfile());
+	}
 }

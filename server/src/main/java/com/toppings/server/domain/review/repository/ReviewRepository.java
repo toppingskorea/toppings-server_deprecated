@@ -1,7 +1,9 @@
 package com.toppings.server.domain.review.repository;
 
-import com.toppings.server.domain.review.entity.Review;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ReviewRepository extends JpaRepository<Review, Long> {
+import com.toppings.server.domain.review.entity.Review;
+
+public interface ReviewRepository extends JpaRepository<Review, Long>, QueryDslReviewRepository {
+
 }

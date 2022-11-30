@@ -27,33 +27,45 @@ public class RecentController {
 
     private final RecentService recentService;
 
+    /**
+     * 최근검색어 등록하기
+     */
     @PostMapping
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> registerRecent(
         @Valid @RequestBody RecentRequest recentRequest,
-        @AuthenticationPrincipal Long id
+        @AuthenticationPrincipal Long userId
     ) {
-        return ResponseEntity.ok(ApiDataResponse.of(recentService.register(recentRequest, id)));
+        return ResponseEntity.ok(ApiDataResponse.of(recentService.register(recentRequest, userId)));
     }
 
+    /**
+     * 최근검색어 목록 조회하기
+     */
     @GetMapping
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> getRecents(
         RecentType type,
-        @AuthenticationPrincipal Long id
+        @AuthenticationPrincipal Long userId
     ) {
-        return ResponseEntity.ok(ApiDataResponse.of(recentService.findAll(type, id)));
+        return ResponseEntity.ok(ApiDataResponse.of(recentService.findAll(type, userId)));
     }
 
-    @DeleteMapping("/{id}")
+    /**
+     * 최근검색어 삭제하기
+     */
+    @DeleteMapping("/{recentId}")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> removeOneRecent(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiDataResponse.of(recentService.removeOne(id)));
+    public ResponseEntity<?> removeOneRecent(@PathVariable Long recentId) {
+        return ResponseEntity.ok(ApiDataResponse.of(recentService.removeOne(recentId)));
     }
 
+    /**
+     * 최근검색어 전체 삭제하기
+     */
     @DeleteMapping
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> removeAllRecent(@AuthenticationPrincipal Long id) {
-        return ResponseEntity.ok(ApiDataResponse.of(recentService.removeAll(id)));
+    public ResponseEntity<?> removeAllRecent(@AuthenticationPrincipal Long userid) {
+        return ResponseEntity.ok(ApiDataResponse.of(recentService.removeAll(userid)));
     }
 }

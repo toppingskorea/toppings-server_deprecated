@@ -1,5 +1,7 @@
 package com.toppings.server.domain.recent.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.toppings.server.domain.recent.constant.RecentType;
 import com.toppings.server.domain.user.entity.User;
 import com.toppings.server.domain_global.constants.SearchCategory;
@@ -27,6 +29,9 @@ public class Recent extends BaseEntity {
     @Column(name = "recent_id")
     private Long id;
 
+    @Column(name = "restaurant_id")
+    private Long restaurantId;
+
     @Column(name = "recent_keyword", columnDefinition = "varchar(200)")
     private String keyword;
 
@@ -43,5 +48,8 @@ public class Recent extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @JsonIgnoreProperties({"recents"})
+    @ToString.Exclude
+    @JsonIgnore
     private User user;
 }

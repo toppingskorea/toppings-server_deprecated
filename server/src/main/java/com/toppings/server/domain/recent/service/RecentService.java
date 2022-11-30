@@ -33,14 +33,17 @@ public class RecentService {
 	@Transactional
 	public RecentResponse register(
 		RecentRequest recentRequest,
-		Long id
+		Long userId
 	) {
 		if (RecentRequest.verifyRestaurantType(recentRequest))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
-		User user = getUserById(id);
+		if (RecentRequest.verifySearchCategory(recentRequest))
+			throw new GeneralException(ResponseCode.BAD_REQUEST);
+
+		User user = getUserById(userId);
 		recentRepository
-			.findRecentByRecentRequest(recentRequest, user)
+			.findRecentByUserAndKeywordAndContent(user, recentRequest.getKeyword(), recentRequest.getContent())
 			.ifPresent(recentRepository::delete);
 		Recent recent = recentRepository.save(RecentRequest.dtoToEntity(recentRequest, user));
 		return RecentResponse.entityToDto(recent);
@@ -51,27 +54,26 @@ public class RecentService {
 	 */
 	public List<RecentResponse> findAll(
 		RecentType type,
-		Long id
+		Long userId
 	) {
-		// TODO 성능상 where 절이 추가되는것 보다 type 을 여기서 분기하고 조회 메소드를 하나 더 추가하는게 나을수도?
-		return recentRepository.findRecents(type, id);
+		return recentRepository.findRecents(type, userId);
 	}
 
 	/**
 	 * 최근 검색어 삭제
 	 */
 	@Transactional
-	public Long removeOne(Long id) {
-		recentRepository.deleteById(id);
-		return id;
+	public Long removeOne(Long recentId) {
+		recentRepository.deleteById(recentId);
+		return recentId;
 	}
 
 	/**
 	 * 최근 검색어 전체 삭제
 	 */
 	@Transactional
-	public List<Long> removeAll(Long id) {
-		User user = getUserById(id);
+	public List<Long> removeAll(Long userId) {
+		User user = getUserById(userId);
 		List<Long> recentIds = recentRepository.findRecentByUser(user)
 			.stream()
 			.map(Recent::getId)

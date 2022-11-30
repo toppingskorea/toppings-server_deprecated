@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.toppings.common.constants.ResponseCode;
 import com.toppings.common.exception.GeneralException;
+import com.toppings.server.domain.likes.dto.LikesPercent;
+import com.toppings.server.domain.likes.dto.LikesPercentResponse;
 import com.toppings.server.domain.likes.repository.LikeRepository;
 import com.toppings.server.domain.restaurant.dto.RestaurantAttachRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantListResponse;
@@ -291,5 +293,43 @@ public class RestaurantService {
 			.stream()
 			.map(RestaurantAttach::getImage)
 			.collect(Collectors.toList());
+	}
+
+	public LikesPercentResponse getLikesPercent(Long restaurantId) {
+		Restaurant restaurant = getRestaurantById(restaurantId);
+		Long totalCount = likeRepository.countByRestaurant(restaurant);
+
+		System.out.println(totalCount);
+
+		List<LikesPercent> countryLikePercents = likeRepository.findLikesPercentForCountry(restaurantId);
+		List<LikesPercent> habitLikePercents = likeRepository.findLikesPercentForHabit(restaurantId);
+
+		setCountryLikesPercent(totalCount, countryLikePercents);
+		setHabitLikesPercent(totalCount, habitLikePercents);
+
+		return LikesPercentResponse.builder()
+			.countryPercent(countryLikePercents)
+			.habitPercent(habitLikePercents)
+			.build();
+	}
+
+	private void setHabitLikesPercent(
+		Long totalCount,
+		List<LikesPercent> habitLikePercents
+	) {
+		habitLikePercents.forEach(habitLikes -> {
+			double divisionValue = habitLikes.getCount() / (double)totalCount;
+			habitLikes.setPercent(Math.toIntExact(Math.round(divisionValue * 100)));
+		});
+	}
+
+	private void setCountryLikesPercent(
+		Long totalCount,
+		List<LikesPercent> countryLikePercents
+	) {
+		countryLikePercents.forEach(countryLikes -> {
+			double divisionValue = countryLikes.getCount() / (double)totalCount;
+			countryLikes.setPercent(Math.toIntExact(Math.round(divisionValue * 100)));
+		});
 	}
 }

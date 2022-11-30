@@ -1,6 +1,8 @@
 package com.toppings.server.domain.likes.repository;
 
 import static com.toppings.server.domain.likes.entity.QLikes.*;
+import static com.toppings.server.domain.user.entity.QUser.*;
+import static com.toppings.server.domain.user.entity.QUserHabit.*;
 
 import java.util.List;
 
@@ -9,8 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.QBean;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.toppings.server.domain.likes.dto.LikesPercent;
 import com.toppings.server.domain.restaurant.dto.RestaurantListResponse;
+import com.toppings.server.domain_global.utils.OrderByNull;
 
 import lombok.RequiredArgsConstructor;
 
@@ -41,6 +46,35 @@ public class QueryDslLikeRepositoryImpl implements QueryDslLikeRepository {
 			.leftJoin(likes.restaurant)
 			.leftJoin(likes.user)
 			.where(likes.user.id.in(ids), likes.restaurant.likeCount.gt(0))
+			.fetch();
+	}
+
+	@Override
+	public List<LikesPercent> findLikesPercentForCountry(Long restaurantId) {
+		return queryFactory.select(
+			Projections.fields(LikesPercent.class, likes.count().as("count"), user.country))
+			.from(user)
+			.leftJoin(likes).on(user.id.eq(likes.user.id))
+			.where(eqRestaurantId(restaurantId))
+			.groupBy(user.country)
+			.orderBy(likes.count().desc(), OrderByNull.DEFAULT)
+			.fetch();
+	}
+
+	private BooleanExpression eqRestaurantId(Long restaurantId) {
+		return likes.restaurant.id.eq(restaurantId);
+	}
+
+	@Override
+	public List<LikesPercent> findLikesPercentForHabit(Long restaurantId) {
+		return queryFactory.select(
+			Projections.fields(LikesPercent.class, likes.count().as("count"), userHabit.content.as("habit")))
+			.from(user)
+			.leftJoin(likes).on(user.id.eq(likes.user.id))
+			.leftJoin(userHabit).on(user.id.eq(userHabit.user.id))
+			.where(eqRestaurantId(restaurantId), userHabit.content.isNotNull())
+			.groupBy(userHabit.content)
+			.orderBy(likes.count().desc(), OrderByNull.DEFAULT)
 			.fetch();
 	}
 

@@ -17,4 +17,6 @@ public interface LikeRepository extends JpaRepository<Likes, Long>, QueryDslLike
 	);
 
 	List<Likes> findLikesByUser(User user);
+
+	Long countByRestaurant(Restaurant restaurant);
 }

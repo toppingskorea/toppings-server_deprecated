@@ -88,6 +88,15 @@ public class RestaurantController {
 	}
 
 	/**
+	 * 음식점 상세 조회하기
+	 */
+	@GetMapping("/{restaurantId}/like")
+	public ResponseEntity<?> getRestaurantLikePercent(@PathVariable Long restaurantId) {
+		return ResponseEntity.ok(ApiDataResponse.of(restaurantService.getLikesPercent(restaurantId)));
+	}
+
+
+	/**
 	 * 음식점 삭제하기
 	 */
 	@DeleteMapping("/{restaurantId}")

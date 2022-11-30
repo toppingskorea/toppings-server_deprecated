@@ -21,6 +21,7 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import com.toppings.server.domain.likes.entity.Likes;
+import com.toppings.server.domain.recent.entity.Recent;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
 import com.toppings.server.domain.review.entity.Review;
 import com.toppings.server.domain.scrap.entity.Scrap;
@@ -95,4 +96,8 @@ public class User extends BaseEntity {
 	// 리뷰
 	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	private List<Review> reviews;
+
+	// 최근 검색
+	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+	private List<Recent> recents;
 }

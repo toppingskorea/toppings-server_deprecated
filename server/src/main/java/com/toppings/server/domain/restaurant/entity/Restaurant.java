@@ -81,4 +81,7 @@ public class Restaurant extends BaseEntity {
 
     @Column(name = "restaurant_thumbnail", columnDefinition = "longtext")
     private String thumbnail;
+
+    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Likes> likes;
 }

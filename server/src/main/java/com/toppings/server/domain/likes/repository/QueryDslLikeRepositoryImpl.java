@@ -1,10 +1,13 @@
 package com.toppings.server.domain.likes.repository;
 
 import static com.toppings.server.domain.likes.entity.QLikes.*;
+import static com.toppings.server.domain.restaurant.entity.QRestaurant.*;
 import static com.toppings.server.domain.user.entity.QUser.*;
 import static com.toppings.server.domain.user.entity.QUserHabit.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,7 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.QBean;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.toppings.server.domain.likes.dto.FilterLikesCount;
 import com.toppings.server.domain.likes.dto.LikesPercent;
 import com.toppings.server.domain.restaurant.dto.RestaurantListResponse;
 import com.toppings.server.domain_global.utils.OrderByNull;
@@ -28,25 +33,69 @@ public class QueryDslLikeRepositoryImpl implements QueryDslLikeRepository {
 
 	@Override
 	public List<RestaurantListResponse> findRestaurantIdByUserCountry(String country) {
-		return queryFactory.select(getFields())
-			.distinct()
+		List<FilterLikesCount> filterLikesCount = queryFactory.select(
+			Projections.fields(FilterLikesCount.class, likes.restaurant.id.as("restaurantId"),
+				Wildcard.count.as("filterLikeCount")))
 			.from(likes)
 			.leftJoin(likes.restaurant)
 			.leftJoin(likes.user)
-			.where(likes.user.country.eq(country), likes.restaurant.likeCount.gt(0))
-			.orderBy(likes.restaurant.likeCount.desc())
+			.where(likes.user.country.eq(country))
+			.groupBy(likes.restaurant.id)
+			.orderBy(OrderByNull.DEFAULT)
 			.fetch();
+
+		return getRestaurantListResponses(filterLikesCount);
 	}
 
 	@Override
 	public List<RestaurantListResponse> findRestaurantIdByUserHabit(List<Long> ids) {
-		return queryFactory.select(getFields())
-			.distinct()
+		List<FilterLikesCount> filterLikesCount = queryFactory.select(
+			Projections.fields(FilterLikesCount.class, likes.restaurant.id.as("restaurantId"),
+				Wildcard.count.as("filterLikeCount")))
 			.from(likes)
 			.leftJoin(likes.restaurant)
 			.leftJoin(likes.user)
-			.where(likes.user.id.in(ids), likes.restaurant.likeCount.gt(0))
+			.where(likes.user.id.in(ids))
+			.groupBy(likes.restaurant.id)
+			.orderBy(OrderByNull.DEFAULT)
 			.fetch();
+
+		return getRestaurantListResponses(filterLikesCount);
+	}
+
+	private List<RestaurantListResponse> getRestaurantListResponses(List<FilterLikesCount> filterLikesCount) {
+		Map<Long, Long> longMap = getLongMap(filterLikesCount);
+
+		List<RestaurantListResponse> restaurantListResponses = queryFactory.select(getFields())
+			.from(restaurant)
+			.leftJoin(restaurant.user)
+			.where(restaurant.id.in(longMap.keySet()), restaurant.likeCount.gt(0))
+			.orderBy(restaurant.likeCount.desc())
+			.fetch();
+
+		setFilterLikesCount(longMap, restaurantListResponses);
+		return restaurantListResponses;
+	}
+
+	private void setFilterLikesCount(
+		Map<Long, Long> longMap,
+		List<RestaurantListResponse> restaurantListResponses
+	) {
+		restaurantListResponses.forEach(res -> {
+			res.setFilterLikeCount(longMap.get(res.getId()));
+		});
+	}
+
+	private Map<Long, Long> getLongMap(List<FilterLikesCount> filterLikesCount) {
+		return filterLikesCount.stream()
+			.collect(Collectors.toMap(FilterLikesCount::getRestaurantId, FilterLikesCount::getFilterLikeCount));
+	}
+
+	private QBean<RestaurantListResponse> getFields() {
+		return Projections.fields(RestaurantListResponse.class, restaurant.id, restaurant.name,
+			restaurant.address, restaurant.latitude, restaurant.longitude,
+			restaurant.description, restaurant.type, restaurant.thumbnail, restaurant.likeCount,
+			restaurant.user.name.as("writer"));
 	}
 
 	@Override
@@ -76,12 +125,5 @@ public class QueryDslLikeRepositoryImpl implements QueryDslLikeRepository {
 
 	private BooleanExpression eqRestaurantId(Long restaurantId) {
 		return likes.restaurant.id.eq(restaurantId);
-	}
-
-	private QBean<RestaurantListResponse> getFields() {
-		return Projections.fields(RestaurantListResponse.class, likes.restaurant.id, likes.restaurant.name,
-			likes.restaurant.address, likes.restaurant.latitude, likes.restaurant.longitude,
-			likes.restaurant.description, likes.restaurant.type, likes.restaurant.thumbnail, likes.restaurant.likeCount,
-			likes.user.name.as("writer"));
 	}
 }

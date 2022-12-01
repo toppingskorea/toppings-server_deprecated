@@ -24,6 +24,7 @@ public class QueryDslUserHabitRepositoryImpl implements QueryDslUserHabitReposit
 	public List<Long> findUserIdByHabit(RestaurantSearchRequest searchRequest) {
 		return queryFactory.select(userHabit.user.id)
 			.from(userHabit)
+			.leftJoin(userHabit.user)
 			.where(userHabit.title.eq(searchRequest.getHabitTitle()), userHabit.content.eq(searchRequest.getHabit()))
 			.fetch();
 	}

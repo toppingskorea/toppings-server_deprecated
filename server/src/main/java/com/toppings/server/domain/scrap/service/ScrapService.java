@@ -27,13 +27,13 @@ public class ScrapService {
 		Long restaurantId,
 		Long userId
 	) {
-		Restaurant restaurant = getRestaurantById(restaurantId);
-		User user = getUser(userId);
+		final Restaurant restaurant = getRestaurantById(restaurantId);
+		final User user = getUser(userId);
 
 		if (isDuplicatedScrap(restaurant, user))
 			throw new GeneralException(ResponseCode.DUPLICATED_ITEM);
 
-		Scrap scrap = scrapRepository.save(getScrap(user, restaurant));
+		final Scrap scrap = scrapRepository.save(getScrap(user, restaurant));
 		restaurant.setScrapCount(restaurant.getScrapCount() + 1);
 		return scrap.getId();
 	}
@@ -60,9 +60,9 @@ public class ScrapService {
 		Long restaurantId,
 		Long userId
 	) {
-		Restaurant restaurant = getRestaurantById(restaurantId);
+		final Restaurant restaurant = getRestaurantById(restaurantId);
 
-		Scrap scrap = scrapRepository.findScrapByRestaurantAndUser(restaurant, getUser(userId))
+		final Scrap scrap = scrapRepository.findScrapByRestaurantAndUser(restaurant, getUser(userId))
 			.orElseThrow(() -> new GeneralException(ResponseCode.BAD_REQUEST));
 
 		scrapRepository.deleteById(scrap.getId());

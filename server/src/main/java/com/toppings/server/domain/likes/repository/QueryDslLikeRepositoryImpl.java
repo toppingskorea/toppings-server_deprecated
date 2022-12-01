@@ -61,10 +61,6 @@ public class QueryDslLikeRepositoryImpl implements QueryDslLikeRepository {
 			.fetch();
 	}
 
-	private BooleanExpression eqRestaurantId(Long restaurantId) {
-		return likes.restaurant.id.eq(restaurantId);
-	}
-
 	@Override
 	public List<LikesPercent> findLikesPercentForHabit(Long restaurantId) {
 		return queryFactory.select(
@@ -76,6 +72,10 @@ public class QueryDslLikeRepositoryImpl implements QueryDslLikeRepository {
 			.groupBy(userHabit.content)
 			.orderBy(likes.count().desc(), OrderByNull.DEFAULT)
 			.fetch();
+	}
+
+	private BooleanExpression eqRestaurantId(Long restaurantId) {
+		return likes.restaurant.id.eq(restaurantId);
 	}
 
 	private QBean<RestaurantListResponse> getFields() {

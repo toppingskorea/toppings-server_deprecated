@@ -116,7 +116,7 @@ public class RestaurantService {
 		RestaurantModifyRequest request,
 		Restaurant restaurant
 	) {
-		List<RestaurantAttach> restaurantAttaches = new ArrayList<>();
+		final List<RestaurantAttach> restaurantAttaches = new ArrayList<>();
 		if (request.getImages() != null && !request.getImages().isEmpty()) {
 			// 기존 이미지 제거
 			restaurantAttachRepository.deleteAllByIdInBatch(
@@ -296,13 +296,11 @@ public class RestaurantService {
 	}
 
 	public LikesPercentResponse getLikesPercent(Long restaurantId) {
-		Restaurant restaurant = getRestaurantById(restaurantId);
-		Long totalCount = likeRepository.countByRestaurant(restaurant);
+		final Restaurant restaurant = getRestaurantById(restaurantId);
+		final Long totalCount = likeRepository.countByRestaurant(restaurant);
 
-		System.out.println(totalCount);
-
-		List<LikesPercent> countryLikePercents = likeRepository.findLikesPercentForCountry(restaurantId);
-		List<LikesPercent> habitLikePercents = likeRepository.findLikesPercentForHabit(restaurantId);
+		final List<LikesPercent> countryLikePercents = likeRepository.findLikesPercentForCountry(restaurantId);
+		final List<LikesPercent> habitLikePercents = likeRepository.findLikesPercentForHabit(restaurantId);
 
 		setCountryLikesPercent(totalCount, countryLikePercents);
 		setHabitLikesPercent(totalCount, habitLikePercents);

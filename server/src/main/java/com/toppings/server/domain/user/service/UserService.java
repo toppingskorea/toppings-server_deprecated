@@ -54,14 +54,14 @@ public class UserService {
 		UserRegisterRequest request,
 		Long userId
 	) {
-		User user = getUserById(userId);
+		final User user = getUserById(userId);
 		if (user.getCountry() != null)
 			throw new GeneralException(ResponseCode.DUPLICATED_USER);
 
 		user.setCountry(request.getCountry());
 		user.setRole(Auth.ROLE_USER);
-		List<UserHabitResponse> userHabitResponses = registerUserHabit(request, user);
-		UserResponse userResponse = UserResponse.entityToDto(user);
+		final List<UserHabitResponse> userHabitResponses = registerUserHabit(request, user);
+		final UserResponse userResponse = UserResponse.entityToDto(user);
 		userResponse.setHabits(userHabitResponses);
 		return userResponse;
 	}
@@ -70,7 +70,7 @@ public class UserService {
 		UserRegisterRequest request,
 		User user
 	) {
-		List<UserHabit> userHabits = new ArrayList<>();
+		final List<UserHabit> userHabits = new ArrayList<>();
 		for (UserHabitRequest habitRequest : request.getHabit())
 			userHabits.add(UserHabitRequest.createUserHabit(habitRequest, user));
 
@@ -88,11 +88,11 @@ public class UserService {
 		UserModifyRequest request,
 		Long userId
 	) {
-		User user = getUserById(userId);
+		final User user = getUserById(userId);
 		UserModifyRequest.modifyUserInfo(request, user);
-		List<UserHabitResponse> userHabitResponses = modifyUserHabit(request, user);
+		final List<UserHabitResponse> userHabitResponses = modifyUserHabit(request, user);
 
-		UserResponse userResponse = UserResponse.entityToDto(user);
+		final UserResponse userResponse = UserResponse.entityToDto(user);
 		userResponse.setHabits(userHabitResponses);
 		return userResponse;
 	}
@@ -101,7 +101,7 @@ public class UserService {
 		UserModifyRequest request,
 		User user
 	) {
-		List<UserHabit> userHabits = user.getHabits();
+		final List<UserHabit> userHabits = user.getHabits();
 		if (request.getHabit() != null && !request.getHabit().isEmpty()) {
 			// 기존 식습관 제거
 			userHabitRepository.deleteAllByIdInBatch(
@@ -127,7 +127,7 @@ public class UserService {
 	 * 회원 가입 검증
 	 */
 	public boolean verifyRegister(Long userId) {
-		User user = getUserById(userId);
+		final User user = getUserById(userId);
 		return user.getCountry() != null;
 	}
 
@@ -135,7 +135,7 @@ public class UserService {
 	 * 회원 권한 조회
 	 */
 	public String findUserRole(Long userId) {
-		User user = userRepository.findById(userId).orElse(null);
+		final User user = userRepository.findById(userId).orElse(null);
 		return user != null ? user.getRole().name() : Auth.ROLE_TEMP.name();
 	}
 
@@ -143,9 +143,9 @@ public class UserService {
 	 * 회원 정보 조회
 	 */
 	public UserResponse findOne(Long userId) {
-		User user = getUserById(userId);
-		List<UserHabit> userHabits = user.getHabits();
-		UserResponse userResponse = UserResponse.entityToDto(user);
+		final User user = getUserById(userId);
+		final List<UserHabit> userHabits = user.getHabits();
+		final UserResponse userResponse = UserResponse.entityToDto(user);
 		userResponse.setHabits(userHabits.stream()
 			.map(UserHabitResponse::entityToDto)
 			.collect(Collectors.toList()));
@@ -160,8 +160,8 @@ public class UserService {
 	 * 회원 스크랩 정보 조회
 	 */
 	public List<RestaurantListResponse> findScrapByUser(Long userId) {
-		User user = getUserById(userId);
-		List<RestaurantListResponse> restaurantListResponses
+		final User user = getUserById(userId);
+		final List<RestaurantListResponse> restaurantListResponses
 			= scrapRepository.findRestaurantByUserForScrap(user.getId());
 		setIsLike(restaurantListResponses, user.getId());
 		return restaurantListResponses;
@@ -171,8 +171,8 @@ public class UserService {
 	 * 회원 게시물 정보 조회
 	 */
 	public List<RestaurantListResponse> findRestaurantByUser(Long userId) {
-		User user = getUserById(userId);
-		List<RestaurantListResponse> restaurantListResponses
+		final User user = getUserById(userId);
+		final List<RestaurantListResponse> restaurantListResponses
 			= restaurantRepository.findRestaurantByUser(user.getId());
 		setIsLike(restaurantListResponses, user.getId());
 		return restaurantListResponses;
@@ -182,8 +182,8 @@ public class UserService {
 	 * 회원 리뷰단 게시물 정보 조회
 	 */
 	public List<RestaurantListResponse> findReviewByUser(Long userId) {
-		User user = getUserById(userId);
-		List<RestaurantListResponse> restaurantListResponses
+		final User user = getUserById(userId);
+		final List<RestaurantListResponse> restaurantListResponses
 			= reviewRepository.findRestaurantByUserForReview(user.getId());
 		setIsLike(restaurantListResponses, user.getId());
 		return restaurantListResponses;

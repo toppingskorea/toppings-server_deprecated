@@ -41,11 +41,11 @@ public class RecentService {
 		if (RecentRequest.verifySearchCategory(recentRequest))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
-		User user = getUserById(userId);
+		final User user = getUserById(userId);
 		recentRepository
 			.findRecentByUserAndKeywordAndContent(user, recentRequest.getKeyword(), recentRequest.getContent())
 			.ifPresent(recentRepository::delete);
-		Recent recent = recentRepository.save(RecentRequest.dtoToEntity(recentRequest, user));
+		final Recent recent = recentRepository.save(RecentRequest.dtoToEntity(recentRequest, user));
 		return RecentResponse.entityToDto(recent);
 	}
 
@@ -73,8 +73,8 @@ public class RecentService {
 	 */
 	@Transactional
 	public List<Long> removeAll(Long userId) {
-		User user = getUserById(userId);
-		List<Long> recentIds = recentRepository.findRecentByUser(user)
+		final User user = getUserById(userId);
+		final List<Long> recentIds = recentRepository.findRecentByUser(user)
 			.stream()
 			.map(Recent::getId)
 			.collect(Collectors.toList());

@@ -31,13 +31,13 @@ public class LikeService {
 		Long restaurantId,
 		Long userId
 	) {
-		Restaurant restaurant = getRestaurantById(restaurantId);
-		User user = getUser(userId);
+		final Restaurant restaurant = getRestaurantById(restaurantId);
+		final User user = getUser(userId);
 
 		if (isDuplicatedLikes(restaurant, user))
 			throw new GeneralException(ResponseCode.DUPLICATED_ITEM);
 
-		Likes like = likeRepository.save(getLikes(user, restaurant));
+		final Likes like = likeRepository.save(getLikes(user, restaurant));
 		restaurant.setLikeCount(restaurant.getLikeCount() + 1);
 		return like.getId();
 	}
@@ -69,9 +69,9 @@ public class LikeService {
 		Long restaurantId,
 		Long userId
 	) {
-		Restaurant restaurant = getRestaurantById(restaurantId);
+		final Restaurant restaurant = getRestaurantById(restaurantId);
 
-		Likes like = likeRepository.findLikesByRestaurantAndUser(restaurant, getUser(userId))
+		final Likes like = likeRepository.findLikesByRestaurantAndUser(restaurant, getUser(userId))
 			.orElseThrow(() -> new GeneralException(ResponseCode.BAD_REQUEST));
 
 		likeRepository.deleteById(like.getId());

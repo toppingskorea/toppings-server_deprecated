@@ -142,7 +142,7 @@ public class ReviewService {
 		if (verifyReviewAndUser(review, user))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
-		reviewRepository.deleteById(reviewId);
+		reviewRepository.delete(review);
 		return reviewId;
 	}
 

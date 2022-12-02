@@ -25,6 +25,7 @@ import com.toppings.server.domain.restaurant.entity.Restaurant;
 import com.toppings.server.domain.restaurant.entity.RestaurantAttach;
 import com.toppings.server.domain.restaurant.repository.RestaurantAttachRepository;
 import com.toppings.server.domain.restaurant.repository.RestaurantRepository;
+import com.toppings.server.domain.review.repository.ReviewRepository;
 import com.toppings.server.domain.scrap.repository.ScrapRepository;
 import com.toppings.server.domain.user.constant.Auth;
 import com.toppings.server.domain.user.entity.User;
@@ -49,6 +50,8 @@ public class RestaurantService {
 	private final UserHabitRepository userHabitRepository;
 
 	private final ScrapRepository scrapRepository;
+
+	private final ReviewRepository reviewRepository;
 
 	/**
 	 * 음식점 등록하기
@@ -167,7 +170,10 @@ public class RestaurantService {
 		if (verifyRestaurantAndUser(user, restaurant))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
-		restaurantRepository.deleteById(restaurantId);
+		reviewRepository.deleteBatchByRestaurant(restaurant);
+		likeRepository.deleteBatchByRestaurant(restaurant);
+		scrapRepository.deleteBatchByRestaurant(restaurant);
+		restaurantRepository.delete(restaurant);
 		return restaurantId;
 	}
 

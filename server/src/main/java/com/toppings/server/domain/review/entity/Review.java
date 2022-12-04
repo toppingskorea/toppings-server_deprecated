@@ -49,4 +49,7 @@ public class Review extends BaseEntity {
 
     @Column(name = "review_thumbnail", columnDefinition = "longtext")
     private String thumbnail;
+
+    @Column(name = "public_yn", columnDefinition = "varchar(1) default 'N'")
+    private String publicYn;
 }

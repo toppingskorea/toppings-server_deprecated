@@ -1,5 +1,7 @@
 package com.toppings.server.domain.review.controller;
 
+import javax.validation.Valid;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.toppings.common.dto.ApiDataResponse;
+import com.toppings.common.dto.PubRequest;
 import com.toppings.server.domain.review.dto.ReviewModifyRequest;
 import com.toppings.server.domain.review.service.ReviewService;
 
@@ -46,6 +49,18 @@ public class ReviewController {
 		@PathVariable Long reviewId
 	) {
 		return ResponseEntity.ok(ApiDataResponse.of(reviewService.modify(request, reviewId, userId)));
+	}
+
+	/**
+	 * 리뷰 공개여부 수정하기
+	 */
+	@PutMapping("/{reviewId}/pub")
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	public ResponseEntity<?> modifyReviewPub(
+		@Valid @RequestBody PubRequest request,
+		@PathVariable Long reviewId
+	) {
+		return ResponseEntity.ok(ApiDataResponse.of(reviewService.modifyPub(request, reviewId)));
 	}
 
 	/**

@@ -18,6 +18,7 @@ import com.toppings.server.domain.likes.repository.LikeRepository;
 import com.toppings.server.domain.restaurant.dto.RestaurantAttachRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantListResponse;
 import com.toppings.server.domain.restaurant.dto.RestaurantModifyRequest;
+import com.toppings.common.dto.PubRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantResponse;
 import com.toppings.server.domain.restaurant.dto.RestaurantSearchRequest;
@@ -285,6 +286,7 @@ public class RestaurantService {
 		final List<String> images = getRestaurantImages(restaurant);
 		restaurantResponse.setImages(images);
 		restaurantResponse.setWriter(restaurant.getUser().getName());
+		restaurantResponse.setCountry(restaurant.getUser().getCountry());
 
 		if (userId != null) {
 			User user = getUserById(userId);
@@ -301,6 +303,9 @@ public class RestaurantService {
 			.collect(Collectors.toList());
 	}
 
+	/**
+	 *	좋아요 퍼센트 조회
+	 */
 	public LikesPercentResponse getLikesPercent(Long restaurantId) {
 		final Restaurant restaurant = getRestaurantById(restaurantId);
 		final Long totalCount = likeRepository.countByRestaurant(restaurant);
@@ -335,5 +340,18 @@ public class RestaurantService {
 			double divisionValue = countryLikes.getCount() / (double)totalCount;
 			countryLikes.setPercent(Math.toIntExact(Math.round(divisionValue * 100)));
 		});
+	}
+
+	/**
+	 * 음식점 공개여부 수정
+	 */
+	@Transactional
+	public Long modifyPub(
+		PubRequest pubRequest,
+		Long restaurantId
+	) {
+		final Restaurant restaurant = getRestaurantById(restaurantId);
+		restaurant.setPublicYn(pubRequest.getIsPub());
+		return restaurantId;
 	}
 }

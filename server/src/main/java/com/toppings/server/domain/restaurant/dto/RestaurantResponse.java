@@ -48,6 +48,8 @@ public class RestaurantResponse {
 	// 작성자
 	private String writer;
 
+	private String country;
+
 	private boolean isLike;
 
 	private boolean isScrap;

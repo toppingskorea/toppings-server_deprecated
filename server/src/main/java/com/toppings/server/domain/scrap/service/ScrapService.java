@@ -70,6 +70,7 @@ public class ScrapService {
 		return scrap.getId();
 	}
 
+	// TODO: public yn
 	private Restaurant getRestaurantById(Long restaurantId) {
 		return restaurantRepository.findById(restaurantId)
 			.orElseThrow(() -> new GeneralException(ResponseCode.BAD_REQUEST));

@@ -2,7 +2,6 @@ package com.toppings.server.domain.user.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -12,7 +11,6 @@ import com.toppings.common.constants.ResponseCode;
 import com.toppings.common.exception.GeneralException;
 import com.toppings.server.domain.likes.repository.LikeRepository;
 import com.toppings.server.domain.restaurant.dto.RestaurantListResponse;
-import com.toppings.server.domain.restaurant.dto.RestaurantResponse;
 import com.toppings.server.domain.restaurant.repository.RestaurantRepository;
 import com.toppings.server.domain.review.repository.ReviewRepository;
 import com.toppings.server.domain.scrap.repository.ScrapRepository;
@@ -60,10 +58,17 @@ public class UserService {
 
 		user.setCountry(request.getCountry());
 		user.setRole(Auth.ROLE_USER);
+		user.setHabitContents(getHabitContents(request.getHabit()));
+
 		final List<UserHabitResponse> userHabitResponses = registerUserHabit(request, user);
 		final UserResponse userResponse = UserResponse.entityToDto(user);
 		userResponse.setHabits(userHabitResponses);
 		return userResponse;
+	}
+
+	private String getHabitContents(List<UserHabitRequest> habitRequests) {
+		return habitRequests.stream().map(en -> en.getContent().name())
+			.collect(Collectors.joining(",", "", ""));
 	}
 
 	private List<UserHabitResponse> registerUserHabit(
@@ -112,6 +117,8 @@ public class UserService {
 			for (UserHabitRequest habitRequest : request.getHabit())
 				userHabits.add(UserHabitRequest.createUserHabit(habitRequest, user));
 			userHabitRepository.saveAll(userHabits);
+
+			user.setHabitContents(getHabitContents(request.getHabit()));
 		}
 
 		return userHabits.stream()

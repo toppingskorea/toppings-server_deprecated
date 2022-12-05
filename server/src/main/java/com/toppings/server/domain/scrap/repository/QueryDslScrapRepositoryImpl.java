@@ -28,7 +28,7 @@ public class QueryDslScrapRepositoryImpl implements QueryDslScrapRepository {
 			.from(scrap)
 			.leftJoin(scrap.restaurant)
 			.leftJoin(scrap.user)
-			.where(eqUserId(userId))
+			.where(eqUserId(userId)) // TODO: public yn
 			.orderBy(scrap.restaurant.likeCount.desc())
 			.fetch();
 	}

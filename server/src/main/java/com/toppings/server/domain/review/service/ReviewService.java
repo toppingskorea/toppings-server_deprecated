@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.toppings.common.constants.ResponseCode;
-import com.toppings.common.dto.PubRequest;
 import com.toppings.common.exception.GeneralException;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
 import com.toppings.server.domain.restaurant.repository.RestaurantRepository;
@@ -77,6 +76,7 @@ public class ReviewService {
 			.collect(Collectors.toList());
 	}
 
+	// TODO: public yn
 	private Restaurant getRestaurantById(Long id) {
 		return restaurantRepository.findById(id)
 			.orElseThrow(() -> new GeneralException(ResponseCode.BAD_REQUEST));
@@ -173,7 +173,8 @@ public class ReviewService {
 		Long restaurantId,
 		Long userId
 	) {
-		return reviewRepository.findReviewByRestaurantId(restaurantId, userId);
+		final Restaurant restaurant = getRestaurantById(restaurantId);
+		return reviewRepository.findReviewByRestaurantId(restaurant.getId(), userId);
 	}
 
 	/**
@@ -187,15 +188,5 @@ public class ReviewService {
 		final ReviewResponse reviewResponse = ReviewResponse.entityToDto(review, review.getUser());
 		reviewResponse.setIsMine(review.getUser().getId().equals(userId));
 		return reviewResponse;
-	}
-
-	@Transactional
-	public Long modifyPub(
-		PubRequest request,
-		Long reviewId
-	) {
-		final Review review = getReviewById(reviewId);
-		review.setPublicYn(request.getIsPub());
-		return reviewId;
 	}
 }

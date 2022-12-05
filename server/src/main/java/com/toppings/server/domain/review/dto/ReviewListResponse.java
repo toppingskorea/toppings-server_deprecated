@@ -1,9 +1,9 @@
 package com.toppings.server.domain.review.dto;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -18,6 +18,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ReviewListResponse {
 
 	private Long id;
@@ -26,8 +27,8 @@ public class ReviewListResponse {
 
 	private String thumbnail;
 
-	@JsonSerialize(using= LocalDateTimeSerializer.class)
-	@JsonDeserialize(using= LocalDateTimeDeserializer.class)
+	@JsonSerialize(using = LocalDateTimeSerializer.class)
+	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy.MM.dd")
 	private LocalDateTime modifiedAt;
 
@@ -36,4 +37,6 @@ public class ReviewListResponse {
 	private String country;
 
 	private Boolean isMine;
+
+	private String habitContents;
 }

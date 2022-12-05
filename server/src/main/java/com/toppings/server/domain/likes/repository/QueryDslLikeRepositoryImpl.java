@@ -39,7 +39,7 @@ public class QueryDslLikeRepositoryImpl implements QueryDslLikeRepository {
 			.from(likes)
 			.leftJoin(likes.restaurant)
 			.leftJoin(likes.user)
-			.where(likes.user.country.eq(country))
+			.where(likes.user.country.eq(country)) // TODO : public yn
 			.groupBy(likes.restaurant.id)
 			.orderBy(OrderByNull.DEFAULT)
 			.fetch();
@@ -55,7 +55,7 @@ public class QueryDslLikeRepositoryImpl implements QueryDslLikeRepository {
 			.from(likes)
 			.leftJoin(likes.restaurant)
 			.leftJoin(likes.user)
-			.where(likes.user.id.in(ids))
+			.where(likes.user.id.in(ids)) // TODO : public yn
 			.groupBy(likes.restaurant.id)
 			.orderBy(OrderByNull.DEFAULT)
 			.fetch();
@@ -69,7 +69,7 @@ public class QueryDslLikeRepositoryImpl implements QueryDslLikeRepository {
 		List<RestaurantListResponse> restaurantListResponses = queryFactory.select(getFields())
 			.from(restaurant)
 			.leftJoin(restaurant.user)
-			.where(restaurant.id.in(longMap.keySet()), restaurant.likeCount.gt(0))
+			.where(restaurant.id.in(longMap.keySet()), restaurant.likeCount.gt(0)) // TODO : public yn
 			.orderBy(restaurant.likeCount.desc())
 			.fetch();
 
@@ -104,7 +104,7 @@ public class QueryDslLikeRepositoryImpl implements QueryDslLikeRepository {
 			Projections.fields(LikesPercent.class, likes.count().as("count"), user.country))
 			.from(user)
 			.leftJoin(likes).on(user.id.eq(likes.user.id))
-			.where(eqRestaurantId(restaurantId))
+			.where(eqRestaurantId(restaurantId)) // TODO : public yn
 			.groupBy(user.country)
 			.orderBy(likes.count().desc(), OrderByNull.DEFAULT)
 			.fetch();
@@ -117,7 +117,7 @@ public class QueryDslLikeRepositoryImpl implements QueryDslLikeRepository {
 			.from(user)
 			.leftJoin(likes).on(user.id.eq(likes.user.id))
 			.leftJoin(userHabit).on(user.id.eq(userHabit.user.id))
-			.where(eqRestaurantId(restaurantId), userHabit.content.isNotNull())
+			.where(eqRestaurantId(restaurantId), userHabit.content.isNotNull()) // TODO : public yn
 			.groupBy(userHabit.content)
 			.orderBy(likes.count().desc(), OrderByNull.DEFAULT)
 			.fetch();

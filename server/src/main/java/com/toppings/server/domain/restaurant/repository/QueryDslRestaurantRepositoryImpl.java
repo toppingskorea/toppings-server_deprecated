@@ -5,13 +5,17 @@ import static org.springframework.util.StringUtils.*;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.QBean;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.toppings.common.dto.PageWrapper;
 import com.toppings.server.domain.restaurant.dto.RestaurantListResponse;
 import com.toppings.server.domain.restaurant.dto.RestaurantSearchRequest;
 
@@ -34,6 +38,7 @@ public class QueryDslRestaurantRepositoryImpl implements QueryDslRestaurantRepos
 				restaurant.latitude.lt(searchRequest.getX2()),
 				restaurant.longitude.gt(searchRequest.getY1()),
 				restaurant.longitude.lt(searchRequest.getY2())
+				// TODO : public yn
 			)
 			.orderBy(restaurant.likeCount.desc())
 			.fetch();
@@ -44,7 +49,7 @@ public class QueryDslRestaurantRepositoryImpl implements QueryDslRestaurantRepos
 		return queryFactory.select(getFields())
 			.from(restaurant)
 			.leftJoin(restaurant.user)
-			.where(eqName(name))
+			.where(eqName(name)) // TODO : public yn
 			.orderBy(restaurant.likeCount.desc())
 			.fetch();
 	}
@@ -54,9 +59,22 @@ public class QueryDslRestaurantRepositoryImpl implements QueryDslRestaurantRepos
 		return queryFactory.select(getFields())
 			.from(restaurant)
 			.leftJoin(restaurant.user)
-			.where(eqUserId(userId))
+			.where(eqUserId(userId)) // TODO : public yn
 			.orderBy(restaurant.likeCount.desc())
 			.fetch();
+	}
+
+	@Override
+	public Page<RestaurantListResponse> findAllForAdmin(Pageable pageable) {
+		List<RestaurantListResponse> restaurantListResponses = queryFactory.select(getFields())
+			.from(restaurant)
+			.leftJoin(restaurant.user)
+			.offset(pageable.getOffset())
+			.limit(pageable.getPageSize())
+			.fetch();
+
+		Long totalCount = queryFactory.select(Wildcard.count).from(restaurant).fetch().get(0);
+		return new PageWrapper<>(restaurantListResponses, pageable.getPageNumber(), pageable.getPageSize(), totalCount);
 	}
 
 	private BooleanExpression eqUserId(Long userId) {

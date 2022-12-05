@@ -7,10 +7,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.toppings.common.constants.ResponseCode;
+import com.toppings.common.dto.PubRequest;
 import com.toppings.common.exception.GeneralException;
 import com.toppings.server.domain.likes.dto.LikesPercent;
 import com.toppings.server.domain.likes.dto.LikesPercentResponse;
@@ -18,7 +21,6 @@ import com.toppings.server.domain.likes.repository.LikeRepository;
 import com.toppings.server.domain.restaurant.dto.RestaurantAttachRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantListResponse;
 import com.toppings.server.domain.restaurant.dto.RestaurantModifyRequest;
-import com.toppings.common.dto.PubRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantResponse;
 import com.toppings.server.domain.restaurant.dto.RestaurantSearchRequest;
@@ -153,6 +155,7 @@ public class RestaurantService {
 		return !restaurant.getUser().getId().equals(userId);
 	}
 
+	// TODO: public yn
 	private Restaurant getRestaurantById(Long id) {
 		return restaurantRepository.findById(id)
 			.orElseThrow(() -> new GeneralException(ResponseCode.BAD_REQUEST));
@@ -353,5 +356,24 @@ public class RestaurantService {
 		final Restaurant restaurant = getRestaurantById(restaurantId);
 		restaurant.setPublicYn(pubRequest.getIsPub());
 		return restaurantId;
+	}
+
+	/**
+	 * 음식점 목록 조회 (관리자용)
+	 */
+	public Page<RestaurantListResponse> findAllForAdmin(Pageable pageable) {
+		return restaurantRepository.findAllForAdmin(pageable);
+	}
+
+	/**
+	 * 음식점 상세 조회 (관리자용)
+	 */
+	public RestaurantResponse findOneForAdmin(Long restaurantId) {
+		final Restaurant restaurant = getRestaurantById(restaurantId);
+		final RestaurantResponse restaurantResponse = RestaurantResponse.entityToDto(restaurant);
+
+		final List<String> images = getRestaurantImages(restaurant);
+		restaurantResponse.setImages(images);
+		return restaurantResponse;
 	}
 }

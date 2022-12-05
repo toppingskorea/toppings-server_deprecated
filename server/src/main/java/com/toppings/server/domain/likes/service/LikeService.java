@@ -1,14 +1,10 @@
 package com.toppings.server.domain.likes.service;
 
-import java.util.List;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.toppings.common.constants.ResponseCode;
 import com.toppings.common.exception.GeneralException;
-import com.toppings.server.domain.likes.dto.LikesPercent;
-import com.toppings.server.domain.likes.dto.LikesPercentResponse;
 import com.toppings.server.domain.likes.entity.Likes;
 import com.toppings.server.domain.likes.repository.LikeRepository;
 import com.toppings.server.domain.restaurant.entity.Restaurant;

@@ -1,6 +1,7 @@
 package com.toppings.server.domain.review.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -39,4 +40,6 @@ public class ReviewListResponse {
 	private Boolean isMine;
 
 	private String habitContents;
+
+	private List<String> habits;
 }

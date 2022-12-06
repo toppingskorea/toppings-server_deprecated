@@ -1,6 +1,8 @@
 package com.toppings.server.domain.review.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -174,7 +176,15 @@ public class ReviewService {
 		Long userId
 	) {
 		final Restaurant restaurant = getRestaurantById(restaurantId);
-		return reviewRepository.findReviewByRestaurantId(restaurant.getId(), userId);
+		final List<ReviewListResponse> reviewListResponses
+			= reviewRepository.findReviewByRestaurantId(restaurant.getId(), userId);
+		reviewListResponses.forEach(en -> {
+			en.setHabits(en.getHabitContents() != null ?
+				Arrays.asList(en.getHabitContents().split(",")) :
+				Collections.emptyList());
+			en.setHabitContents(null);
+		});
+		return reviewListResponses;
 	}
 
 	/**
@@ -187,6 +197,7 @@ public class ReviewService {
 		final Review review = getReviewById(reviewId);
 		final ReviewResponse reviewResponse = ReviewResponse.entityToDto(review, review.getUser());
 		reviewResponse.setIsMine(review.getUser().getId().equals(userId));
+		reviewResponse.setHabits(Arrays.asList(review.getUser().getHabitContents().split(",")));
 		return reviewResponse;
 	}
 }

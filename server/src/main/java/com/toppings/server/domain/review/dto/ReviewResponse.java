@@ -41,7 +41,7 @@ public class ReviewResponse {
 
 	private Boolean isMine;
 
-	private String habitContents;
+	private List<String> habits;
 
 	public static ReviewResponse entityToDto(
 		Review review,
@@ -53,7 +53,6 @@ public class ReviewResponse {
 			.modifiedAt(review.getUpdateDate())
 			.name(user.getName())
 			.country(user.getCountry())
-			.habitContents(user.getHabitContents())
 			.build();
 	}
 

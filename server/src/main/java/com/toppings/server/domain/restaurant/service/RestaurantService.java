@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ import com.toppings.common.exception.GeneralException;
 import com.toppings.server.domain.likes.dto.LikesPercent;
 import com.toppings.server.domain.likes.dto.LikesPercentResponse;
 import com.toppings.server.domain.likes.repository.LikeRepository;
+import com.toppings.server.domain.notification.repository.AlarmRepository;
 import com.toppings.server.domain.restaurant.dto.RestaurantAttachRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantListResponse;
 import com.toppings.server.domain.restaurant.dto.RestaurantModifyRequest;
@@ -55,6 +57,10 @@ public class RestaurantService {
 	private final ScrapRepository scrapRepository;
 
 	private final ReviewRepository reviewRepository;
+
+	private final AlarmRepository alarmRepository;
+
+	private final SimpMessagingTemplate template;
 
 	/**
 	 * 음식점 등록하기
@@ -257,7 +263,7 @@ public class RestaurantService {
 	}
 
 	private boolean isNullHabit(RestaurantSearchRequest searchRequest) {
-		return searchRequest.getHabit() == null || searchRequest.getHabitTitle() == null;
+		return searchRequest.getHabit() == null;
 	}
 
 	private boolean isNullName(RestaurantSearchRequest searchRequest) {
@@ -346,7 +352,7 @@ public class RestaurantService {
 	}
 
 	/**
-	 * 음식점 공개여부 수정
+	 * 음식점 공개여부 수정 (관리자용)
 	 */
 	@Transactional
 	public Long modifyPub(

@@ -9,8 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.toppings.server.domain.restaurant.dto.RestaurantSearchRequest;
-import com.toppings.server.domain.user.constant.Habit;
-import com.toppings.server.domain.user.constant.HabitTitle;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,7 +23,7 @@ public class QueryDslUserHabitRepositoryImpl implements QueryDslUserHabitReposit
 		return queryFactory.select(userHabit.user.id)
 			.from(userHabit)
 			.leftJoin(userHabit.user)
-			.where(userHabit.title.eq(searchRequest.getHabitTitle()), userHabit.content.eq(searchRequest.getHabit()))
+			.where(userHabit.content.eq(searchRequest.getHabit()))
 			.fetch();
 	}
 }

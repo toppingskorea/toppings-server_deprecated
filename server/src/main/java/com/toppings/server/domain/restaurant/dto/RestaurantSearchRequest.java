@@ -33,6 +33,4 @@ public class RestaurantSearchRequest {
 	private String country;
 
 	private Habit habit;
-
-	private HabitTitle habitTitle;
 }

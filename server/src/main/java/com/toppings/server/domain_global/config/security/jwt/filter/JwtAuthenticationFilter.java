@@ -1,6 +1,7 @@
 package com.toppings.server.domain_global.config.security.jwt.filter;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 import javax.servlet.FilterChain;
@@ -8,6 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,6 +19,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.toppings.common.constants.ResponseCode;
+import com.toppings.common.dto.ApiDataResponse;
+import com.toppings.server.domain.user.constant.Auth;
 import com.toppings.server.domain.user.dto.UserLoginRequest;
 import com.toppings.server.domain.user.service.UserService;
 import com.toppings.server.domain_global.config.security.auth.PrincipalDetails;
@@ -57,8 +61,16 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		FilterChain chain,
 		Authentication authResult
 	) throws IOException, ServletException {
+		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+
 		PrincipalDetails principalDetails = (PrincipalDetails)authResult.getPrincipal();
 		response.addHeader(JwtProperties.JWT_ACCESS_HEADER, JwtUtils.createAccessToken(principalDetails.getUser()));
+
+		PrintWriter writer = response.getWriter();
+		ApiDataResponse<Auth> apiDataResponse = ApiDataResponse.of(principalDetails.getUser().getRole());
+		writer.println(objectMapper.writeValueAsString(apiDataResponse));
+		writer.flush();
+		writer.close();
 	}
 
 	@Override

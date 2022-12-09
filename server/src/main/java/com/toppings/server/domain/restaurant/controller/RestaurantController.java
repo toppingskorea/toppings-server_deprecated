@@ -102,7 +102,7 @@ public class RestaurantController {
 	}
 
 	/**
-	 * 음식점 상세 조회하기
+	 * 음식점 좋아요 퍼센트 조회하기
 	 */
 	@GetMapping("/{restaurantId}/like")
 	public ResponseEntity<?> getRestaurantLikePercent(@PathVariable Long restaurantId) {

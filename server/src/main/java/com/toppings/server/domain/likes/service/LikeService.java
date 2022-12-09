@@ -1,5 +1,6 @@
 package com.toppings.server.domain.likes.service;
 
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -7,6 +8,7 @@ import com.toppings.common.constants.ResponseCode;
 import com.toppings.common.exception.GeneralException;
 import com.toppings.server.domain.likes.entity.Likes;
 import com.toppings.server.domain.likes.repository.LikeRepository;
+import com.toppings.server.domain.notification.repository.AlarmRepository;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
 import com.toppings.server.domain.restaurant.repository.RestaurantRepository;
 import com.toppings.server.domain.user.entity.User;
@@ -22,6 +24,10 @@ public class LikeService {
 
 	private final RestaurantRepository restaurantRepository;
 
+	private final AlarmRepository alarmRepository;
+
+	private final SimpMessagingTemplate template;
+
 	@Transactional
 	public Long register(
 		Long restaurantId,
@@ -30,6 +36,8 @@ public class LikeService {
 		final Restaurant restaurant = getRestaurantById(restaurantId);
 		final User user = getUser(userId);
 
+		// TODO : 알람 처리 + 알람 내역 저장
+		// template.convertAndSend("/sub/{userId}", "{AlarmResponse}");
 		if (isDuplicatedLikes(restaurant, user))
 			throw new GeneralException(ResponseCode.DUPLICATED_ITEM);
 

@@ -1,10 +1,12 @@
 package com.toppings.server.domain.scrap.service;
 
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.toppings.common.constants.ResponseCode;
 import com.toppings.common.exception.GeneralException;
+import com.toppings.server.domain.notification.repository.AlarmRepository;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
 import com.toppings.server.domain.restaurant.repository.RestaurantRepository;
 import com.toppings.server.domain.scrap.entity.Scrap;
@@ -21,6 +23,10 @@ public class ScrapService {
 	private final ScrapRepository scrapRepository;
 
 	private final RestaurantRepository restaurantRepository;
+
+	private final AlarmRepository alarmRepository;
+
+	private final SimpMessagingTemplate template;
 
 	@Transactional
 	public Long register(

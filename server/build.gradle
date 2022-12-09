@@ -10,6 +10,7 @@ plugins {
 
 dependencies {
     implementation project(":common")
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
 //    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 //    implementation 'org.springframework.boot:spring-boot-starter-cache'
 //    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'

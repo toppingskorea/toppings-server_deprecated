@@ -6,11 +6,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.toppings.common.constants.ResponseCode;
 import com.toppings.common.exception.GeneralException;
+import com.toppings.server.domain.notification.repository.AlarmRepository;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
 import com.toppings.server.domain.restaurant.repository.RestaurantRepository;
 import com.toppings.server.domain.review.dto.ReviewAttachRequest;
@@ -40,6 +42,10 @@ public class ReviewService {
 	private final RestaurantRepository restaurantRepository;
 
 	private final ReviewAttachRepository reviewAttachRepository;
+
+	private final AlarmRepository alarmRepository;
+
+	private final SimpMessagingTemplate template;
 
 	/**
 	 * 댓글 등록하기

@@ -6,12 +6,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.toppings.common.constants.ResponseCode;
 import com.toppings.common.exception.GeneralException;
+import com.toppings.server.domain.notification.constant.AlarmMessage;
+import com.toppings.server.domain.notification.constant.AlarmType;
+import com.toppings.server.domain.notification.dto.AlarmResponse;
+import com.toppings.server.domain.notification.entity.Alarm;
 import com.toppings.server.domain.notification.repository.AlarmRepository;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
 import com.toppings.server.domain.restaurant.repository.RestaurantRepository;
 import com.toppings.server.domain.scrap.entity.Scrap;
 import com.toppings.server.domain.scrap.repository.ScrapRepository;
 import com.toppings.server.domain.user.entity.User;
+import com.toppings.server.domain_global.utils.notification.AlarmSender;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,7 +31,7 @@ public class ScrapService {
 
 	private final AlarmRepository alarmRepository;
 
-	private final SimpMessagingTemplate template;
+	private final AlarmSender alarmSender;
 
 	@Transactional
 	public Long register(
@@ -41,7 +46,20 @@ public class ScrapService {
 
 		final Scrap scrap = scrapRepository.save(getScrap(user, restaurant));
 		restaurant.setScrapCount(restaurant.getScrapCount() + 1);
+
+		final User alarmUser = restaurant.getUser();
+		saveAndSendAlarm(restaurant, alarmUser);
+
 		return scrap.getId();
+	}
+
+	private void saveAndSendAlarm(
+		Restaurant restaurant,
+		User alarmUser
+	) {
+		final Alarm alarm = Alarm.of(alarmUser, restaurant, null, AlarmType.Scrap);
+		final Alarm savedAlarm = alarmRepository.save(alarm);
+		alarmSender.send(restaurant, alarmUser, savedAlarm, AlarmMessage.ScrapMessage.getMessage());
 	}
 
 	private boolean isDuplicatedScrap(

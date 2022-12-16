@@ -17,9 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.toppings.common.dto.ApiDataResponse;
 import com.toppings.common.dto.PubRequest;
 import com.toppings.server.domain.likes.service.LikeService;
+import com.toppings.server.domain.restaurant.dto.RestaurantMapSearchRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantModifyRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantRequest;
-import com.toppings.server.domain.restaurant.dto.RestaurantSearchRequest;
+import com.toppings.server.domain.restaurant.dto.RestaurantFilterSearchRequest;
 import com.toppings.server.domain.restaurant.service.RestaurantService;
 import com.toppings.server.domain.review.dto.ReviewRequest;
 import com.toppings.server.domain.review.service.ReviewService;
@@ -82,12 +83,23 @@ public class RestaurantController {
 	/**
 	 * 음식점 목록 조회하기 (필터링)
 	 */
-	@GetMapping
-	public ResponseEntity<?> getRestaurants(
-		@Valid RestaurantSearchRequest restaurantSearchRequest,
+	@GetMapping("/filter")
+	public ResponseEntity<?> getRestaurantsForFilter(
+		@Valid RestaurantFilterSearchRequest searchRequest,
 		@AuthenticationPrincipal Long userId
 	) {
-		return ResponseEntity.ok(ApiDataResponse.of(restaurantService.findAll(restaurantSearchRequest, userId)));
+		return ResponseEntity.ok(ApiDataResponse.of(restaurantService.findAllForFilter(searchRequest, userId)));
+	}
+
+	/**
+	 * 음식점 목록 조회하기 (지도)
+	 */
+	@GetMapping("/map")
+	public ResponseEntity<?> getRestaurantsForMap(
+		@Valid RestaurantMapSearchRequest searchRequest,
+		@AuthenticationPrincipal Long userId
+	) {
+		return ResponseEntity.ok(ApiDataResponse.of(restaurantService.findAllForMap(searchRequest, userId)));
 	}
 
 	/**

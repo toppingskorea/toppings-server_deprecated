@@ -58,4 +58,18 @@ public class Alarm extends BaseEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "restaurant_id")
 	private Restaurant restaurant;
+
+	public static Alarm of(
+		User user,
+		Restaurant restaurant,
+		String content,
+		AlarmType type
+	) {
+		return Alarm.builder()
+			.alarmType(type)
+			.content(content)
+			.user(user)
+			.restaurant(restaurant)
+			.build();
+	}
 }

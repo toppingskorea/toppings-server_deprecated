@@ -5,7 +5,6 @@ import lombok.Getter;
 @Getter
 public enum SearchType {
 
-	Map,
 	Name,
 	Habit,
 	Country

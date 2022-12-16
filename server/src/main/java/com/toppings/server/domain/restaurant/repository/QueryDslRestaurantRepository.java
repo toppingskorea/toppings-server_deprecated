@@ -6,13 +6,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import com.toppings.server.domain.restaurant.dto.RestaurantListResponse;
-import com.toppings.server.domain.restaurant.dto.RestaurantSearchRequest;
+import com.toppings.server.domain.restaurant.dto.RestaurantMapSearchRequest;
 
 public interface QueryDslRestaurantRepository {
 
-	List<RestaurantListResponse> findAllBySearchForMap(
-		RestaurantSearchRequest restaurantSearchRequest
-	);
+	List<RestaurantListResponse> findAllBySearchForMap(RestaurantMapSearchRequest searchRequest);
 
 	List<RestaurantListResponse> findAllByRestaurantName(String name);
 

@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,13 +18,17 @@ import com.toppings.common.exception.GeneralException;
 import com.toppings.server.domain.likes.dto.LikesPercent;
 import com.toppings.server.domain.likes.dto.LikesPercentResponse;
 import com.toppings.server.domain.likes.repository.LikeRepository;
+import com.toppings.server.domain.notification.constant.AlarmMessage;
+import com.toppings.server.domain.notification.constant.AlarmType;
+import com.toppings.server.domain.notification.entity.Alarm;
 import com.toppings.server.domain.notification.repository.AlarmRepository;
 import com.toppings.server.domain.restaurant.dto.RestaurantAttachRequest;
+import com.toppings.server.domain.restaurant.dto.RestaurantFilterSearchRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantListResponse;
+import com.toppings.server.domain.restaurant.dto.RestaurantMapSearchRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantModifyRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantResponse;
-import com.toppings.server.domain.restaurant.dto.RestaurantSearchRequest;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
 import com.toppings.server.domain.restaurant.entity.RestaurantAttach;
 import com.toppings.server.domain.restaurant.repository.RestaurantAttachRepository;
@@ -36,6 +39,7 @@ import com.toppings.server.domain.user.constant.Auth;
 import com.toppings.server.domain.user.entity.User;
 import com.toppings.server.domain.user.repository.UserHabitRepository;
 import com.toppings.server.domain.user.repository.UserRepository;
+import com.toppings.server.domain_global.utils.notification.AlarmSender;
 
 import lombok.RequiredArgsConstructor;
 
@@ -60,7 +64,7 @@ public class RestaurantService {
 
 	private final AlarmRepository alarmRepository;
 
-	private final SimpMessagingTemplate template;
+	private final AlarmSender alarmSender;
 
 	/**
 	 * 음식점 등록하기
@@ -70,7 +74,6 @@ public class RestaurantService {
 		RestaurantRequest request,
 		Long userId
 	) {
-		// TODO: user 만들 때 그냥 빌더로 만들지 고민
 		final User user = getUserById(userId);
 		final Restaurant restaurant = restaurantRepository.findRestaurantByCode(request.getCode()).orElse(null);
 		if (restaurant != null)
@@ -188,18 +191,14 @@ public class RestaurantService {
 	}
 
 	/**
-	 *	음식점 목록 검색
+	 *	음식점 목록 검색 (필터)
 	 */
-	public List<RestaurantListResponse> findAll(
-		RestaurantSearchRequest searchRequest,
+	public List<RestaurantListResponse> findAllForFilter(
+		RestaurantFilterSearchRequest searchRequest,
 		Long userId
 	) {
 		final List<RestaurantListResponse> restaurantListResponses;
 		switch (searchRequest.getType()) {
-			case Map:
-				restaurantListResponses = getRestaurantListResponsesForMap(searchRequest);
-				break;
-
 			case Name:
 				restaurantListResponses = getRestaurantListResponsesForName(searchRequest);
 				break;
@@ -221,6 +220,20 @@ public class RestaurantService {
 		return restaurantListResponses;
 	}
 
+	/**
+	 *	음식점 목록 검색 (지도)
+	 */
+	public List<RestaurantListResponse> findAllForMap(
+		RestaurantMapSearchRequest searchRequest,
+		Long userId
+	) {
+		final List<RestaurantListResponse> restaurantListResponses
+			= restaurantRepository.findAllBySearchForMap(searchRequest);
+		if (userId != null)
+			setIsLike(restaurantListResponses, userId);
+		return restaurantListResponses;
+	}
+
 	private void setIsLike(
 		List<RestaurantListResponse> restaurantListResponses,
 		Long userId
@@ -229,14 +242,14 @@ public class RestaurantService {
 		restaurantListResponses.forEach(restaurant -> restaurant.setLike(likesIds.contains(restaurant.getId())));
 	}
 
-	private List<RestaurantListResponse> getRestaurantListResponsesforCountry(RestaurantSearchRequest searchRequest) {
+	private List<RestaurantListResponse> getRestaurantListResponsesforCountry(RestaurantFilterSearchRequest searchRequest) {
 		if (isNullCountry(searchRequest))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
 		return likeRepository.findRestaurantIdByUserCountry(searchRequest.getCountry());
 	}
 
-	private List<RestaurantListResponse> getRestaurantListResponsesForHabit(RestaurantSearchRequest searchRequest) {
+	private List<RestaurantListResponse> getRestaurantListResponsesForHabit(RestaurantFilterSearchRequest searchRequest) {
 		if (isNullHabit(searchRequest))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
@@ -244,35 +257,23 @@ public class RestaurantService {
 		return likeRepository.findRestaurantIdByUserHabit(ids);
 	}
 
-	private List<RestaurantListResponse> getRestaurantListResponsesForName(RestaurantSearchRequest searchRequest) {
+	private List<RestaurantListResponse> getRestaurantListResponsesForName(RestaurantFilterSearchRequest searchRequest) {
 		if (isNullName(searchRequest))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
 		return restaurantRepository.findAllByRestaurantName(searchRequest.getName());
 	}
 
-	private List<RestaurantListResponse> getRestaurantListResponsesForMap(RestaurantSearchRequest searchRequest) {
-		if (isNullCoordinate(searchRequest))
-			throw new GeneralException(ResponseCode.BAD_REQUEST);
-
-		return restaurantRepository.findAllBySearchForMap(searchRequest);
-	}
-
-	private boolean isNullCountry(RestaurantSearchRequest searchRequest) {
+	private boolean isNullCountry(RestaurantFilterSearchRequest searchRequest) {
 		return searchRequest.getCountry() == null || !hasText(searchRequest.getCountry());
 	}
 
-	private boolean isNullHabit(RestaurantSearchRequest searchRequest) {
+	private boolean isNullHabit(RestaurantFilterSearchRequest searchRequest) {
 		return searchRequest.getHabit() == null;
 	}
 
-	private boolean isNullName(RestaurantSearchRequest searchRequest) {
+	private boolean isNullName(RestaurantFilterSearchRequest searchRequest) {
 		return searchRequest.getName() == null || !hasText(searchRequest.getName());
-	}
-
-	private boolean isNullCoordinate(RestaurantSearchRequest searchRequest) {
-		return searchRequest.getX1() == null || searchRequest.getX2() == null
-			|| searchRequest.getY1() == null || searchRequest.getY2() == null;
 	}
 
 	private List<Long> getMyLikesIds(User user) {
@@ -361,7 +362,20 @@ public class RestaurantService {
 	) {
 		final Restaurant restaurant = getRestaurantById(restaurantId);
 		restaurant.setPublicYn(pubRequest.getIsPub());
+
+		final User alarmUser = restaurant.getUser();
+		saveAndSendAlarm(restaurant, alarmUser);
+
 		return restaurantId;
+	}
+
+	private void saveAndSendAlarm(
+		Restaurant restaurant,
+		User alarmUser
+	) {
+		final Alarm alarm = Alarm.of(alarmUser, restaurant, null, AlarmType.Reject);
+		final Alarm savedAlarm = alarmRepository.save(alarm);
+		alarmSender.send(restaurant, alarmUser, savedAlarm, AlarmMessage.RejectMessage.getMessage());
 	}
 
 	/**

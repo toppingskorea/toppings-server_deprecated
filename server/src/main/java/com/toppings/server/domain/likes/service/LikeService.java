@@ -8,10 +8,15 @@ import com.toppings.common.constants.ResponseCode;
 import com.toppings.common.exception.GeneralException;
 import com.toppings.server.domain.likes.entity.Likes;
 import com.toppings.server.domain.likes.repository.LikeRepository;
+import com.toppings.server.domain.notification.constant.AlarmMessage;
+import com.toppings.server.domain.notification.constant.AlarmType;
+import com.toppings.server.domain.notification.dto.AlarmResponse;
+import com.toppings.server.domain.notification.entity.Alarm;
 import com.toppings.server.domain.notification.repository.AlarmRepository;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
 import com.toppings.server.domain.restaurant.repository.RestaurantRepository;
 import com.toppings.server.domain.user.entity.User;
+import com.toppings.server.domain_global.utils.notification.AlarmSender;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,7 +31,7 @@ public class LikeService {
 
 	private final AlarmRepository alarmRepository;
 
-	private final SimpMessagingTemplate template;
+	private final AlarmSender alarmSender;
 
 	@Transactional
 	public Long register(
@@ -36,14 +41,25 @@ public class LikeService {
 		final Restaurant restaurant = getRestaurantById(restaurantId);
 		final User user = getUser(userId);
 
-		// TODO : 알람 처리 + 알람 내역 저장
-		// template.convertAndSend("/sub/{userId}", "{AlarmResponse}");
 		if (isDuplicatedLikes(restaurant, user))
 			throw new GeneralException(ResponseCode.DUPLICATED_ITEM);
 
 		final Likes like = likeRepository.save(getLikes(user, restaurant));
 		restaurant.setLikeCount(restaurant.getLikeCount() + 1);
+
+		final User alarmUser = restaurant.getUser();
+		saveAndSendAlarm(restaurant, alarmUser);
+
 		return like.getId();
+	}
+
+	private void saveAndSendAlarm(
+		Restaurant restaurant,
+		User alarmUser
+	) {
+		final Alarm alarm = Alarm.of(alarmUser, restaurant, null, AlarmType.Like);
+		final Alarm savedAlarm = alarmRepository.save(alarm);
+		alarmSender.send(restaurant, alarmUser, savedAlarm, AlarmMessage.LikeMessage.getMessage());
 	}
 
 	private boolean isDuplicatedLikes(

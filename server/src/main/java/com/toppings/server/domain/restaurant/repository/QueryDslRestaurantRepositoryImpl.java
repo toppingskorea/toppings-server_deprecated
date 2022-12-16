@@ -17,7 +17,7 @@ import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.toppings.common.dto.PageWrapper;
 import com.toppings.server.domain.restaurant.dto.RestaurantListResponse;
-import com.toppings.server.domain.restaurant.dto.RestaurantSearchRequest;
+import com.toppings.server.domain.restaurant.dto.RestaurantMapSearchRequest;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,7 +29,7 @@ public class QueryDslRestaurantRepositoryImpl implements QueryDslRestaurantRepos
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	public List<RestaurantListResponse> findAllBySearchForMap(RestaurantSearchRequest searchRequest) {
+	public List<RestaurantListResponse> findAllBySearchForMap(RestaurantMapSearchRequest searchRequest) {
 		return queryFactory.select(getFields())
 			.from(restaurant)
 			.leftJoin(restaurant.user)

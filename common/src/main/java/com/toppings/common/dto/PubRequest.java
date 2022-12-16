@@ -1,6 +1,6 @@
 package com.toppings.common.dto;
 
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,6 +13,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class PubRequest {
 
-	@NotBlank(message = "공개 여부를 확인해주세요.")
-	private String isPub;
+	@NotNull(message = "공개 여부를 확인해주세요.")
+	private Boolean isPub;
 }

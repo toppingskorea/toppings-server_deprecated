@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/alarm")
+@RequestMapping("/api/v1/alarm")
 public class AlarmController {
 
 	private final AlarmService alarmService;

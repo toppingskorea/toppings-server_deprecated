@@ -6,17 +6,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.toppings.common.constants.ResponseCode;
 import com.toppings.common.exception.GeneralException;
-import com.toppings.server.domain.notification.constant.AlarmMessage;
 import com.toppings.server.domain.notification.constant.AlarmType;
-import com.toppings.server.domain.notification.dto.AlarmResponse;
-import com.toppings.server.domain.notification.entity.Alarm;
-import com.toppings.server.domain.notification.repository.AlarmRepository;
+import com.toppings.server.domain.notification.dto.AlarmRequest;
+import com.toppings.server.domain.notification.service.AlarmService;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
 import com.toppings.server.domain.restaurant.repository.RestaurantRepository;
 import com.toppings.server.domain.review.dto.ReviewAttachRequest;
@@ -31,7 +28,6 @@ import com.toppings.server.domain.review.repository.ReviewRepository;
 import com.toppings.server.domain.user.constant.Auth;
 import com.toppings.server.domain.user.entity.User;
 import com.toppings.server.domain.user.repository.UserRepository;
-import com.toppings.server.domain_global.utils.notification.AlarmSender;
 
 import lombok.RequiredArgsConstructor;
 
@@ -48,9 +44,7 @@ public class ReviewService {
 
 	private final ReviewAttachRepository reviewAttachRepository;
 
-	private final AlarmRepository alarmRepository;
-
-	private final AlarmSender alarmSender;
+	private final AlarmService alarmService;
 
 	/**
 	 * 댓글 등록하기
@@ -73,20 +67,11 @@ public class ReviewService {
 		ReviewResponse reviewResponse = ReviewResponse.entityToDto(saveReview);
 		reviewResponse.setImages(images);
 
-		final User alarmUser = restaurant.getUser();
-		saveAndSendAlarm(restaurant, saveReview, alarmUser);
+		final AlarmRequest alarmRequest = AlarmRequest.of(user, restaurant, AlarmType.Like,
+			saveReview.getDescription());
+		alarmService.registerAndSend(alarmRequest);
 
 		return reviewResponse;
-	}
-
-	private void saveAndSendAlarm(
-		Restaurant restaurant,
-		Review saveReview,
-		User alarmUser
-	) {
-		final Alarm alarm = Alarm.of(alarmUser, restaurant, saveReview.getDescription(), AlarmType.Review);
-		final Alarm savedAlarm = alarmRepository.save(alarm);
-		alarmSender.send(restaurant, alarmUser, savedAlarm, AlarmMessage.ReviewMessage.getMessage());
 	}
 
 	private List<String> registerReviewAttach(

@@ -18,10 +18,9 @@ import com.toppings.common.exception.GeneralException;
 import com.toppings.server.domain.likes.dto.LikesPercent;
 import com.toppings.server.domain.likes.dto.LikesPercentResponse;
 import com.toppings.server.domain.likes.repository.LikeRepository;
-import com.toppings.server.domain.notification.constant.AlarmMessage;
 import com.toppings.server.domain.notification.constant.AlarmType;
-import com.toppings.server.domain.notification.entity.Alarm;
-import com.toppings.server.domain.notification.repository.AlarmRepository;
+import com.toppings.server.domain.notification.dto.AlarmRequest;
+import com.toppings.server.domain.notification.service.AlarmService;
 import com.toppings.server.domain.restaurant.dto.RestaurantAttachRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantFilterSearchRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantListResponse;
@@ -39,7 +38,6 @@ import com.toppings.server.domain.user.constant.Auth;
 import com.toppings.server.domain.user.entity.User;
 import com.toppings.server.domain.user.repository.UserHabitRepository;
 import com.toppings.server.domain.user.repository.UserRepository;
-import com.toppings.server.domain_global.utils.notification.AlarmSender;
 
 import lombok.RequiredArgsConstructor;
 
@@ -62,9 +60,7 @@ public class RestaurantService {
 
 	private final ReviewRepository reviewRepository;
 
-	private final AlarmRepository alarmRepository;
-
-	private final AlarmSender alarmSender;
+	private final AlarmService alarmService;
 
 	/**
 	 * 음식점 등록하기
@@ -361,21 +357,13 @@ public class RestaurantService {
 		Long restaurantId
 	) {
 		final Restaurant restaurant = getRestaurantById(restaurantId);
-		restaurant.setPublicYn(pubRequest.getIsPub());
+		restaurant.setPublicYn(pubRequest.getIsPub() ? "Y" : "N");
 
-		final User alarmUser = restaurant.getUser();
-		saveAndSendAlarm(restaurant, alarmUser);
+		final AlarmType type = pubRequest.getIsPub() ? AlarmType.Pass : AlarmType.Reject;
+		final AlarmRequest alarmRequest = AlarmRequest.of(restaurant, type);
+		alarmService.registerAndSend(alarmRequest);
 
 		return restaurantId;
-	}
-
-	private void saveAndSendAlarm(
-		Restaurant restaurant,
-		User alarmUser
-	) {
-		final Alarm alarm = Alarm.of(alarmUser, restaurant, null, AlarmType.Reject);
-		final Alarm savedAlarm = alarmRepository.save(alarm);
-		alarmSender.send(restaurant, alarmUser, savedAlarm, AlarmMessage.RejectMessage.getMessage());
 	}
 
 	/**

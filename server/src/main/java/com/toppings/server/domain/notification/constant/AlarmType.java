@@ -5,5 +5,6 @@ public enum AlarmType {
 	Like,
 	Review,
 	Scrap,
-	Reject
+	Reject,
+	Pass
 }

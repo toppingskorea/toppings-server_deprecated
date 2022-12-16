@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/recent")
+@RequestMapping("/api/v1/recent")
 public class RecentController {
 
     private final RecentService recentService;

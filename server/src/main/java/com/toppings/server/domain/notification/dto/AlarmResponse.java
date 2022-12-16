@@ -39,18 +39,15 @@ public class AlarmResponse {
 
 	private String thumbnail;
 
-	private String message;
-
 	@JsonSerialize(using = LocalDateTimeSerializer.class)
 	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy.MM.dd")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy.MM.dd HH:mm")
 	private LocalDateTime createDate;
 
 	public static AlarmResponse of(
 		Restaurant restaurant,
 		User user,
-		Alarm alarm,
-		String message
+		Alarm alarm
 	) {
 		return AlarmResponse.builder()
 			.id(alarm.getId())
@@ -60,7 +57,6 @@ public class AlarmResponse {
 			.userName(user.getName())
 			.restaurantName(restaurant.getName())
 			.thumbnail(restaurant.getThumbnail())
-			.message(message)
 			.createDate(alarm.getCreateDate())
 			.build();
 	}

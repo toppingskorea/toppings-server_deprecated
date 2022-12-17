@@ -102,7 +102,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.userService(principalOauth2UserService);
 
 		http.logout()
-			.logoutUrl("/logout")
+			.logoutUrl("/api/v1/logout")
 			.logoutSuccessHandler(logoutSuccessHandler())
 			.invalidateHttpSession(true)
 			.deleteCookies(JwtProperties.JWT_REFRESH_HEADER);

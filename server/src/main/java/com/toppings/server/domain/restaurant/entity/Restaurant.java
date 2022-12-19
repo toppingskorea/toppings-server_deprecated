@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.toppings.server.domain.likes.entity.Likes;
 import com.toppings.server.domain.restaurant.constant.FoodType;
+import com.toppings.server.domain.scrap.entity.Scrap;
 import com.toppings.server.domain.user.entity.User;
 import com.toppings.server.domain_global.entity.BaseEntity;
 import lombok.*;
@@ -69,7 +70,7 @@ public class Restaurant extends BaseEntity {
     private String publicYn;
     
     // 사진 경로랑 주소
-    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.REMOVE , orphanRemoval = true)
     private List<RestaurantAttach> images;
 
     @ManyToOne(fetch = FetchType.LAZY)

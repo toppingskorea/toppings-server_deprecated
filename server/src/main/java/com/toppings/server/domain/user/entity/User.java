@@ -3,17 +3,13 @@ package com.toppings.server.domain.user.entity;
 import java.util.List;
 
 import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -26,7 +22,6 @@ import com.toppings.server.domain.restaurant.entity.Restaurant;
 import com.toppings.server.domain.review.entity.Review;
 import com.toppings.server.domain.scrap.entity.Scrap;
 import com.toppings.server.domain.user.constant.Auth;
-import com.toppings.server.domain.user.constant.Habit;
 import com.toppings.server.domain_global.entity.BaseEntity;
 
 import lombok.AllArgsConstructor;
@@ -100,4 +95,7 @@ public class User extends BaseEntity {
 	// 최근 검색
 	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	private List<Recent> recents;
+
+	@Column(name = "user_habit_contents", columnDefinition = "varchar(255)")
+	private String habitContents;
 }

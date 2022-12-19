@@ -7,24 +7,32 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.toppings.common.constants.ResponseCode;
+import com.toppings.common.dto.PubRequest;
 import com.toppings.common.exception.GeneralException;
 import com.toppings.server.domain.likes.dto.LikesPercent;
 import com.toppings.server.domain.likes.dto.LikesPercentResponse;
 import com.toppings.server.domain.likes.repository.LikeRepository;
+import com.toppings.server.domain.notification.constant.AlarmType;
+import com.toppings.server.domain.notification.dto.AlarmRequest;
+import com.toppings.server.domain.notification.service.AlarmService;
 import com.toppings.server.domain.restaurant.dto.RestaurantAttachRequest;
+import com.toppings.server.domain.restaurant.dto.RestaurantFilterSearchRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantListResponse;
+import com.toppings.server.domain.restaurant.dto.RestaurantMapSearchRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantModifyRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantResponse;
-import com.toppings.server.domain.restaurant.dto.RestaurantSearchRequest;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
 import com.toppings.server.domain.restaurant.entity.RestaurantAttach;
 import com.toppings.server.domain.restaurant.repository.RestaurantAttachRepository;
 import com.toppings.server.domain.restaurant.repository.RestaurantRepository;
+import com.toppings.server.domain.review.repository.ReviewRepository;
 import com.toppings.server.domain.scrap.repository.ScrapRepository;
 import com.toppings.server.domain.user.constant.Auth;
 import com.toppings.server.domain.user.entity.User;
@@ -50,6 +58,10 @@ public class RestaurantService {
 
 	private final ScrapRepository scrapRepository;
 
+	private final ReviewRepository reviewRepository;
+
+	private final AlarmService alarmService;
+
 	/**
 	 * 음식점 등록하기
 	 */
@@ -58,7 +70,6 @@ public class RestaurantService {
 		RestaurantRequest request,
 		Long userId
 	) {
-		// TODO: user 만들 때 그냥 빌더로 만들지 고민
 		final User user = getUserById(userId);
 		final Restaurant restaurant = restaurantRepository.findRestaurantByCode(request.getCode()).orElse(null);
 		if (restaurant != null)
@@ -116,7 +127,7 @@ public class RestaurantService {
 		RestaurantModifyRequest request,
 		Restaurant restaurant
 	) {
-		List<RestaurantAttach> restaurantAttaches = new ArrayList<>();
+		final List<RestaurantAttach> restaurantAttaches = new ArrayList<>();
 		if (request.getImages() != null && !request.getImages().isEmpty()) {
 			// 기존 이미지 제거
 			restaurantAttachRepository.deleteAllByIdInBatch(
@@ -149,6 +160,7 @@ public class RestaurantService {
 		return !restaurant.getUser().getId().equals(userId);
 	}
 
+	// TODO: public yn
 	private Restaurant getRestaurantById(Long id) {
 		return restaurantRepository.findById(id)
 			.orElseThrow(() -> new GeneralException(ResponseCode.BAD_REQUEST));
@@ -167,23 +179,22 @@ public class RestaurantService {
 		if (verifyRestaurantAndUser(user, restaurant))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
-		restaurantRepository.deleteById(restaurantId);
+		reviewRepository.deleteBatchByRestaurant(restaurant);
+		likeRepository.deleteBatchByRestaurant(restaurant);
+		scrapRepository.deleteBatchByRestaurant(restaurant);
+		restaurantRepository.delete(restaurant);
 		return restaurantId;
 	}
 
 	/**
-	 *	음식점 목록 검색
+	 *	음식점 목록 검색 (필터)
 	 */
-	public List<RestaurantListResponse> findAll(
-		RestaurantSearchRequest searchRequest,
+	public List<RestaurantListResponse> findAllForFilter(
+		RestaurantFilterSearchRequest searchRequest,
 		Long userId
 	) {
 		final List<RestaurantListResponse> restaurantListResponses;
 		switch (searchRequest.getType()) {
-			case Map:
-				restaurantListResponses = getRestaurantListResponsesForMap(searchRequest);
-				break;
-
 			case Name:
 				restaurantListResponses = getRestaurantListResponsesForName(searchRequest);
 				break;
@@ -205,6 +216,20 @@ public class RestaurantService {
 		return restaurantListResponses;
 	}
 
+	/**
+	 *	음식점 목록 검색 (지도)
+	 */
+	public List<RestaurantListResponse> findAllForMap(
+		RestaurantMapSearchRequest searchRequest,
+		Long userId
+	) {
+		final List<RestaurantListResponse> restaurantListResponses
+			= restaurantRepository.findAllBySearchForMap(searchRequest);
+		if (userId != null)
+			setIsLike(restaurantListResponses, userId);
+		return restaurantListResponses;
+	}
+
 	private void setIsLike(
 		List<RestaurantListResponse> restaurantListResponses,
 		Long userId
@@ -213,14 +238,14 @@ public class RestaurantService {
 		restaurantListResponses.forEach(restaurant -> restaurant.setLike(likesIds.contains(restaurant.getId())));
 	}
 
-	private List<RestaurantListResponse> getRestaurantListResponsesforCountry(RestaurantSearchRequest searchRequest) {
+	private List<RestaurantListResponse> getRestaurantListResponsesforCountry(RestaurantFilterSearchRequest searchRequest) {
 		if (isNullCountry(searchRequest))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
 		return likeRepository.findRestaurantIdByUserCountry(searchRequest.getCountry());
 	}
 
-	private List<RestaurantListResponse> getRestaurantListResponsesForHabit(RestaurantSearchRequest searchRequest) {
+	private List<RestaurantListResponse> getRestaurantListResponsesForHabit(RestaurantFilterSearchRequest searchRequest) {
 		if (isNullHabit(searchRequest))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
@@ -228,35 +253,23 @@ public class RestaurantService {
 		return likeRepository.findRestaurantIdByUserHabit(ids);
 	}
 
-	private List<RestaurantListResponse> getRestaurantListResponsesForName(RestaurantSearchRequest searchRequest) {
+	private List<RestaurantListResponse> getRestaurantListResponsesForName(RestaurantFilterSearchRequest searchRequest) {
 		if (isNullName(searchRequest))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
 		return restaurantRepository.findAllByRestaurantName(searchRequest.getName());
 	}
 
-	private List<RestaurantListResponse> getRestaurantListResponsesForMap(RestaurantSearchRequest searchRequest) {
-		if (isNullCoordinate(searchRequest))
-			throw new GeneralException(ResponseCode.BAD_REQUEST);
-
-		return restaurantRepository.findAllBySearchForMap(searchRequest);
-	}
-
-	private boolean isNullCountry(RestaurantSearchRequest searchRequest) {
+	private boolean isNullCountry(RestaurantFilterSearchRequest searchRequest) {
 		return searchRequest.getCountry() == null || !hasText(searchRequest.getCountry());
 	}
 
-	private boolean isNullHabit(RestaurantSearchRequest searchRequest) {
-		return searchRequest.getHabit() == null || searchRequest.getHabitTitle() == null;
+	private boolean isNullHabit(RestaurantFilterSearchRequest searchRequest) {
+		return searchRequest.getHabit() == null;
 	}
 
-	private boolean isNullName(RestaurantSearchRequest searchRequest) {
+	private boolean isNullName(RestaurantFilterSearchRequest searchRequest) {
 		return searchRequest.getName() == null || !hasText(searchRequest.getName());
-	}
-
-	private boolean isNullCoordinate(RestaurantSearchRequest searchRequest) {
-		return searchRequest.getX1() == null || searchRequest.getX2() == null
-			|| searchRequest.getY1() == null || searchRequest.getY2() == null;
 	}
 
 	private List<Long> getMyLikesIds(User user) {
@@ -279,6 +292,7 @@ public class RestaurantService {
 		final List<String> images = getRestaurantImages(restaurant);
 		restaurantResponse.setImages(images);
 		restaurantResponse.setWriter(restaurant.getUser().getName());
+		restaurantResponse.setCountry(restaurant.getUser().getCountry());
 
 		if (userId != null) {
 			User user = getUserById(userId);
@@ -295,14 +309,15 @@ public class RestaurantService {
 			.collect(Collectors.toList());
 	}
 
+	/**
+	 *	좋아요 퍼센트 조회
+	 */
 	public LikesPercentResponse getLikesPercent(Long restaurantId) {
-		Restaurant restaurant = getRestaurantById(restaurantId);
-		Long totalCount = likeRepository.countByRestaurant(restaurant);
+		final Restaurant restaurant = getRestaurantById(restaurantId);
+		final Long totalCount = likeRepository.countByRestaurant(restaurant);
 
-		System.out.println(totalCount);
-
-		List<LikesPercent> countryLikePercents = likeRepository.findLikesPercentForCountry(restaurantId);
-		List<LikesPercent> habitLikePercents = likeRepository.findLikesPercentForHabit(restaurantId);
+		final List<LikesPercent> countryLikePercents = likeRepository.findLikesPercentForCountry(restaurantId);
+		final List<LikesPercent> habitLikePercents = likeRepository.findLikesPercentForHabit(restaurantId);
 
 		setCountryLikesPercent(totalCount, countryLikePercents);
 		setHabitLikesPercent(totalCount, habitLikePercents);
@@ -331,5 +346,42 @@ public class RestaurantService {
 			double divisionValue = countryLikes.getCount() / (double)totalCount;
 			countryLikes.setPercent(Math.toIntExact(Math.round(divisionValue * 100)));
 		});
+	}
+
+	/**
+	 * 음식점 공개여부 수정 (관리자용)
+	 */
+	@Transactional
+	public Long modifyPub(
+		PubRequest pubRequest,
+		Long restaurantId
+	) {
+		final Restaurant restaurant = getRestaurantById(restaurantId);
+		restaurant.setPublicYn(pubRequest.getIsPub() ? "Y" : "N");
+
+		final AlarmType type = pubRequest.getIsPub() ? AlarmType.Pass : AlarmType.Reject;
+		final AlarmRequest alarmRequest = AlarmRequest.of(restaurant, type);
+		alarmService.registerAndSend(alarmRequest);
+
+		return restaurantId;
+	}
+
+	/**
+	 * 음식점 목록 조회 (관리자용)
+	 */
+	public Page<RestaurantListResponse> findAllForAdmin(Pageable pageable) {
+		return restaurantRepository.findAllForAdmin(pageable);
+	}
+
+	/**
+	 * 음식점 상세 조회 (관리자용)
+	 */
+	public RestaurantResponse findOneForAdmin(Long restaurantId) {
+		final Restaurant restaurant = getRestaurantById(restaurantId);
+		final RestaurantResponse restaurantResponse = RestaurantResponse.entityToDto(restaurant);
+
+		final List<String> images = getRestaurantImages(restaurant);
+		restaurantResponse.setImages(images);
+		return restaurantResponse;
 	}
 }

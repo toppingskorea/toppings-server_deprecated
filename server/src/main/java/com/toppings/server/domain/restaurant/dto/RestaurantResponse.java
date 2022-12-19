@@ -48,6 +48,8 @@ public class RestaurantResponse {
 	// 작성자
 	private String writer;
 
+	private String country;
+
 	private boolean isLike;
 
 	private boolean isScrap;
@@ -59,6 +61,7 @@ public class RestaurantResponse {
 			.type(restaurant.getType())
 			.address(restaurant.getAddress())
 			.description(restaurant.getDescription())
+			.likeCount(restaurant.getLikeCount())
 			.latitude(restaurant.getLatitude())
 			.longitude(restaurant.getLongitude())
 			.code(restaurant.getCode())

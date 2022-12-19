@@ -1,6 +1,5 @@
 package com.toppings.server.domain.review.repository;
 
-import static com.toppings.server.domain.likes.entity.QLikes.*;
 import static com.toppings.server.domain.review.entity.QReview.*;
 
 import java.util.List;
@@ -33,7 +32,7 @@ public class QueryDslReviewRepositoryImpl implements QueryDslReviewRepository {
 		return queryFactory.select(
 			Projections.fields(ReviewListResponse.class, review.id, review.description, review.thumbnail,
 				review.updateDate.as("modifiedAt"), review.user.name, review.user.country,
-				getIsMine(userId).as("isMine")
+				getIsMine(userId).as("isMine"), review.user.habitContents
 			))
 			.from(review)
 			.innerJoin(review.user)

@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public enum SearchCategory {
 
-    Nationality,
+    Country,
     Habit,
     Name
 }

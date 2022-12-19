@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.toppings.server.domain.review.entity.Review;
-import com.toppings.server.domain.user.constant.Habit;
 import com.toppings.server.domain.user.entity.User;
 
 import lombok.AllArgsConstructor;
@@ -31,8 +30,8 @@ public class ReviewResponse {
 
 	private List<String> images;
 
-	@JsonSerialize(using= LocalDateTimeSerializer.class)
-	@JsonDeserialize(using= LocalDateTimeDeserializer.class)
+	@JsonSerialize(using = LocalDateTimeSerializer.class)
+	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy.MM.dd")
 	private LocalDateTime modifiedAt;
 
@@ -41,6 +40,8 @@ public class ReviewResponse {
 	private String country;
 
 	private Boolean isMine;
+
+	private List<String> habits;
 
 	public static ReviewResponse entityToDto(
 		Review review,

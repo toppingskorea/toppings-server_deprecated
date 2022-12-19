@@ -5,6 +5,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.toppings.common.constants.ResponseCode;
 import com.toppings.common.exception.GeneralException;
+import com.toppings.server.domain.notification.constant.AlarmType;
+import com.toppings.server.domain.notification.dto.AlarmRequest;
+import com.toppings.server.domain.notification.service.AlarmService;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
 import com.toppings.server.domain.restaurant.repository.RestaurantRepository;
 import com.toppings.server.domain.scrap.entity.Scrap;
@@ -22,19 +25,25 @@ public class ScrapService {
 
 	private final RestaurantRepository restaurantRepository;
 
+	private final AlarmService alarmService;
+
 	@Transactional
 	public Long register(
 		Long restaurantId,
 		Long userId
 	) {
-		Restaurant restaurant = getRestaurantById(restaurantId);
-		User user = getUser(userId);
+		final Restaurant restaurant = getRestaurantById(restaurantId);
+		final User user = getUser(userId);
 
 		if (isDuplicatedScrap(restaurant, user))
 			throw new GeneralException(ResponseCode.DUPLICATED_ITEM);
 
-		Scrap scrap = scrapRepository.save(getScrap(user, restaurant));
+		final Scrap scrap = scrapRepository.save(getScrap(user, restaurant));
 		restaurant.setScrapCount(restaurant.getScrapCount() + 1);
+
+		final AlarmRequest alarmRequest = AlarmRequest.of(user, restaurant, AlarmType.Scrap);
+		alarmService.registerAndSend(alarmRequest);
+
 		return scrap.getId();
 	}
 
@@ -60,9 +69,9 @@ public class ScrapService {
 		Long restaurantId,
 		Long userId
 	) {
-		Restaurant restaurant = getRestaurantById(restaurantId);
+		final Restaurant restaurant = getRestaurantById(restaurantId);
 
-		Scrap scrap = scrapRepository.findScrapByRestaurantAndUser(restaurant, getUser(userId))
+		final Scrap scrap = scrapRepository.findScrapByRestaurantAndUser(restaurant, getUser(userId))
 			.orElseThrow(() -> new GeneralException(ResponseCode.BAD_REQUEST));
 
 		scrapRepository.deleteById(scrap.getId());
@@ -70,6 +79,7 @@ public class ScrapService {
 		return scrap.getId();
 	}
 
+	// TODO: public yn
 	private Restaurant getRestaurantById(Long restaurantId) {
 		return restaurantRepository.findById(restaurantId)
 			.orElseThrow(() -> new GeneralException(ResponseCode.BAD_REQUEST));

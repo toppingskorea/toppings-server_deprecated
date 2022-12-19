@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/review")
+@RequestMapping("/api/v1/review")
 public class ReviewController {
 
 	private final ReviewService reviewService;
@@ -47,7 +47,7 @@ public class ReviewController {
 	) {
 		return ResponseEntity.ok(ApiDataResponse.of(reviewService.modify(request, reviewId, userId)));
 	}
-
+	
 	/**
 	 * 리뷰 삭제하기
 	 */

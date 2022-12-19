@@ -40,6 +40,8 @@ public class RestaurantListResponse {
 
 	private boolean isLike;
 
+	private Long filterLikeCount;
+
 	public static RestaurantListResponse entityToDto(Restaurant restaurant) {
 		return RestaurantListResponse.builder()
 			.id(restaurant.getId())

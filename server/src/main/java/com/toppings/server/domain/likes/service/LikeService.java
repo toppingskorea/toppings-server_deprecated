@@ -1,16 +1,15 @@
 package com.toppings.server.domain.likes.service;
 
-import java.util.List;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.toppings.common.constants.ResponseCode;
 import com.toppings.common.exception.GeneralException;
-import com.toppings.server.domain.likes.dto.LikesPercent;
-import com.toppings.server.domain.likes.dto.LikesPercentResponse;
 import com.toppings.server.domain.likes.entity.Likes;
 import com.toppings.server.domain.likes.repository.LikeRepository;
+import com.toppings.server.domain.notification.constant.AlarmType;
+import com.toppings.server.domain.notification.dto.AlarmRequest;
+import com.toppings.server.domain.notification.service.AlarmService;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
 import com.toppings.server.domain.restaurant.repository.RestaurantRepository;
 import com.toppings.server.domain.user.entity.User;
@@ -26,19 +25,25 @@ public class LikeService {
 
 	private final RestaurantRepository restaurantRepository;
 
+	private final AlarmService alarmService;
+
 	@Transactional
 	public Long register(
 		Long restaurantId,
 		Long userId
 	) {
-		Restaurant restaurant = getRestaurantById(restaurantId);
-		User user = getUser(userId);
+		final Restaurant restaurant = getRestaurantById(restaurantId);
+		final User user = getUser(userId);
 
 		if (isDuplicatedLikes(restaurant, user))
 			throw new GeneralException(ResponseCode.DUPLICATED_ITEM);
 
-		Likes like = likeRepository.save(getLikes(user, restaurant));
+		final Likes like = likeRepository.save(getLikes(user, restaurant));
 		restaurant.setLikeCount(restaurant.getLikeCount() + 1);
+
+		final AlarmRequest alarmRequest = AlarmRequest.of(user, restaurant, AlarmType.Like);
+		alarmService.registerAndSend(alarmRequest);
+
 		return like.getId();
 	}
 
@@ -49,6 +54,7 @@ public class LikeService {
 		return likeRepository.findLikesByRestaurantAndUser(restaurant, user).isPresent();
 	}
 
+	// TODO : public yn
 	private Restaurant getRestaurantById(Long restaurantId) {
 		return restaurantRepository.findById(restaurantId)
 			.orElseThrow(() -> new GeneralException(ResponseCode.BAD_REQUEST));
@@ -69,9 +75,9 @@ public class LikeService {
 		Long restaurantId,
 		Long userId
 	) {
-		Restaurant restaurant = getRestaurantById(restaurantId);
+		final Restaurant restaurant = getRestaurantById(restaurantId);
 
-		Likes like = likeRepository.findLikesByRestaurantAndUser(restaurant, getUser(userId))
+		final Likes like = likeRepository.findLikesByRestaurantAndUser(restaurant, getUser(userId))
 			.orElseThrow(() -> new GeneralException(ResponseCode.BAD_REQUEST));
 
 		likeRepository.deleteById(like.getId());

@@ -15,10 +15,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.toppings.common.dto.ApiDataResponse;
+import com.toppings.common.dto.PubRequest;
 import com.toppings.server.domain.likes.service.LikeService;
+import com.toppings.server.domain.restaurant.dto.RestaurantMapSearchRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantModifyRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantRequest;
-import com.toppings.server.domain.restaurant.dto.RestaurantSearchRequest;
+import com.toppings.server.domain.restaurant.dto.RestaurantFilterSearchRequest;
 import com.toppings.server.domain.restaurant.service.RestaurantService;
 import com.toppings.server.domain.review.dto.ReviewRequest;
 import com.toppings.server.domain.review.service.ReviewService;
@@ -28,7 +30,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/restaurant")
+@RequestMapping("/api/v1/restaurant")
 public class RestaurantController {
 
 	private final RestaurantService restaurantService;
@@ -66,14 +68,38 @@ public class RestaurantController {
 	}
 
 	/**
+	 * 음식점 공개여부 수정하기
+	 */
+	@PutMapping("/{restaurantId}/pub")
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	public ResponseEntity<?> modifyRestaurantPub(
+		@Valid @RequestBody PubRequest pubRequest,
+		@PathVariable Long restaurantId
+	) {
+		return ResponseEntity.ok(
+			ApiDataResponse.of(restaurantService.modifyPub(pubRequest, restaurantId)));
+	}
+
+	/**
 	 * 음식점 목록 조회하기 (필터링)
 	 */
-	@GetMapping
-	public ResponseEntity<?> getRestaurants(
-		@Valid RestaurantSearchRequest restaurantSearchRequest,
+	@GetMapping("/filter")
+	public ResponseEntity<?> getRestaurantsForFilter(
+		@Valid RestaurantFilterSearchRequest searchRequest,
 		@AuthenticationPrincipal Long userId
 	) {
-		return ResponseEntity.ok(ApiDataResponse.of(restaurantService.findAll(restaurantSearchRequest, userId)));
+		return ResponseEntity.ok(ApiDataResponse.of(restaurantService.findAllForFilter(searchRequest, userId)));
+	}
+
+	/**
+	 * 음식점 목록 조회하기 (지도)
+	 */
+	@GetMapping("/map")
+	public ResponseEntity<?> getRestaurantsForMap(
+		@Valid RestaurantMapSearchRequest searchRequest,
+		@AuthenticationPrincipal Long userId
+	) {
+		return ResponseEntity.ok(ApiDataResponse.of(restaurantService.findAllForMap(searchRequest, userId)));
 	}
 
 	/**
@@ -88,13 +114,12 @@ public class RestaurantController {
 	}
 
 	/**
-	 * 음식점 상세 조회하기
+	 * 음식점 좋아요 퍼센트 조회하기
 	 */
 	@GetMapping("/{restaurantId}/like")
 	public ResponseEntity<?> getRestaurantLikePercent(@PathVariable Long restaurantId) {
 		return ResponseEntity.ok(ApiDataResponse.of(restaurantService.getLikesPercent(restaurantId)));
 	}
-
 
 	/**
 	 * 음식점 삭제하기

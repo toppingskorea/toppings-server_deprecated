@@ -1,6 +1,8 @@
 package com.toppings.server.domain.review.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -9,6 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.toppings.common.constants.ResponseCode;
 import com.toppings.common.exception.GeneralException;
+import com.toppings.server.domain.notification.constant.AlarmType;
+import com.toppings.server.domain.notification.dto.AlarmRequest;
+import com.toppings.server.domain.notification.service.AlarmService;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
 import com.toppings.server.domain.restaurant.repository.RestaurantRepository;
 import com.toppings.server.domain.review.dto.ReviewAttachRequest;
@@ -39,6 +44,8 @@ public class ReviewService {
 
 	private final ReviewAttachRepository reviewAttachRepository;
 
+	private final AlarmService alarmService;
+
 	/**
 	 * 댓글 등록하기
 	 */
@@ -48,17 +55,22 @@ public class ReviewService {
 		Long restaurantId,
 		Long userId
 	) {
-		User user = getUserById(userId);
-		Restaurant restaurant = getRestaurantById(restaurantId);
+		final Restaurant restaurant = getRestaurantById(restaurantId);
+		final User user = getUserById(userId);
 
-		Review review = ReviewRequest.dtoToEntity(request);
+		final Review review = ReviewRequest.dtoToEntity(request);
 		review.setUser(user);
 		review.setRestaurant(restaurant);
 
-		Review saveReview = reviewRepository.save(review);
-		List<String> images = registerReviewAttach(request, saveReview);
+		final Review saveReview = reviewRepository.save(review);
+		final List<String> images = registerReviewAttach(request, saveReview);
 		ReviewResponse reviewResponse = ReviewResponse.entityToDto(saveReview);
 		reviewResponse.setImages(images);
+
+		final AlarmRequest alarmRequest = AlarmRequest.of(user, restaurant, AlarmType.Like,
+			saveReview.getDescription());
+		alarmService.registerAndSend(alarmRequest);
+
 		return reviewResponse;
 	}
 
@@ -66,7 +78,7 @@ public class ReviewService {
 		ReviewRequest request,
 		Review review
 	) {
-		List<ReviewAttach> reviewAttaches = new ArrayList<>();
+		final List<ReviewAttach> reviewAttaches = new ArrayList<>();
 		for (String image : request.getImages())
 			reviewAttaches.add(ReviewAttachRequest.dtoToEntity(image, review));
 		reviewAttachRepository.saveAll(reviewAttaches);
@@ -76,6 +88,7 @@ public class ReviewService {
 			.collect(Collectors.toList());
 	}
 
+	// TODO: public yn
 	private Restaurant getRestaurantById(Long id) {
 		return restaurantRepository.findById(id)
 			.orElseThrow(() -> new GeneralException(ResponseCode.BAD_REQUEST));
@@ -94,12 +107,12 @@ public class ReviewService {
 		Long reviewId,
 		Long userId
 	) {
-		Review review = getReviewById(reviewId);
+		final Review review = getReviewById(reviewId);
 		if (verifyReviewAndUser(review, userId))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
-		List<String> images = modifyReviewAttach(request, review);
-		ReviewResponse reviewResponse = ReviewResponse.entityToDto(review);
+		final List<String> images = modifyReviewAttach(request, review);
+		final ReviewResponse reviewResponse = ReviewResponse.entityToDto(review);
 		reviewResponse.setImages(images);
 
 		ReviewModifyRequest.modifyReviewInfo(review, request, images.get(0));
@@ -110,7 +123,7 @@ public class ReviewService {
 		ReviewModifyRequest request,
 		Review review
 	) {
-		List<ReviewAttach> reviewAttaches = new ArrayList<>();
+		final List<ReviewAttach> reviewAttaches = new ArrayList<>();
 		if (request.getImages() != null && !request.getImages().isEmpty()) {
 			// 기존 이미지 제거
 			reviewAttachRepository.deleteAllByIdInBatch(
@@ -137,12 +150,12 @@ public class ReviewService {
 		Long reviewId,
 		Long userId
 	) {
-		Review review = getReviewById(reviewId);
-		User user = getUserById(userId);
+		final Review review = getReviewById(reviewId);
+		final User user = getUserById(userId);
 		if (verifyReviewAndUser(review, user))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
-		reviewRepository.deleteById(reviewId);
+		reviewRepository.delete(review);
 		return reviewId;
 	}
 
@@ -172,7 +185,16 @@ public class ReviewService {
 		Long restaurantId,
 		Long userId
 	) {
-		return reviewRepository.findReviewByRestaurantId(restaurantId, userId);
+		final Restaurant restaurant = getRestaurantById(restaurantId);
+		final List<ReviewListResponse> reviewListResponses
+			= reviewRepository.findReviewByRestaurantId(restaurant.getId(), userId);
+		reviewListResponses.forEach(en -> {
+			en.setHabits(en.getHabitContents() != null ?
+				Arrays.asList(en.getHabitContents().split(",")) :
+				Collections.emptyList());
+			en.setHabitContents(null);
+		});
+		return reviewListResponses;
 	}
 
 	/**
@@ -182,9 +204,10 @@ public class ReviewService {
 		Long reviewId,
 		Long userId
 	) {
-		Review review = getReviewById(reviewId);
-		ReviewResponse reviewResponse = ReviewResponse.entityToDto(review, review.getUser());
+		final Review review = getReviewById(reviewId);
+		final ReviewResponse reviewResponse = ReviewResponse.entityToDto(review, review.getUser());
 		reviewResponse.setIsMine(review.getUser().getId().equals(userId));
+		reviewResponse.setHabits(Arrays.asList(review.getUser().getHabitContents().split(",")));
 		return reviewResponse;
 	}
 }

@@ -1,5 +1,6 @@
 package com.toppings.server.domain.restaurant.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -71,7 +72,7 @@ public class Restaurant extends BaseEntity {
     
     // 사진 경로랑 주소
     @OneToMany(mappedBy = "restaurant", cascade = CascadeType.REMOVE , orphanRemoval = true)
-    private List<RestaurantAttach> images;
+    private List<RestaurantAttach> images = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -82,4 +83,10 @@ public class Restaurant extends BaseEntity {
 
     @Column(name = "restaurant_thumbnail", columnDefinition = "longtext")
     private String thumbnail;
+
+    // business
+    public void updateThumbnail(String image) {
+        if (!image.equals(this.thumbnail))
+            this.thumbnail = image;
+    }
 }

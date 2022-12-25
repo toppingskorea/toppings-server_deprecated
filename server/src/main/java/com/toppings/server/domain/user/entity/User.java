@@ -76,6 +76,9 @@ public class User extends BaseEntity {
 	@Column(name = "user_profile", columnDefinition = "longtext")
 	private String profile;
 
+	@Column(name = "user_profile_path", columnDefinition = "varchar(200)")
+	private String profilePath;
+
 	// 좋아요
 	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	private List<Likes> likes;

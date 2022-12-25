@@ -2,10 +2,14 @@ package com.toppings.server.domain.restaurant.service;
 
 import static org.springframework.util.StringUtils.*;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.xml.bind.DatatypeConverter;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +25,6 @@ import com.toppings.server.domain.likes.repository.LikeRepository;
 import com.toppings.server.domain.notification.constant.AlarmType;
 import com.toppings.server.domain.notification.dto.AlarmRequest;
 import com.toppings.server.domain.notification.service.AlarmService;
-import com.toppings.server.domain.restaurant.dto.RestaurantAttachRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantFilterSearchRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantListResponse;
 import com.toppings.server.domain.restaurant.dto.RestaurantMapSearchRequest;
@@ -38,6 +41,8 @@ import com.toppings.server.domain.user.constant.Auth;
 import com.toppings.server.domain.user.entity.User;
 import com.toppings.server.domain.user.repository.UserHabitRepository;
 import com.toppings.server.domain.user.repository.UserRepository;
+import com.toppings.server.domain_global.utils.s3.S3Response;
+import com.toppings.server.domain_global.utils.s3.S3Uploader;
 
 import lombok.RequiredArgsConstructor;
 
@@ -62,11 +67,16 @@ public class RestaurantService {
 
 	private final AlarmService alarmService;
 
+	private final S3Uploader s3Uploader;
+
+	private final String imagePath = "restaurant/";
+
+
 	/**
 	 * 음식점 등록하기
 	 */
 	@Transactional
-	public RestaurantResponse register(
+	public Long register(
 		RestaurantRequest request,
 		Long userId
 	) {
@@ -75,26 +85,27 @@ public class RestaurantService {
 		if (restaurant != null)
 			throw new GeneralException(ResponseCode.DUPLICATED_ITEM);
 
-		final Restaurant saveRestaurant = restaurantRepository.save(RestaurantRequest.dtoToEntity(request, user));
-		List<String> images = registerRestaurantAttach(request, saveRestaurant);
+		final Restaurant saveRestaurant = RestaurantRequest.dtoToEntity(request, user);
+		final List<RestaurantAttach> images = getRestaurantAttaches(request.getImages(), request.getCode(), saveRestaurant);
 
-		final RestaurantResponse restaurantResponse = RestaurantResponse.entityToDto(saveRestaurant);
-		restaurantResponse.setImages(images);
-		return restaurantResponse;
+		saveRestaurant.updateThumbnail(images.get(0).getImage());
+		restaurantRepository.save(saveRestaurant);
+		restaurantAttachRepository.saveAll(images);
+		return saveRestaurant.getId();
 	}
 
-	private List<String> registerRestaurantAttach(
-		RestaurantRequest request,
+	private List<RestaurantAttach> getRestaurantAttaches(
+		List<String> base64Images,
+		String restaurantCode,
 		Restaurant restaurant
 	) {
-		final List<RestaurantAttach> restaurantAttaches = new ArrayList<>();
-		for (String image : request.getImages())
-			restaurantAttaches.add(RestaurantAttachRequest.dtoToEntity(image, restaurant));
-		restaurantAttachRepository.saveAll(restaurantAttaches);
-
-		return restaurantAttaches.stream()
-			.map(RestaurantAttach::getImage)
-			.collect(Collectors.toList());
+		final List<RestaurantAttach> images = new ArrayList<>();
+		for (String image : base64Images) {
+			byte[] decodedFile = DatatypeConverter.parseBase64Binary(image.substring(image.indexOf(",") + 1));
+			S3Response s3Response = s3Uploader.uploadBase64(decodedFile, imagePath + restaurantCode + "/");
+			images.add(RestaurantAttach.of(s3Response, restaurant));
+		}
+		return images;
 	}
 
 	private User getUserById(Long id) {
@@ -105,7 +116,7 @@ public class RestaurantService {
 	 * 음식점 수정하기
 	 */
 	@Transactional
-	public RestaurantResponse modify(
+	public Long modify(
 		RestaurantModifyRequest request,
 		Long restaurantId,
 		Long userId
@@ -114,36 +125,34 @@ public class RestaurantService {
 		if (verifyRestaurantAndUser(userId, restaurant))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
-		final List<String> images = modifyRestaurantAttach(request, restaurant);
-		final RestaurantResponse restaurantResponse = RestaurantResponse.entityToDto(restaurant);
-		restaurantResponse.setImages(images);
+		final List<RestaurantAttach> images = modifyRestaurantAttach(request, restaurant);
 
-		RestaurantModifyRequest.setRestaurantInfo(request, restaurant, images.get(0));
+		RestaurantModifyRequest.setRestaurantInfo(request, restaurant, images.get(0).getImage());
 		RestaurantModifyRequest.setMapInfo(request, restaurant);
-		return restaurantResponse;
+		return restaurant.getId();
 	}
 
-	private List<String> modifyRestaurantAttach(
+	private List<RestaurantAttach> modifyRestaurantAttach(
 		RestaurantModifyRequest request,
 		Restaurant restaurant
 	) {
-		final List<RestaurantAttach> restaurantAttaches = new ArrayList<>();
-		if (request.getImages() != null && !request.getImages().isEmpty()) {
+		if (isNotNullImage(request.getImages())) {
 			// 기존 이미지 제거
 			restaurantAttachRepository.deleteAllByIdInBatch(
 				restaurant.getImages().stream().map(RestaurantAttach::getId).collect(Collectors.toList()));
 
 			// 신규 이미지 등록
-			for (String image : request.getImages())
-				restaurantAttaches.add(RestaurantAttachRequest.dtoToEntity(image, restaurant));
-			restaurantAttachRepository.saveAll(restaurantAttaches);
+			final List<RestaurantAttach> images
+				= getRestaurantAttaches(request.getImages(), request.getCode(), restaurant);
+			restaurantAttachRepository.saveAll(images);
+			return images;
 		} else {
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 		}
+	}
 
-		return restaurantAttaches.stream()
-			.map(RestaurantAttach::getImage)
-			.collect(Collectors.toList());
+	private boolean isNotNullImage(List<String> images) {
+		return images != null && !images.isEmpty();
 	}
 
 	private boolean verifyRestaurantAndUser(

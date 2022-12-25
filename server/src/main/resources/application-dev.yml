@@ -60,3 +60,14 @@ jwt:
 server:
   port: 28080
 
+cloud:
+  aws:
+    credentials:
+      accessKey: ENC(vsZfDPJokKkGGN8+NS/z0DxC4/eaBvbgzutx35Fe+v8=)
+      secretKey: ENC(vjOrO9pgPfp0Dwj7aJB6GRPFUFuQLImzl7G6fT99w4s5sYdbxpZjr+arNGbGa8B3etKasIPaAfM=)
+    s3:
+      bucket: ENC(LFmFgkl/ZzU1uNpCVld/f21rkwsBztwrFoWbcPSPghg=)
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false

@@ -1,5 +1,6 @@
 package com.toppings.server.domain.restaurant.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.constraints.NotBlank;
@@ -62,7 +63,6 @@ public class RestaurantRequest {
 			.longitude(request.getLongitude())
 			.type(request.getType())
 			.code(request.getCode())
-			.thumbnail(request.getImages().get(0))
 			.user(user)
 			.build();
 	}

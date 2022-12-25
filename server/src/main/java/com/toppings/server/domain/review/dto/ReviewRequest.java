@@ -29,7 +29,6 @@ public class ReviewRequest {
 	public static Review dtoToEntity(ReviewRequest request) {
 		return Review.builder()
 			.description(request.getDescription())
-			.thumbnail(request.getImages().get(0))
 			.build();
 	}
 }

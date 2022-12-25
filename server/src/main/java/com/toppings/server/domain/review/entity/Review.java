@@ -66,4 +66,19 @@ public class Review extends BaseEntity {
 
 	@Column(name = "review_thumbnail", columnDefinition = "longtext")
 	private String thumbnail;
+
+	// relation
+	public void updateUserAndRestaurant(
+		User user,
+		Restaurant restaurant
+	) {
+		this.user = user;
+		this.restaurant = restaurant;
+	}
+
+	// business
+	public void updateThumbnail(String image) {
+		if (!image.equals(this.thumbnail))
+			this.thumbnail = image;
+	}
 }

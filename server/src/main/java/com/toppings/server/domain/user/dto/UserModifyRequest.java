@@ -28,6 +28,5 @@ public class UserModifyRequest {
 		user.setName(request.getName() != null ? request.getName() : user.getName());
 		user.setCountry(
 			request.getCountry() != null ? request.getCountry() : user.getCountry());
-		user.setProfile(request.getProfile() != null ? request.getProfile() : user.getProfile());
 	}
 }

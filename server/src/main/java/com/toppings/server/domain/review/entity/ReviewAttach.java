@@ -15,6 +15,9 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.toppings.server.domain.restaurant.entity.Restaurant;
+import com.toppings.server.domain.restaurant.entity.RestaurantAttach;
+import com.toppings.server.domain_global.utils.s3.S3Response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -40,10 +43,24 @@ public class ReviewAttach {
 	@Column(name = "review_image", columnDefinition = "longtext")
 	private String image;
 
+	@Column(name = "review_image_path", columnDefinition = "varchar(200)")
+	private String path;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "review_id")
 	@JsonIgnoreProperties({"images"})
 	@ToString.Exclude
 	@JsonIgnore
 	private Review review;
+
+	public static ReviewAttach of(
+		S3Response s3Response,
+		Review review
+	) {
+		return ReviewAttach.builder()
+			.image(s3Response.getImageUrl())
+			.path(s3Response.getImagePath())
+			.review(review)
+			.build();
+	}
 }

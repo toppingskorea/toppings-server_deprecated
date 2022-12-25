@@ -1,8 +1,12 @@
 package com.toppings.server.domain.user.service;
 
+import static org.springframework.util.StringUtils.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.xml.bind.DatatypeConverter;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +28,8 @@ import com.toppings.server.domain.user.entity.User;
 import com.toppings.server.domain.user.entity.UserHabit;
 import com.toppings.server.domain.user.repository.UserHabitRepository;
 import com.toppings.server.domain.user.repository.UserRepository;
+import com.toppings.server.domain_global.utils.s3.S3Response;
+import com.toppings.server.domain_global.utils.s3.S3Uploader;
 
 import lombok.RequiredArgsConstructor;
 
@@ -43,6 +49,10 @@ public class UserService {
 	private final ReviewRepository reviewRepository;
 
 	private final RestaurantRepository restaurantRepository;
+
+	private final S3Uploader s3Uploader;
+
+	private final String imagePath = "user/";
 
 	/**
 	 * 회원 가입
@@ -94,6 +104,16 @@ public class UserService {
 		Long userId
 	) {
 		final User user = getUserById(userId);
+
+		// TODO: image 삭제도 필요
+		String profile = request.getProfile();
+		if (hasText(profile)) {
+			byte[] decodedFile = DatatypeConverter.parseBase64Binary(profile.substring(profile.indexOf(",") + 1));
+			S3Response s3Response = s3Uploader.uploadBase64(decodedFile, imagePath + userId + "/");
+			user.setProfile(s3Response.getImageUrl());
+			user.setProfilePath(s3Response.getImagePath());
+		}
+
 		UserModifyRequest.modifyUserInfo(request, user);
 		final List<UserHabitResponse> userHabitResponses = modifyUserHabit(request, user);
 

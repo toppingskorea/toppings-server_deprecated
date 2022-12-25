@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.xml.bind.DatatypeConverter;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,7 +18,6 @@ import com.toppings.server.domain.notification.dto.AlarmRequest;
 import com.toppings.server.domain.notification.service.AlarmService;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
 import com.toppings.server.domain.restaurant.repository.RestaurantRepository;
-import com.toppings.server.domain.review.dto.ReviewAttachRequest;
 import com.toppings.server.domain.review.dto.ReviewListResponse;
 import com.toppings.server.domain.review.dto.ReviewModifyRequest;
 import com.toppings.server.domain.review.dto.ReviewRequest;
@@ -28,6 +29,8 @@ import com.toppings.server.domain.review.repository.ReviewRepository;
 import com.toppings.server.domain.user.constant.Auth;
 import com.toppings.server.domain.user.entity.User;
 import com.toppings.server.domain.user.repository.UserRepository;
+import com.toppings.server.domain_global.utils.s3.S3Response;
+import com.toppings.server.domain_global.utils.s3.S3Uploader;
 
 import lombok.RequiredArgsConstructor;
 
@@ -46,11 +49,15 @@ public class ReviewService {
 
 	private final AlarmService alarmService;
 
+	private final S3Uploader s3Uploader;
+
+	private final String imagePath = "review/";
+
 	/**
 	 * 댓글 등록하기
 	 */
 	@Transactional
-	public ReviewResponse register(
+	public Long register(
 		ReviewRequest request,
 		Long restaurantId,
 		Long userId
@@ -59,33 +66,32 @@ public class ReviewService {
 		final User user = getUserById(userId);
 
 		final Review review = ReviewRequest.dtoToEntity(request);
-		review.setUser(user);
-		review.setRestaurant(restaurant);
+		review.updateUserAndRestaurant(user, restaurant);
 
-		final Review saveReview = reviewRepository.save(review);
-		final List<String> images = registerReviewAttach(request, saveReview);
-		ReviewResponse reviewResponse = ReviewResponse.entityToDto(saveReview);
-		reviewResponse.setImages(images);
+		final List<ReviewAttach> images = getReviewAttaches(request.getImages(), restaurantId, review);
 
-		final AlarmRequest alarmRequest = AlarmRequest.of(user, restaurant, AlarmType.Like,
-			saveReview.getDescription());
+		review.updateThumbnail(images.get(0).getImage());
+		reviewRepository.save(review);
+		reviewAttachRepository.saveAll(images);
+
+		final AlarmRequest alarmRequest = AlarmRequest.of(user, restaurant, AlarmType.Like, review.getDescription());
 		alarmService.registerAndSend(alarmRequest);
 
-		return reviewResponse;
+		return review.getId();
 	}
 
-	private List<String> registerReviewAttach(
-		ReviewRequest request,
+	private List<ReviewAttach> getReviewAttaches(
+		List<String> base64Images,
+		Long restaurantId,
 		Review review
 	) {
-		final List<ReviewAttach> reviewAttaches = new ArrayList<>();
-		for (String image : request.getImages())
-			reviewAttaches.add(ReviewAttachRequest.dtoToEntity(image, review));
-		reviewAttachRepository.saveAll(reviewAttaches);
-
-		return reviewAttaches.stream()
-			.map(ReviewAttach::getImage)
-			.collect(Collectors.toList());
+		final List<ReviewAttach> images = new ArrayList<>();
+		for (String image : base64Images) {
+			byte[] decodedFile = DatatypeConverter.parseBase64Binary(image.substring(image.indexOf(",") + 1));
+			S3Response s3Response = s3Uploader.uploadBase64(decodedFile, imagePath + restaurantId + "/");
+			images.add(ReviewAttach.of(s3Response, review));
+		}
+		return images;
 	}
 
 	// TODO: public yn
@@ -102,7 +108,7 @@ public class ReviewService {
 	 * 댓글 수정하기
 	 */
 	@Transactional
-	public ReviewResponse modify(
+	public Long modify(
 		ReviewModifyRequest request,
 		Long reviewId,
 		Long userId
@@ -111,35 +117,33 @@ public class ReviewService {
 		if (verifyReviewAndUser(review, userId))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
-		final List<String> images = modifyReviewAttach(request, review);
-		final ReviewResponse reviewResponse = ReviewResponse.entityToDto(review);
-		reviewResponse.setImages(images);
+		final List<ReviewAttach> images = modifyReviewAttach(request, review);
 
-		ReviewModifyRequest.modifyReviewInfo(review, request, images.get(0));
-		return reviewResponse;
+		ReviewModifyRequest.modifyReviewInfo(review, request, images.get(0).getImage());
+		return review.getId();
 	}
 
-	private List<String> modifyReviewAttach(
+	private List<ReviewAttach> modifyReviewAttach(
 		ReviewModifyRequest request,
 		Review review
 	) {
-		final List<ReviewAttach> reviewAttaches = new ArrayList<>();
-		if (request.getImages() != null && !request.getImages().isEmpty()) {
+		if (isNotNullImage(request.getImages())) {
 			// 기존 이미지 제거
 			reviewAttachRepository.deleteAllByIdInBatch(
 				review.getImages().stream().map(ReviewAttach::getId).collect(Collectors.toList()));
 
 			// 신규 이미지 등록
-			for (String image : request.getImages())
-				reviewAttaches.add(ReviewAttachRequest.dtoToEntity(image, review));
+			final List<ReviewAttach> reviewAttaches
+				= getReviewAttaches(request.getImages(), review.getRestaurant().getId(), review);
 			reviewAttachRepository.saveAll(reviewAttaches);
+			return reviewAttaches;
 		} else {
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 		}
+	}
 
-		return reviewAttaches.stream()
-			.map(ReviewAttach::getImage)
-			.collect(Collectors.toList());
+	private boolean isNotNullImage(List<String> images) {
+		return images != null && !images.isEmpty();
 	}
 
 	/**

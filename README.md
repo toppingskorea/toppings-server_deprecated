@@ -1,3 +1,2 @@
-# toppings-server
+# toppings is all you need
 
-toppings server

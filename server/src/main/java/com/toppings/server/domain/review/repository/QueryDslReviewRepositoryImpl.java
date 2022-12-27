@@ -44,6 +44,7 @@ public class QueryDslReviewRepositoryImpl implements QueryDslReviewRepository {
 	@Override
 	public List<RestaurantListResponse> findRestaurantByUserForReview(Long userId) {
 		return queryFactory.select(getFields())
+			.distinct()
 			.from(review)
 			.leftJoin(review.restaurant)
 			.leftJoin(review.user)

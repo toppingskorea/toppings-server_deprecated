@@ -191,6 +191,7 @@ public class RestaurantService {
 		reviewRepository.deleteBatchByRestaurant(restaurant);
 		likeRepository.deleteBatchByRestaurant(restaurant);
 		scrapRepository.deleteBatchByRestaurant(restaurant);
+		alarmService.removeAlarm(restaurant);
 		restaurantRepository.delete(restaurant);
 		return restaurantId;
 	}

@@ -56,4 +56,9 @@ public class AlarmService {
 		final AlarmResponse alarmResponse = AlarmResponse.of(restaurant, fromUser, savedAlarm);
 		template.convertAndSend("/sub/" + toUser.getId(), alarmResponse);
 	}
+
+	@Transactional
+	public void removeAlarm(Restaurant restaurant) {
+		alarmRepository.deleteBatchByRestaurant(restaurant);
+	}
 }

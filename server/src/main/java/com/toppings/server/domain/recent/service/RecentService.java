@@ -34,7 +34,7 @@ public class RecentService {
 	 * 최근 검색어 등록
 	 */
 	@Transactional
-	public RecentResponse register(
+	public Long register(
 		RecentRequest recentRequest,
 		Long userId
 	) {
@@ -52,7 +52,7 @@ public class RecentService {
 			.findRecentByUserAndKeywordAndContent(user, recentRequest.getKeyword(), recentRequest.getContent())
 			.ifPresent(recentRepository::delete);
 		final Recent recent = recentRepository.save(RecentRequest.dtoToEntity(recentRequest, user));
-		return RecentResponse.entityToDto(recent);
+		return recent.getId();
 	}
 
 	// TODO: public yn

@@ -26,12 +26,12 @@ import com.toppings.server.domain_global.entity.BaseEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@Data
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -101,4 +101,38 @@ public class User extends BaseEntity {
 
 	@Column(name = "user_habit_contents", columnDefinition = "varchar(255)")
 	private String habitContents;
+
+	// business
+	public void encodePassword(String password) {
+		this.password = password;
+	}
+
+	public void registerUserInfo(
+		String country,
+		String habitContents
+	) {
+		this.country = country;
+		this.habitContents = habitContents;
+		this.role = Auth.ROLE_USER;
+	}
+
+	public void updateHabitContents(String habitContents) {
+		this.habitContents = habitContents;
+	}
+
+	public void updateProfile(
+		String profile,
+		String profilePath
+	) {
+		this.profile = profile;
+		this.profilePath = profilePath;
+	}
+
+	public void updateUserInfo(
+		String name,
+		String country
+	) {
+		this.name = name;
+		this.country = country;
+	}
 }

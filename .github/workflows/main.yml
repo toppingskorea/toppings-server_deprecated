@@ -12,7 +12,6 @@ on:
     branches: ["develop"]
 
 env:
-  DOCKER_IMAGE: ghcr.io/toppingskorea/toppings-server
   VERSION: ${{ github.sha }}
   NAME: toppings-server
 
@@ -23,37 +22,26 @@ jobs:
       packages: write
     runs-on: ubuntu-latest
     steps:
-      - name: Check out source code
-        uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v3
 
-      - name: Set up docker buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v1
-
-      - name: Cache docker layers
-        uses: actions/cache@v2
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
         with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ env.VERSION }} # runner 설정에서 읽어들일거에요.
-          restore-keys: |
-            ${{ runner.os }}-buildx-
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Login to ghcr
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_TOKEN }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
       - name: Build and push
-        id: docker_build
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: .
-          builder: ${{ steps.buildx.outputs.name }}
+          file: ./Dockerfile
           no-cache: true
           push: true
-          tags: ${{ env.DOCKER_IMAGE }}:latest
+          tags: ${{ secrets.DOCKERHUB_REPONAME }}/toppings-dev-server:latest
           build-args: |
             TOPPINGS_KEY=${{ secrets.TOPPINGS_KEY }}
 
@@ -73,6 +61,6 @@ jobs:
         run: |
           pwd
           docker rm -f ${{ env.NAME }}-container
-          docker create --name ${{ env.NAME }}-container -p 28080:28080 -e TZ=Asia/Seoul ${{ env.DOCKER_IMAGE }}
+          docker create --name ${{ env.NAME }}-container -p 28080:28080 -e TZ=Asia/Seoul ${{ secrets.DOCKERHUB_REPONAME }}/toppings-dev-server:latest
           docker start ${{ env.NAME }}-container
           docker image prune -f

@@ -303,6 +303,7 @@ public class RestaurantService {
 		restaurantResponse.setImages(images);
 		restaurantResponse.setWriter(restaurant.getUser().getName());
 		restaurantResponse.setCountry(restaurant.getUser().getCountry());
+		restaurantResponse.setMine(restaurant.getUser().getId().equals(userId));
 
 		if (userId != null) {
 			User user = getUserById(userId);

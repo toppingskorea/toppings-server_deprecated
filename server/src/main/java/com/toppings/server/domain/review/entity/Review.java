@@ -1,5 +1,6 @@
 package com.toppings.server.domain.review.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -62,7 +63,7 @@ public class Review extends BaseEntity {
 	private String description;
 
 	@OneToMany(mappedBy = "review", cascade = CascadeType.REMOVE, orphanRemoval = true)
-	private List<ReviewAttach> images;
+	private List<ReviewAttach> images = new ArrayList<>();
 
 	@Column(name = "review_thumbnail", columnDefinition = "longtext")
 	private String thumbnail;

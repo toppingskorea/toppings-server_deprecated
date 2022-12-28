@@ -1,5 +1,6 @@
 package com.toppings.server.domain.user.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -64,7 +65,7 @@ public class User extends BaseEntity {
 	private String country;
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
-	private List<UserHabit> habits;
+	private List<UserHabit> habits = new ArrayList<>();;
 
 	@Column(name = "user_role", columnDefinition = "varchar(20)")
 	@Enumerated(EnumType.STRING)
@@ -81,23 +82,23 @@ public class User extends BaseEntity {
 
 	// 좋아요
 	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
-	private List<Likes> likes;
+	private List<Likes> likes = new ArrayList<>();;
 
 	// 음식점
 	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
-	private List<Restaurant> restaurants;
+	private List<Restaurant> restaurants = new ArrayList<>();;
 
 	// 스크랩
 	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
-	private List<Scrap> scraps;
+	private List<Scrap> scraps = new ArrayList<>();;
 
 	// 리뷰
 	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
-	private List<Review> reviews;
+	private List<Review> reviews = new ArrayList<>();;
 
 	// 최근 검색
 	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
-	private List<Recent> recents;
+	private List<Recent> recents = new ArrayList<>();;
 
 	@Column(name = "user_habit_contents", columnDefinition = "varchar(255)")
 	private String habitContents;

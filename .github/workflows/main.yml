@@ -50,17 +50,15 @@ jobs:
     name: Deploy
     runs-on: [self-hosted, label-go]
     steps:
-      - name: Login to ghcr
-        uses: docker/login-action@v1
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Docker run
         run: |
           pwd
-          docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
           docker rm -f ${{ env.NAME }}-container
           docker pull ${{ secrets.DOCKERHUB_REPONAME }}/toppings-dev-server:latest
           docker create --name ${{ env.NAME }}-container -p 28080:28080 -e TZ=Asia/Seoul ${{ secrets.DOCKERHUB_REPONAME }}/toppings-dev-server:latest

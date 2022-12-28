@@ -51,6 +51,7 @@ jobs:
         with:
           context: .
           builder: ${{ steps.buildx.outputs.name }}
+          no-cache: true
           push: true
           tags: ${{ env.DOCKER_IMAGE }}:latest
           build-args: |

@@ -1,5 +1,6 @@
 package com.toppings.server.domain.user.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -26,12 +27,12 @@ import com.toppings.server.domain_global.entity.BaseEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@Data
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -64,7 +65,7 @@ public class User extends BaseEntity {
 	private String country;
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
-	private List<UserHabit> habits;
+	private List<UserHabit> habits = new ArrayList<>();;
 
 	@Column(name = "user_role", columnDefinition = "varchar(20)")
 	@Enumerated(EnumType.STRING)
@@ -81,24 +82,58 @@ public class User extends BaseEntity {
 
 	// 좋아요
 	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
-	private List<Likes> likes;
+	private List<Likes> likes = new ArrayList<>();;
 
 	// 음식점
 	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
-	private List<Restaurant> restaurants;
+	private List<Restaurant> restaurants = new ArrayList<>();;
 
 	// 스크랩
 	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
-	private List<Scrap> scraps;
+	private List<Scrap> scraps = new ArrayList<>();;
 
 	// 리뷰
 	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
-	private List<Review> reviews;
+	private List<Review> reviews = new ArrayList<>();;
 
 	// 최근 검색
 	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
-	private List<Recent> recents;
+	private List<Recent> recents = new ArrayList<>();;
 
 	@Column(name = "user_habit_contents", columnDefinition = "varchar(255)")
 	private String habitContents;
+
+	// business
+	public void encodePassword(String password) {
+		this.password = password;
+	}
+
+	public void registerUserInfo(
+		String country,
+		String habitContents
+	) {
+		this.country = country;
+		this.habitContents = habitContents;
+		this.role = Auth.ROLE_USER;
+	}
+
+	public void updateHabitContents(String habitContents) {
+		this.habitContents = habitContents;
+	}
+
+	public void updateProfile(
+		String profile,
+		String profilePath
+	) {
+		this.profile = profile;
+		this.profilePath = profilePath;
+	}
+
+	public void updateUserInfo(
+		String name,
+		String country
+	) {
+		this.name = name;
+		this.country = country;
+	}
 }

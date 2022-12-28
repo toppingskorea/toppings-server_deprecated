@@ -3,18 +3,35 @@ package com.toppings.server.domain.restaurant.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.toppings.server.domain.likes.entity.Likes;
-import com.toppings.server.domain.restaurant.constant.FoodType;
-import com.toppings.server.domain.scrap.entity.Scrap;
-import com.toppings.server.domain.user.entity.User;
-import com.toppings.server.domain_global.entity.BaseEntity;
-import lombok.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
-import javax.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.toppings.server.domain.restaurant.constant.FoodType;
+import com.toppings.server.domain.user.entity.User;
+import com.toppings.server.domain_global.entity.BaseEntity;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @AllArgsConstructor
@@ -28,65 +45,83 @@ import javax.persistence.*;
 @Table(name = "t_restaurant")
 public class Restaurant extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "restaurant_id")
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "restaurant_id")
+	private Long id;
 
-    @Column(name = "restaurant_name", columnDefinition = "varchar(100)")
-    private String name;
+	@Column(name = "restaurant_name", columnDefinition = "varchar(100)")
+	private String name;
 
-    @Column(name = "restaurant_description", columnDefinition = "text")
-    private String description;
+	@Column(name = "restaurant_description", columnDefinition = "text")
+	private String description;
 
-    @Column(name = "restaurant_address", columnDefinition = "varchar(150)")
-    private String address;
+	@Column(name = "restaurant_address", columnDefinition = "varchar(150)")
+	private String address;
 
-    @Column(name = "restaurant_zipcode", columnDefinition = "varchar(50)")
-    private String zipcode;
+	@Column(name = "restaurant_zipcode", columnDefinition = "varchar(50)")
+	private String zipcode;
 
-    @Column(name = "restaurant_latitude")
-    private Double latitude;
+	@Column(name = "restaurant_latitude")
+	private Double latitude;
 
-    @Column(name = "restaurant_longitude")
-    private Double longitude;
+	@Column(name = "restaurant_longitude")
+	private Double longitude;
 
-    @Column(name = "restaurant_code", columnDefinition = "varchar(200)")
-    private String code;
+	@Column(name = "restaurant_code", columnDefinition = "varchar(200)")
+	private String code;
 
-    @Column(name = "delete_yn", columnDefinition = "varchar(1) default 'N'")
-    private String deleteYn;
+	@Column(name = "delete_yn", columnDefinition = "varchar(1) default 'N'")
+	private String deleteYn;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "restaurant_type", columnDefinition = "varchar(50)")
-    private FoodType type;
+	@Enumerated(EnumType.STRING)
+	@Column(name = "restaurant_type", columnDefinition = "varchar(50)")
+	private FoodType type;
 
-    @Column(name = "restaurant_like_count", columnDefinition = "int default 0")
-    private Integer likeCount;
+	@Column(name = "restaurant_like_count", columnDefinition = "int default 0")
+	private Integer likeCount;
 
-    @Column(name = "restaurant_scrap_count", columnDefinition = "int default 0")
-    private Integer scrapCount;
+	@Column(name = "restaurant_scrap_count", columnDefinition = "int default 0")
+	private Integer scrapCount;
 
-    @Column(name = "public_yn", columnDefinition = "varchar(1) default 'N'")
-    private String publicYn;
-    
-    // 사진 경로랑 주소
-    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.REMOVE , orphanRemoval = true)
-    private List<RestaurantAttach> images = new ArrayList<>();
+	@Column(name = "public_yn", columnDefinition = "varchar(1) default 'N'")
+	private String publicYn;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    @JsonIgnoreProperties({"restaurants"})
-    @ToString.Exclude
-    @JsonIgnore
-    private User user;
+	// 사진 경로랑 주소
+	@OneToMany(mappedBy = "restaurant", cascade = CascadeType.REMOVE, orphanRemoval = true)
+	private List<RestaurantAttach> images = new ArrayList<>();
 
-    @Column(name = "restaurant_thumbnail", columnDefinition = "longtext")
-    private String thumbnail;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id")
+	@JsonIgnoreProperties({"restaurants"})
+	@ToString.Exclude
+	@JsonIgnore
+	private User user;
 
-    // business
-    public void updateThumbnail(String image) {
-        if (!image.equals(this.thumbnail))
-            this.thumbnail = image;
-    }
+	@Column(name = "restaurant_thumbnail", columnDefinition = "longtext")
+	private String thumbnail;
+
+	// business
+	public void updateThumbnail(String image) {
+		if (!image.equals(this.thumbnail))
+			this.thumbnail = image;
+	}
+
+	public void upLikeCount() {
+		this.likeCount += 1;
+	}
+
+	public void downLikeCount() {
+		if (likeCount > 0)
+			this.likeCount -= 1;
+	}
+
+	public void upScrapCount() {
+		this.scrapCount += 1;
+	}
+
+	public void downScrapCount() {
+		if (scrapCount > 0)
+			this.scrapCount -= 1;
+	}
 }

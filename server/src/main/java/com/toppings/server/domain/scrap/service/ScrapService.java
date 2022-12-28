@@ -39,7 +39,7 @@ public class ScrapService {
 			throw new GeneralException(ResponseCode.DUPLICATED_ITEM);
 
 		final Scrap scrap = scrapRepository.save(getScrap(user, restaurant));
-		restaurant.setScrapCount(restaurant.getScrapCount() + 1);
+		restaurant.upScrapCount();
 
 		final AlarmRequest alarmRequest = AlarmRequest.of(user, restaurant, AlarmType.Scrap);
 		alarmService.registerAndSend(alarmRequest);
@@ -75,7 +75,7 @@ public class ScrapService {
 			.orElseThrow(() -> new GeneralException(ResponseCode.BAD_REQUEST));
 
 		scrapRepository.deleteById(scrap.getId());
-		restaurant.setScrapCount(restaurant.getScrapCount() == 0 ? 0 : restaurant.getScrapCount() - 1);
+		restaurant.downScrapCount();
 		return scrap.getId();
 	}
 

@@ -72,7 +72,7 @@ public class UserController {
 	@PutMapping
 	@PreAuthorize("hasRole('ROLE_USER')")
 	public ResponseEntity<?> modifyUser(
-		@RequestBody UserModifyRequest userRegisterRequest,
+		@Valid @RequestBody UserModifyRequest userRegisterRequest,
 		@AuthenticationPrincipal Long userId
 	) {
 		return ResponseEntity.ok(ApiDataResponse.of(userService.modify(userRegisterRequest, userId)));

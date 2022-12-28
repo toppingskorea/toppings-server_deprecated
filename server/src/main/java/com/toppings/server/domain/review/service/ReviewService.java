@@ -210,6 +210,7 @@ public class ReviewService {
 	) {
 		final Review review = getReviewById(reviewId);
 		final ReviewResponse reviewResponse = ReviewResponse.entityToDto(review, review.getUser());
+		reviewResponse.setImages(review.getImages().stream().map(ReviewAttach::getImage).collect(Collectors.toList()));
 		reviewResponse.setIsMine(review.getUser().getId().equals(userId));
 		reviewResponse.setHabits(Arrays.asList(review.getUser().getHabitContents().split(",")));
 		return reviewResponse;

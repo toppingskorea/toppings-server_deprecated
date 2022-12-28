@@ -188,12 +188,16 @@ public class RestaurantService {
 		if (verifyRestaurantAndUser(user, restaurant))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
+		removeAssociation(restaurant);
+		restaurantRepository.delete(restaurant);
+		return restaurantId;
+	}
+
+	private void removeAssociation(Restaurant restaurant) {
 		reviewRepository.deleteBatchByRestaurant(restaurant);
 		likeRepository.deleteBatchByRestaurant(restaurant);
 		scrapRepository.deleteBatchByRestaurant(restaurant);
 		alarmService.removeAlarm(restaurant);
-		restaurantRepository.delete(restaurant);
-		return restaurantId;
 	}
 
 	/**

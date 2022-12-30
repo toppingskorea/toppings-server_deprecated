@@ -19,6 +19,7 @@ import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.toppings.server.domain.likes.dto.FilterLikesCount;
 import com.toppings.server.domain.likes.dto.LikesPercent;
+import com.toppings.server.domain.restaurant.dto.RestaurantFilterSearchRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantListResponse;
 import com.toppings.server.domain_global.utils.OrderByNull;
 
@@ -32,14 +33,20 @@ public class QueryDslLikeRepositoryImpl implements QueryDslLikeRepository {
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	public List<RestaurantListResponse> findRestaurantIdByUserCountry(String country) {
+	public List<RestaurantListResponse> findRestaurantsByUserCountry(RestaurantFilterSearchRequest searchRequest) {
 		List<FilterLikesCount> filterLikesCount = queryFactory.select(
 			Projections.fields(FilterLikesCount.class, likes.restaurant.id.as("restaurantId"),
 				Wildcard.count.as("filterLikeCount")))
 			.from(likes)
 			.leftJoin(likes.restaurant)
 			.leftJoin(likes.user)
-			.where(likes.user.country.eq(country)) // TODO : public yn
+			.where(
+				likes.restaurant.latitude.gt(searchRequest.getX1()),
+				likes.restaurant.latitude.lt(searchRequest.getX2()),
+				likes.restaurant.longitude.gt(searchRequest.getY1()),
+				likes.restaurant.longitude.lt(searchRequest.getY2()),
+				likes.user.country.eq(searchRequest.getCountry())
+			) // TODO : public yn
 			.groupBy(likes.restaurant.id)
 			.orderBy(OrderByNull.DEFAULT)
 			.fetch();
@@ -48,14 +55,23 @@ public class QueryDslLikeRepositoryImpl implements QueryDslLikeRepository {
 	}
 
 	@Override
-	public List<RestaurantListResponse> findRestaurantIdByUserHabit(List<Long> ids) {
+	public List<RestaurantListResponse> findRestaurantsByUserHabit(
+		List<Long> ids,
+		RestaurantFilterSearchRequest searchRequest
+	) {
 		List<FilterLikesCount> filterLikesCount = queryFactory.select(
 			Projections.fields(FilterLikesCount.class, likes.restaurant.id.as("restaurantId"),
 				Wildcard.count.as("filterLikeCount")))
 			.from(likes)
 			.leftJoin(likes.restaurant)
 			.leftJoin(likes.user)
-			.where(likes.user.id.in(ids)) // TODO : public yn
+			.where(
+				likes.restaurant.latitude.gt(searchRequest.getX1()),
+				likes.restaurant.latitude.lt(searchRequest.getX2()),
+				likes.restaurant.longitude.gt(searchRequest.getY1()),
+				likes.restaurant.longitude.lt(searchRequest.getY2()),
+				likes.user.id.in(ids)
+			) // TODO : public yn
 			.groupBy(likes.restaurant.id)
 			.orderBy(OrderByNull.DEFAULT)
 			.fetch();

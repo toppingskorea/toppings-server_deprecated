@@ -2,9 +2,7 @@ package com.toppings.server.domain.restaurant.service;
 
 import static org.springframework.util.StringUtils.*;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -71,7 +69,6 @@ public class RestaurantService {
 
 	private final String imagePath = "restaurant/";
 
-
 	/**
 	 * 음식점 등록하기
 	 */
@@ -86,7 +83,8 @@ public class RestaurantService {
 			throw new GeneralException(ResponseCode.DUPLICATED_ITEM);
 
 		final Restaurant saveRestaurant = RestaurantRequest.dtoToEntity(request, user);
-		final List<RestaurantAttach> images = getRestaurantAttaches(request.getImages(), request.getCode(), saveRestaurant);
+		final List<RestaurantAttach> images = getRestaurantAttaches(request.getImages(), request.getCode(),
+			saveRestaurant);
 
 		saveRestaurant.updateThumbnail(images.get(0).getImage());
 		restaurantRepository.save(saveRestaurant);
@@ -210,15 +208,15 @@ public class RestaurantService {
 		final List<RestaurantListResponse> restaurantListResponses;
 		switch (searchRequest.getType()) {
 			case Name:
-				restaurantListResponses = getRestaurantListResponsesForName(searchRequest);
+				restaurantListResponses = getRestaurantListResponseByName(searchRequest);
 				break;
 
 			case Habit:
-				restaurantListResponses = getRestaurantListResponsesForHabit(searchRequest);
+				restaurantListResponses = getRestaurantListResponsesByHabit(searchRequest);
 				break;
 
 			case Country:
-				restaurantListResponses = getRestaurantListResponsesforCountry(searchRequest);
+				restaurantListResponses = getRestaurantListResponseByCountry(searchRequest);
 				break;
 
 			default:
@@ -252,22 +250,22 @@ public class RestaurantService {
 		restaurantListResponses.forEach(restaurant -> restaurant.setLike(likesIds.contains(restaurant.getId())));
 	}
 
-	private List<RestaurantListResponse> getRestaurantListResponsesforCountry(RestaurantFilterSearchRequest searchRequest) {
+	private List<RestaurantListResponse> getRestaurantListResponseByCountry(RestaurantFilterSearchRequest searchRequest) {
 		if (isNullCountry(searchRequest))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
-		return likeRepository.findRestaurantIdByUserCountry(searchRequest.getCountry());
+		return likeRepository.findRestaurantsByUserCountry(searchRequest);
 	}
 
-	private List<RestaurantListResponse> getRestaurantListResponsesForHabit(RestaurantFilterSearchRequest searchRequest) {
+	private List<RestaurantListResponse> getRestaurantListResponsesByHabit(RestaurantFilterSearchRequest searchRequest) {
 		if (isNullHabit(searchRequest))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
 		List<Long> ids = userHabitRepository.findUserIdByHabit(searchRequest);
-		return likeRepository.findRestaurantIdByUserHabit(ids);
+		return likeRepository.findRestaurantsByUserHabit(ids, searchRequest);
 	}
 
-	private List<RestaurantListResponse> getRestaurantListResponsesForName(RestaurantFilterSearchRequest searchRequest) {
+	private List<RestaurantListResponse> getRestaurantListResponseByName(RestaurantFilterSearchRequest searchRequest) {
 		if (isNullName(searchRequest))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 

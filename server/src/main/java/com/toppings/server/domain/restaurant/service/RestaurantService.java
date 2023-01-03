@@ -205,6 +205,9 @@ public class RestaurantService {
 		RestaurantFilterSearchRequest searchRequest,
 		Long userId
 	) {
+		if (searchRequest.isValidPoint())
+			throw new GeneralException(ResponseCode.BAD_REQUEST);
+
 		final List<RestaurantListResponse> restaurantListResponses;
 		switch (searchRequest.getType()) {
 			case Name:

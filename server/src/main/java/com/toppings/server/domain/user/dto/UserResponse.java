@@ -1,9 +1,9 @@
 package com.toppings.server.domain.user.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.toppings.server.domain.user.constant.Habit;
 import com.toppings.server.domain.user.entity.User;
 
 import lombok.AllArgsConstructor;
@@ -44,5 +44,18 @@ public class UserResponse {
 			.country(user.getCountry())
 			.profile(user.getProfile())
 			.build();
+	}
+
+	public void updateCount(UserCount userCount) {
+		this.postCount = userCount.getPostCount();
+		this.scrapCount = userCount.getScrapCount();
+		this.reviewCount = userCount.getReviewCount();
+	}
+
+	public void updateHabits(List<UserHabitResponse> habits) {
+		if (habits != null && !habits.isEmpty())
+			this.habits = habits;
+		else
+			this.habits = new ArrayList<>();
 	}
 }

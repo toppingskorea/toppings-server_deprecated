@@ -30,7 +30,8 @@ public class AdminService {
 			throw new GeneralException(ResponseCode.DUPLICATED_USER);
 
 		final User user = AdminRegisterRequest.dtoToEntity(registerRequest);
-		user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+		user.encodePassword(passwordEncoder.encode(registerRequest.getPassword()));
+
 		userRepository.save(user);
 		return user.getId();
 	}

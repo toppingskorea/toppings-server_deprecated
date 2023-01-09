@@ -39,7 +39,7 @@ public class LikeService {
 			throw new GeneralException(ResponseCode.DUPLICATED_ITEM);
 
 		final Likes like = likeRepository.save(getLikes(user, restaurant));
-		restaurant.setLikeCount(restaurant.getLikeCount() + 1);
+		restaurant.upLikeCount();
 
 		final AlarmRequest alarmRequest = AlarmRequest.of(user, restaurant, AlarmType.Like);
 		alarmService.registerAndSend(alarmRequest);
@@ -81,7 +81,7 @@ public class LikeService {
 			.orElseThrow(() -> new GeneralException(ResponseCode.BAD_REQUEST));
 
 		likeRepository.deleteById(like.getId());
-		restaurant.setLikeCount(restaurant.getLikeCount() == 0 ? 0 : restaurant.getLikeCount() - 1);
+		restaurant.downLikeCount();
 		return like.getId();
 	}
 

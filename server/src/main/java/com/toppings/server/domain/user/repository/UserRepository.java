@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.toppings.server.domain.user.entity.User;
 
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long>, QueryDslUserRepository {
 
 	Optional<User> findUserByUsernameAndDeleteYn(
 		String username,

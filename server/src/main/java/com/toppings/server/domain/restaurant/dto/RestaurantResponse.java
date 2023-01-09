@@ -54,6 +54,8 @@ public class RestaurantResponse {
 
 	private boolean isScrap;
 
+	private boolean isMine;
+
 	public static RestaurantResponse entityToDto(Restaurant restaurant) {
 		return RestaurantResponse.builder()
 			.id(restaurant.getId())

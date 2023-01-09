@@ -19,6 +19,7 @@ import com.toppings.server.domain.restaurant.repository.RestaurantRepository;
 import com.toppings.server.domain.review.repository.ReviewRepository;
 import com.toppings.server.domain.scrap.repository.ScrapRepository;
 import com.toppings.server.domain.user.constant.Auth;
+import com.toppings.server.domain.user.dto.UserCount;
 import com.toppings.server.domain.user.dto.UserHabitRequest;
 import com.toppings.server.domain.user.dto.UserHabitResponse;
 import com.toppings.server.domain.user.dto.UserModifyRequest;
@@ -58,7 +59,7 @@ public class UserService {
 	 * 회원 가입
 	 */
 	@Transactional
-	public UserResponse register(
+	public Long register(
 		UserRegisterRequest request,
 		Long userId
 	) {
@@ -66,14 +67,9 @@ public class UserService {
 		if (user.getCountry() != null)
 			throw new GeneralException(ResponseCode.DUPLICATED_USER);
 
-		user.setCountry(request.getCountry());
-		user.setRole(Auth.ROLE_USER);
-		user.setHabitContents(getHabitContents(request.getHabit()));
-
-		final List<UserHabitResponse> userHabitResponses = registerUserHabit(request, user);
-		final UserResponse userResponse = UserResponse.entityToDto(user);
-		userResponse.setHabits(userHabitResponses);
-		return userResponse;
+		user.registerUserInfo(request.getCountry(), getHabitContents(request.getHabit()));
+		registerUserHabit(request, user);
+		return user.getId();
 	}
 
 	private String getHabitContents(List<UserHabitRequest> habitRequests) {
@@ -81,25 +77,21 @@ public class UserService {
 			.collect(Collectors.joining(",", "", ""));
 	}
 
-	private List<UserHabitResponse> registerUserHabit(
+	private void registerUserHabit(
 		UserRegisterRequest request,
 		User user
 	) {
 		final List<UserHabit> userHabits = new ArrayList<>();
 		for (UserHabitRequest habitRequest : request.getHabit())
 			userHabits.add(UserHabitRequest.createUserHabit(habitRequest, user));
-
 		userHabitRepository.saveAll(userHabits);
-		return userHabits.stream()
-			.map(UserHabitResponse::entityToDto)
-			.collect(Collectors.toList());
 	}
 
 	/**
 	 * 회원 정보 수정
 	 */
 	@Transactional
-	public UserResponse modify(
+	public Long modify(
 		UserModifyRequest request,
 		Long userId
 	) {
@@ -110,27 +102,21 @@ public class UserService {
 		if (hasText(profile)) {
 			byte[] decodedFile = DatatypeConverter.parseBase64Binary(profile.substring(profile.indexOf(",") + 1));
 			S3Response s3Response = s3Uploader.uploadBase64(decodedFile, imagePath + userId + "/");
-			user.setProfile(s3Response.getImageUrl());
-			user.setProfilePath(s3Response.getImagePath());
+			user.updateProfile(s3Response.getImageUrl(), s3Response.getImagePath());
 		}
-
-		UserModifyRequest.modifyUserInfo(request, user);
-		final List<UserHabitResponse> userHabitResponses = modifyUserHabit(request, user);
-
-		final UserResponse userResponse = UserResponse.entityToDto(user);
-		userResponse.setHabits(userHabitResponses);
-		return userResponse;
+		user.updateUserInfo(request.getName(), request.getCountry());
+		modifyUserHabit(request, user);
+		return user.getId();
 	}
 
-	private List<UserHabitResponse> modifyUserHabit(
+	private void modifyUserHabit(
 		UserModifyRequest request,
 		User user
 	) {
-		final List<UserHabit> userHabits = user.getHabits();
-		if (request.getHabit() != null && !request.getHabit().isEmpty()) {
+		if (request.notEmptyHabit()) {
+			final List<UserHabit> userHabits = user.getHabits();
 			// 기존 식습관 제거
-			userHabitRepository.deleteAllByIdInBatch(
-				user.getHabits().stream().map(UserHabit::getId).collect(Collectors.toList()));
+			userHabitRepository.deleteAllByIdInBatch(getUserIdsFromHabits(user));
 			userHabits.clear();
 
 			// 신규 식습관 등록
@@ -138,12 +124,12 @@ public class UserService {
 				userHabits.add(UserHabitRequest.createUserHabit(habitRequest, user));
 			userHabitRepository.saveAll(userHabits);
 
-			user.setHabitContents(getHabitContents(request.getHabit()));
+			user.updateHabitContents(getHabitContents(request.getHabit()));
 		}
+	}
 
-		return userHabits.stream()
-			.map(UserHabitResponse::entityToDto)
-			.collect(Collectors.toList());
+	private List<Long> getUserIdsFromHabits(User user) {
+		return user.getHabits().stream().map(UserHabit::getId).collect(Collectors.toList());
 	}
 
 	private User getUserById(Long id) {
@@ -170,17 +156,22 @@ public class UserService {
 	 * 회원 정보 조회
 	 */
 	public UserResponse findOne(Long userId) {
-		final User user = getUserById(userId);
-		final List<UserHabit> userHabits = user.getHabits();
+		final User user = userRepository.getUserResponseById(userId)
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_FOUND));
 		final UserResponse userResponse = UserResponse.entityToDto(user);
-		userResponse.setHabits(userHabits.stream()
-			.map(UserHabitResponse::entityToDto)
-			.collect(Collectors.toList()));
 
-		userResponse.setPostCount(user.getRestaurants().size());
-		userResponse.setScrapCount(user.getScraps().size());
-		userResponse.setReviewCount(user.getReviews().size());
+		UserCount userCount = userRepository.getUserCount(userId);
+		userCount.setReviewCount(reviewRepository.findRestaurantByUserForReview(userId).size());
+
+		userResponse.updateCount(userCount);
+		userResponse.updateHabits(getUserHabitResponses(user.getHabits()));
 		return userResponse;
+	}
+
+	private List<UserHabitResponse> getUserHabitResponses(List<UserHabit> habits) {
+		return habits != null && !habits.isEmpty() ? habits.stream()
+			.map(UserHabitResponse::entityToDto)
+			.collect(Collectors.toList()) : null;
 	}
 
 	/**

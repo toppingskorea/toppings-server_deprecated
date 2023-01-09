@@ -2,7 +2,8 @@ package com.toppings.server.domain.user.dto;
 
 import java.util.List;
 
-import com.toppings.server.domain.user.constant.Habit;
+import javax.validation.constraints.NotBlank;
+
 import com.toppings.server.domain.user.entity.User;
 
 import lombok.AllArgsConstructor;
@@ -16,17 +17,17 @@ import lombok.NoArgsConstructor;
 @Builder
 public class UserModifyRequest {
 
+	@NotBlank(message = "이름을 확인해주세요.")
 	private String name;
 
+	@NotBlank(message = "국적을 확인해주세요.")
 	private String country;
 
 	private List<UserHabitRequest> habit;
 
 	private String profile;
 
-	public static void modifyUserInfo(UserModifyRequest request, User user) {
-		user.setName(request.getName() != null ? request.getName() : user.getName());
-		user.setCountry(
-			request.getCountry() != null ? request.getCountry() : user.getCountry());
+	public boolean notEmptyHabit() {
+		return this.habit != null && !this.habit.isEmpty();
 	}
 }

@@ -100,7 +100,7 @@ public class UserService {
 
 		// TODO: image 삭제도 필요
 		String profile = request.getProfile();
-		if (hasText(profile)) {
+		if (hasText(profile) && isEqualsProfile(request, user)) {
 			byte[] decodedFile = DatatypeConverter.parseBase64Binary(profile.substring(profile.indexOf(",") + 1));
 			S3Response s3Response = s3Uploader.uploadBase64(decodedFile, imagePath + userId + "/");
 			user.updateProfile(s3Response.getImageUrl(), s3Response.getImagePath());
@@ -108,6 +108,13 @@ public class UserService {
 		user.updateUserInfo(request.getName(), request.getCountry());
 		modifyUserHabit(request, user);
 		return user.getId();
+	}
+
+	private boolean isEqualsProfile(
+		UserModifyRequest request,
+		User user
+	) {
+		return user.getProfile().equals(request.getProfile());
 	}
 
 	private void modifyUserHabit(
@@ -121,11 +128,11 @@ public class UserService {
 			userHabits.clear();
 
 			// 신규 식습관 등록
-			for (UserHabitRequest habitRequest : request.getHabit())
+			for (UserHabitRequest habitRequest : request.getHabits())
 				userHabits.add(UserHabitRequest.createUserHabit(habitRequest, user));
 			userHabitRepository.saveAll(userHabits);
 
-			user.updateHabitContents(getHabitContents(request.getHabit()));
+			user.updateHabitContents(getHabitContents(request.getHabits()));
 		}
 	}
 

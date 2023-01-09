@@ -4,6 +4,7 @@ import static com.toppings.server.domain.user.entity.QUser.*;
 
 import java.util.Optional;
 
+import com.toppings.server.domain.user.entity.QUser;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,16 +21,6 @@ import lombok.RequiredArgsConstructor;
 public class QueryDslUserRepositoryImpl implements QueryDslUserRepository {
 
 	private final JPAQueryFactory queryFactory;
-
-	@Override
-	public Optional<User> getUserResponseById(Long userId) {
-		return Optional.ofNullable(queryFactory.select(user)
-			.from(user)
-			.join(user.habits).fetchJoin()
-			.where(user.id.eq(userId))
-			.fetchOne()
-		);
-	}
 
 	@Override
 	public UserCount getUserCount(Long userId) {

@@ -68,13 +68,14 @@ public class UserService {
 			throw new GeneralException(ResponseCode.DUPLICATED_USER);
 
 		user.registerUserInfo(request.getCountry(), getHabitContents(request.getHabit()));
-		registerUserHabit(request, user);
+		if (request.getHabit() != null)
+			registerUserHabit(request, user);
 		return user.getId();
 	}
 
 	private String getHabitContents(List<UserHabitRequest> habitRequests) {
-		return habitRequests.stream().map(en -> en.getContent().name())
-			.collect(Collectors.joining(",", "", ""));
+		return habitRequests != null ? habitRequests.stream().map(en -> en.getContent().name())
+			.collect(Collectors.joining(",", "", "")) : null;
 	}
 
 	private void registerUserHabit(
@@ -156,8 +157,7 @@ public class UserService {
 	 * 회원 정보 조회
 	 */
 	public UserResponse findOne(Long userId) {
-		final User user = userRepository.getUserResponseById(userId)
-			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_FOUND));
+		final User user = getUserById(userId);
 		final UserResponse userResponse = UserResponse.entityToDto(user);
 
 		UserCount userCount = userRepository.getUserCount(userId);

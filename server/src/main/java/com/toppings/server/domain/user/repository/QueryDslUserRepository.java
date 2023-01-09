@@ -7,7 +7,5 @@ import com.toppings.server.domain.user.entity.User;
 
 public interface QueryDslUserRepository {
 
-	Optional<User> getUserResponseById(Long userId);
-
 	public UserCount getUserCount(Long userId);
 }

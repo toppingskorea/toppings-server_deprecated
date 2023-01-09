@@ -100,7 +100,7 @@ public class UserService {
 
 		// TODO: image 삭제도 필요
 		String profile = request.getProfile();
-		if (hasText(profile) && isEqualsProfile(request, user)) {
+		if (hasText(profile) && isNotEqualsProfile(request, user)) {
 			byte[] decodedFile = DatatypeConverter.parseBase64Binary(profile.substring(profile.indexOf(",") + 1));
 			S3Response s3Response = s3Uploader.uploadBase64(decodedFile, imagePath + userId + "/");
 			user.updateProfile(s3Response.getImageUrl(), s3Response.getImagePath());
@@ -110,11 +110,11 @@ public class UserService {
 		return user.getId();
 	}
 
-	private boolean isEqualsProfile(
+	private boolean isNotEqualsProfile(
 		UserModifyRequest request,
 		User user
 	) {
-		return user.getProfile().equals(request.getProfile());
+		return !user.getProfile().equals(request.getProfile());
 	}
 
 	private void modifyUserHabit(

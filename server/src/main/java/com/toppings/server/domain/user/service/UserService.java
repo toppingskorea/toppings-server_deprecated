@@ -19,6 +19,7 @@ import com.toppings.server.domain.restaurant.repository.RestaurantRepository;
 import com.toppings.server.domain.review.repository.ReviewRepository;
 import com.toppings.server.domain.scrap.repository.ScrapRepository;
 import com.toppings.server.domain.user.constant.Auth;
+import com.toppings.server.domain.user.dto.UserCount;
 import com.toppings.server.domain.user.dto.UserHabitRequest;
 import com.toppings.server.domain.user.dto.UserHabitResponse;
 import com.toppings.server.domain.user.dto.UserModifyRequest;
@@ -155,18 +156,22 @@ public class UserService {
 	 * 회원 정보 조회
 	 */
 	public UserResponse findOne(Long userId) {
-		// TODO: pick refactoring mark
-		final User user = getUserById(userId);
-		final List<UserHabit> userHabits = user.getHabits();
+		final User user = userRepository.getUserResponseById(userId)
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_FOUND));
 		final UserResponse userResponse = UserResponse.entityToDto(user);
-		userResponse.setHabits(userHabits.stream()
-			.map(UserHabitResponse::entityToDto)
-			.collect(Collectors.toList()));
 
-		userResponse.setPostCount(user.getRestaurants().size());
-		userResponse.setScrapCount(user.getScraps().size());
-		userResponse.setReviewCount(user.getReviews().size());
+		UserCount userCount = userRepository.getUserCount(userId);
+		userCount.setReviewCount(reviewRepository.findRestaurantByUserForReview(userId).size());
+
+		userResponse.updateCount(userCount);
+		userResponse.updateHabits(getUserHabitResponses(user.getHabits()));
 		return userResponse;
+	}
+
+	private List<UserHabitResponse> getUserHabitResponses(List<UserHabit> habits) {
+		return habits != null && !habits.isEmpty() ? habits.stream()
+			.map(UserHabitResponse::entityToDto)
+			.collect(Collectors.toList()) : null;
 	}
 
 	/**

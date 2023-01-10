@@ -18,4 +18,8 @@ public class S3Response {
 	private String imagePath;
 
 	private String imageName;
+
+	public static S3Response createEmptyResponse() {
+		return S3Response.builder().build();
+	}
 }

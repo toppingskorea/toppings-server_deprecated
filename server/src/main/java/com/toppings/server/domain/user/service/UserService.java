@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.xml.bind.DatatypeConverter;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +27,7 @@ import com.toppings.server.domain.user.entity.User;
 import com.toppings.server.domain.user.entity.UserHabit;
 import com.toppings.server.domain.user.repository.UserHabitRepository;
 import com.toppings.server.domain.user.repository.UserRepository;
+import com.toppings.server.domain_global.utils.file.FileDecoder;
 import com.toppings.server.domain_global.utils.s3.S3Response;
 import com.toppings.server.domain_global.utils.s3.S3Uploader;
 
@@ -68,13 +67,14 @@ public class UserService {
 			throw new GeneralException(ResponseCode.DUPLICATED_USER);
 
 		user.registerUserInfo(request.getCountry(), getHabitContents(request.getHabit()));
-		registerUserHabit(request, user);
+		if (request.getHabit() != null)
+			registerUserHabit(request, user);
 		return user.getId();
 	}
 
 	private String getHabitContents(List<UserHabitRequest> habitRequests) {
-		return habitRequests.stream().map(en -> en.getContent().name())
-			.collect(Collectors.joining(",", "", ""));
+		return habitRequests != null ? habitRequests.stream().map(en -> en.getContent().name())
+			.collect(Collectors.joining(",", "", "")) : null;
 	}
 
 	private void registerUserHabit(
@@ -97,16 +97,23 @@ public class UserService {
 	) {
 		final User user = getUserById(userId);
 
-		// TODO: image 삭제도 필요
 		String profile = request.getProfile();
-		if (hasText(profile)) {
-			byte[] decodedFile = DatatypeConverter.parseBase64Binary(profile.substring(profile.indexOf(",") + 1));
-			S3Response s3Response = s3Uploader.uploadBase64(decodedFile, imagePath + userId + "/");
+		if (hasText(profile) && isNotEqualsProfile(request, user)) {
+			S3Response s3Response = s3Uploader.uploadBase64(FileDecoder.base64StringToByteArray(profile),
+				imagePath + userId + "/");
+			s3Uploader.deleteImage(user.getProfilePath());
 			user.updateProfile(s3Response.getImageUrl(), s3Response.getImagePath());
 		}
 		user.updateUserInfo(request.getName(), request.getCountry());
 		modifyUserHabit(request, user);
 		return user.getId();
+	}
+
+	private boolean isNotEqualsProfile(
+		UserModifyRequest request,
+		User user
+	) {
+		return !user.getProfile().equals(request.getProfile());
 	}
 
 	private void modifyUserHabit(
@@ -120,11 +127,11 @@ public class UserService {
 			userHabits.clear();
 
 			// 신규 식습관 등록
-			for (UserHabitRequest habitRequest : request.getHabit())
+			for (UserHabitRequest habitRequest : request.getHabits())
 				userHabits.add(UserHabitRequest.createUserHabit(habitRequest, user));
 			userHabitRepository.saveAll(userHabits);
 
-			user.updateHabitContents(getHabitContents(request.getHabit()));
+			user.updateHabitContents(getHabitContents(request.getHabits()));
 		}
 	}
 
@@ -156,8 +163,7 @@ public class UserService {
 	 * 회원 정보 조회
 	 */
 	public UserResponse findOne(Long userId) {
-		final User user = userRepository.getUserResponseById(userId)
-			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_FOUND));
+		final User user = getUserById(userId);
 		final UserResponse userResponse = UserResponse.entityToDto(user);
 
 		UserCount userCount = userRepository.getUserCount(userId);

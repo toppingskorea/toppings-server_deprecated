@@ -2,7 +2,6 @@ package com.toppings.server.domain_global.utils.s3;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.UUID;
@@ -17,11 +16,14 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.toppings.common.constants.ResponseCode;
 import com.toppings.common.exception.GeneralException;
+import com.toppings.server.domain_global.utils.file.FileConverter;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class S3Uploader {
 
 	private final AmazonS3 amazonS3Client;
@@ -31,10 +33,34 @@ public class S3Uploader {
 
 	private static final String BASE_PATH = "image/";
 
-	public S3Response upload(
+	public S3Response uploadBase64(
+		byte[] file,
+		String path
+	) {
+		if (file == null)
+			throw new GeneralException(ResponseCode.BAD_REQUEST);
+
+		String imageName = UUID.randomUUID().toString();
+		String imagePath = BASE_PATH + path + imageName;
+
+		ObjectMetadata metadata = new ObjectMetadata();
+		metadata.setContentLength(file.length);
+		metadata.setContentType("image/jpeg");
+
+		amazonS3Client.putObject(
+			new PutObjectRequest(bucket, imagePath, new ByteArrayInputStream(file), metadata).withCannedAcl(
+				CannedAccessControlList.PublicRead));
+
+		return createS3Response(null, imageName, imagePath);
+	}
+
+	public S3Response uploadMultipartFile(
 		MultipartFile file,
 		String path
 	) {
+		if (file == null)
+			throw new GeneralException(ResponseCode.BAD_REQUEST);
+
 		String imageName = getChangedImageName(file.getOriginalFilename());
 		String imagePath = BASE_PATH + path + imageName;
 
@@ -45,8 +71,16 @@ public class S3Uploader {
 			throw new GeneralException(ResponseCode.INTERNAL_ERROR);
 		}
 
+		return createS3Response(file, imageName, imagePath);
+	}
+
+	private S3Response createS3Response(
+		MultipartFile file,
+		String imageName,
+		String imagePath
+	) {
 		return S3Response.builder()
-			.imageRealName(file.getOriginalFilename())
+			.imageRealName(file != null ? file.getOriginalFilename() : null)
 			.imageName(imageName)
 			.imagePath(imagePath)
 			.imageUrl(amazonS3Client.getUrl(bucket, imagePath).toString())
@@ -57,10 +91,11 @@ public class S3Uploader {
 		MultipartFile file,
 		String imagePath
 	) throws IOException {
-		File content = getFile(file);
+		File content = FileConverter.multipartFileToFile(file);
 		amazonS3Client.putObject(
 			new PutObjectRequest(bucket, imagePath, content).withCannedAcl(CannedAccessControlList.PublicRead));
-		content.delete();
+		boolean delete = content.delete();
+		log.info("is deleted : {}", delete);
 	}
 
 	private String getChangedImageName(String fileName) {
@@ -71,37 +106,6 @@ public class S3Uploader {
 		stringBuilder.append("_");
 		stringBuilder.append(fileName);
 		return stringBuilder.toString();
-	}
-
-	private File getFile(MultipartFile file) throws IOException {
-		File content = new File(file.getOriginalFilename());
-		content.createNewFile();
-
-		FileOutputStream fos = new FileOutputStream(content);
-		fos.write(file.getBytes());
-		fos.close();
-		return content;
-	}
-
-	public S3Response uploadBase64(
-		byte[] file,
-		String path
-	) {
-		String imageName = UUID.randomUUID().toString();
-		String imagePath = BASE_PATH + path + imageName;
-
-		ObjectMetadata metadata = new ObjectMetadata();
-		metadata.setContentType("image/jpeg");
-
-		amazonS3Client.putObject(
-			new PutObjectRequest(bucket, imagePath, new ByteArrayInputStream(file), metadata).withCannedAcl(
-				CannedAccessControlList.PublicRead));
-
-		return S3Response.builder()
-			.imageName(imageName)
-			.imagePath(imagePath)
-			.imageUrl(amazonS3Client.getUrl(bucket, imagePath).toString())
-			.build();
 	}
 
 	public void deleteImage(String path) {

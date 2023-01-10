@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.xml.bind.DatatypeConverter;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +27,7 @@ import com.toppings.server.domain.user.entity.User;
 import com.toppings.server.domain.user.entity.UserHabit;
 import com.toppings.server.domain.user.repository.UserHabitRepository;
 import com.toppings.server.domain.user.repository.UserRepository;
+import com.toppings.server.domain_global.utils.file.FileDecoder;
 import com.toppings.server.domain_global.utils.s3.S3Response;
 import com.toppings.server.domain_global.utils.s3.S3Uploader;
 
@@ -98,11 +97,11 @@ public class UserService {
 	) {
 		final User user = getUserById(userId);
 
-		// TODO: image 삭제도 필요
 		String profile = request.getProfile();
 		if (hasText(profile) && isNotEqualsProfile(request, user)) {
-			byte[] decodedFile = DatatypeConverter.parseBase64Binary(profile.substring(profile.indexOf(",") + 1));
-			S3Response s3Response = s3Uploader.uploadBase64(decodedFile, imagePath + userId + "/");
+			S3Response s3Response = s3Uploader.uploadBase64(FileDecoder.base64StringToByteArray(profile),
+				imagePath + userId + "/");
+			s3Uploader.deleteImage(user.getProfilePath());
 			user.updateProfile(s3Response.getImageUrl(), s3Response.getImagePath());
 		}
 		user.updateUserInfo(request.getName(), request.getCountry());

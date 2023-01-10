@@ -1,4 +1,4 @@
-package com.toppings.server.domain_global.utils;
+package com.toppings.server.domain_global.utils.query;
 
 import com.querydsl.core.types.NullExpression;
 import com.querydsl.core.types.Order;

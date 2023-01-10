@@ -2,16 +2,12 @@ package com.toppings.server.domain.user.repository;
 
 import static com.toppings.server.domain.user.entity.QUser.*;
 
-import java.util.Optional;
-
-import com.toppings.server.domain.user.entity.QUser;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.toppings.server.domain.user.dto.UserCount;
-import com.toppings.server.domain.user.entity.User;
 
 import lombok.RequiredArgsConstructor;
 

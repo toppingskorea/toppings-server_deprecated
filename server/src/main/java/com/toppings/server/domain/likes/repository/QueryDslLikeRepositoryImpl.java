@@ -21,7 +21,7 @@ import com.toppings.server.domain.likes.dto.FilterLikesCount;
 import com.toppings.server.domain.likes.dto.LikesPercent;
 import com.toppings.server.domain.restaurant.dto.RestaurantFilterSearchRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantListResponse;
-import com.toppings.server.domain_global.utils.OrderByNull;
+import com.toppings.server.domain_global.utils.query.OrderByNull;
 
 import lombok.RequiredArgsConstructor;
 

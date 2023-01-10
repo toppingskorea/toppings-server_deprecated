@@ -98,10 +98,13 @@ public class UserService {
 		final User user = getUserById(userId);
 
 		String profile = request.getProfile();
-		if (hasText(profile) && user.isNotEqualsProfile(request.getProfile())) {
+		if (hasText(profile) && isNotEqualsProfile(profile, user)) {
 			S3Response s3Response = s3Uploader.uploadBase64(FileDecoder.base64StringToByteArray(profile),
 				imagePath + userId + "/");
-			s3Uploader.deleteImage(user.getProfilePath());
+
+			if (hasText(user.getProfilePath()))
+				s3Uploader.deleteImage(user.getProfilePath());
+
 			user.updateProfile(s3Response.getImageUrl(), s3Response.getImagePath());
 		}
 		user.updateUserInfo(request.getName(), request.getCountry());
@@ -109,16 +112,24 @@ public class UserService {
 		return user.getId();
 	}
 
+	private boolean isNotEqualsProfile(
+		String profile,
+		User user
+	) {
+		return !profile.equals(user.getProfile());
+	}
+
 	private void modifyUserHabit(
 		UserModifyRequest request,
 		User user
 	) {
-		if (request.notEmptyHabit()) {
-			final List<UserHabit> userHabits = user.getHabits();
-			// 기존 식습관 제거
-			userHabitRepository.deleteAllByIdInBatch(getUserIdsFromHabits(user));
-			userHabits.clear();
+		final List<UserHabit> userHabits = user.getHabits();
 
+		// 기존 식습관 제거
+		userHabitRepository.deleteAllByIdInBatch(getUserIdsFromHabits(user));
+		userHabits.clear();
+
+		if (request.notEmptyHabit()) {
 			// 신규 식습관 등록
 			for (UserHabitRequest habitRequest : request.getHabits())
 				userHabits.add(UserHabitRequest.createUserHabit(habitRequest, user));

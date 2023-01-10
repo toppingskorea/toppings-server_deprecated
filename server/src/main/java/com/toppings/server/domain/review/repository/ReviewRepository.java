@@ -14,4 +14,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, QueryDslR
 	@Modifying(clearAutomatically = true)
 	@Query("DELETE FROM Review r WHERE r.restaurant = :restaurant")
 	void deleteBatchByRestaurant(Restaurant restaurant);
+
+	Long countBy();
 }

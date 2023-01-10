@@ -68,19 +68,6 @@ public class RestaurantController {
 	}
 
 	/**
-	 * 음식점 공개여부 수정하기
-	 */
-	@PutMapping("/{restaurantId}/pub")
-	@PreAuthorize("hasRole('ROLE_ADMIN')")
-	public ResponseEntity<?> modifyRestaurantPub(
-		@Valid @RequestBody PubRequest pubRequest,
-		@PathVariable Long restaurantId
-	) {
-		return ResponseEntity.ok(
-			ApiDataResponse.of(restaurantService.modifyPub(pubRequest, restaurantId)));
-	}
-
-	/**
 	 * 음식점 목록 조회하기 (필터링)
 	 */
 	@GetMapping("/filter")

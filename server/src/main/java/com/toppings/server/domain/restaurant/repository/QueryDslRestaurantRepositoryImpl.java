@@ -71,6 +71,7 @@ public class QueryDslRestaurantRepositoryImpl implements QueryDslRestaurantRepos
 			.leftJoin(restaurant.user)
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
+			.orderBy(restaurant.id.desc())
 			.fetch();
 
 		Long totalCount = queryFactory.select(Wildcard.count).from(restaurant).fetch().get(0);
@@ -84,7 +85,7 @@ public class QueryDslRestaurantRepositoryImpl implements QueryDslRestaurantRepos
 	private QBean<RestaurantListResponse> getFields() {
 		return Projections.fields(RestaurantListResponse.class, restaurant.id, restaurant.name, restaurant.address,
 			restaurant.latitude, restaurant.longitude, restaurant.description, restaurant.type,
-			restaurant.thumbnail, restaurant.likeCount, restaurant.user.name.as("writer"));
+			restaurant.thumbnail, restaurant.likeCount, restaurant.user.name.as("writer"), restaurant.createDate);
 	}
 
 	private BooleanExpression inIds(List<Long> ids) {

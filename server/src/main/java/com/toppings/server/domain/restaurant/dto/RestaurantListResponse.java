@@ -1,6 +1,13 @@
 package com.toppings.server.domain.restaurant.dto;
 
+import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.toppings.server.domain.restaurant.constant.FoodType;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
 
@@ -42,6 +49,11 @@ public class RestaurantListResponse {
 
 	private Long filterLikeCount;
 
+	@JsonSerialize(using = LocalDateTimeSerializer.class)
+	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd a HH:mm")
+	private LocalDateTime createDate;
+
 	public static RestaurantListResponse entityToDto(Restaurant restaurant) {
 		return RestaurantListResponse.builder()
 			.id(restaurant.getId())
@@ -51,6 +63,7 @@ public class RestaurantListResponse {
 			.description(restaurant.getDescription())
 			.latitude(restaurant.getLatitude())
 			.longitude(restaurant.getLongitude())
+			.createDate(restaurant.getCreateDate())
 			.build();
 	}
 }

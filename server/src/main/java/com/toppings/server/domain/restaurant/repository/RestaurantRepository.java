@@ -14,4 +14,6 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Long>, Q
 		Long restaurantId,
 		String publicYn
 	);
+
+	Long countByPublicYn(String publicYn);
 }

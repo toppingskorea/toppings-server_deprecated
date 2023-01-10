@@ -19,12 +19,12 @@ public class UserHabitResponse {
 
 	private HabitTitle title;
 
-	private Habit content;
+	private String content;
 
 	public static UserHabitResponse entityToDto(UserHabit userHabit) {
 		return UserHabitResponse.builder()
 			.title(userHabit.getTitle())
-			.content(userHabit.getContent())
+			.content(userHabit.getContent().getName())
 			.build();
 	}
 }

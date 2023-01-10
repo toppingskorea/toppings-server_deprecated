@@ -55,7 +55,5 @@ public class UserResponse {
 	public void updateHabits(List<UserHabitResponse> habits) {
 		if (habits != null && !habits.isEmpty())
 			this.habits = habits;
-		else
-			this.habits = new ArrayList<>();
 	}
 }

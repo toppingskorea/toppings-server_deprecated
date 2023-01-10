@@ -120,12 +120,13 @@ public class UserService {
 		UserModifyRequest request,
 		User user
 	) {
-		if (request.notEmptyHabit()) {
-			final List<UserHabit> userHabits = user.getHabits();
-			// 기존 식습관 제거
-			userHabitRepository.deleteAllByIdInBatch(getUserIdsFromHabits(user));
-			userHabits.clear();
+		final List<UserHabit> userHabits = user.getHabits();
 
+		// 기존 식습관 제거
+		userHabitRepository.deleteAllByIdInBatch(getUserIdsFromHabits(user));
+		userHabits.clear();
+
+		if (request.notEmptyHabit()) {
 			// 신규 식습관 등록
 			for (UserHabitRequest habitRequest : request.getHabits())
 				userHabits.add(UserHabitRequest.createUserHabit(habitRequest, user));

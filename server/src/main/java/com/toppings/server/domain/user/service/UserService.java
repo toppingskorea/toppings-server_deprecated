@@ -98,10 +98,13 @@ public class UserService {
 		final User user = getUserById(userId);
 
 		String profile = request.getProfile();
-		if (hasText(profile) && isNotEqualsProfile(request, user)) {
+		if (hasText(profile) && isNotEqualsProfile(profile, user)) {
 			S3Response s3Response = s3Uploader.uploadBase64(FileDecoder.base64StringToByteArray(profile),
 				imagePath + userId + "/");
-			s3Uploader.deleteImage(user.getProfilePath());
+
+			if (hasText(user.getProfilePath()))
+				s3Uploader.deleteImage(user.getProfilePath());
+
 			user.updateProfile(s3Response.getImageUrl(), s3Response.getImagePath());
 		}
 		user.updateUserInfo(request.getName(), request.getCountry());
@@ -110,10 +113,10 @@ public class UserService {
 	}
 
 	private boolean isNotEqualsProfile(
-		UserModifyRequest request,
+		String profile,
 		User user
 	) {
-		return !user.getProfile().equals(request.getProfile());
+		return !profile.equals(user.getProfile());
 	}
 
 	private void modifyUserHabit(

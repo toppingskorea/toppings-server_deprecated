@@ -144,6 +144,6 @@ public class User extends BaseEntity {
 	}
 
 	public boolean isNotEqualsProfile(String profile) {
-		return !this.profile.equals(profile);
+		return !profile.equals(this.profile);
 	}
 }

@@ -48,9 +48,12 @@ public class AdminService {
 		return userRepository.findUserByUsername(registerRequest.getUsername()).isPresent();
 	}
 
+	/**
+	 * 관리자 메인페이지 카운트 조회
+	 */
 	public TotalCount getTotalCount() {
 		return TotalCount.builder()
-			.totalPostCount(restaurantRepository.countByPublicYn("Y"))
+			.totalPostCount(restaurantRepository.countByPublicYnNot("N"))
 			.totalReviewCount(reviewRepository.countBy())
 			.totalUserCount(userRepository.countByRole(Auth.ROLE_USER))
 			.build();

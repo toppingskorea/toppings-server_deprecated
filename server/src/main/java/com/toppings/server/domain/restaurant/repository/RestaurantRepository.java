@@ -10,10 +10,10 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Long>, Q
 
 	Optional<Restaurant> findRestaurantByCode(String code);
 
-	Optional<Restaurant> findRestaurantByIdAndPublicYn(
+	Optional<Restaurant> findRestaurantByIdAndPublicYnNot(
 		Long restaurantId,
 		String publicYn
 	);
 
-	Long countByPublicYn(String publicYn);
+	Long countByPublicYnNot(String publicYn);
 }

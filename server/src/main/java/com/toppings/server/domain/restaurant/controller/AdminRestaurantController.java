@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.toppings.common.dto.ApiDataResponse;
+import com.toppings.common.dto.PageResultResponse;
 import com.toppings.common.dto.PubRequest;
 import com.toppings.server.domain.restaurant.service.RestaurantService;
 
@@ -41,7 +42,7 @@ public class AdminRestaurantController {
 	@GetMapping
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	public ResponseEntity<?> getRestaurantsForAdmin(@PageableDefault Pageable pageable) {
-		return ResponseEntity.ok(ApiDataResponse.of(restaurantService.findAllForAdmin(pageable)));
+		return ResponseEntity.ok(ApiDataResponse.of(PageResultResponse.of(restaurantService.findAllForAdmin(pageable))));
 	}
 
 	/**

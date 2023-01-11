@@ -167,10 +167,9 @@ public class RestaurantService {
 		return !restaurant.getUser().getId().equals(userId);
 	}
 
-	// TODO: public yn
 	private Restaurant getRestaurantById(Long id) {
-		return restaurantRepository.findById(id)
-			.orElseThrow(() -> new GeneralException(ResponseCode.BAD_REQUEST));
+		return restaurantRepository.findRestaurantByIdAndPublicYnNot(id, "N")
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_FOUND));
 	}
 
 	/**
@@ -375,9 +374,11 @@ public class RestaurantService {
 		final Restaurant restaurant = getRestaurantById(restaurantId);
 		restaurant.setPublicYn(pubRequest.getIsPub() ? "Y" : "N");
 
-		final AlarmType type = pubRequest.getIsPub() ? AlarmType.Pass : AlarmType.Reject;
-		final AlarmRequest alarmRequest = AlarmRequest.of(restaurant, type);
-		alarmService.registerAndSend(alarmRequest);
+		if (!pubRequest.getIsPub()) {
+			final AlarmRequest alarmRequest
+				= AlarmRequest.of(null, restaurant, AlarmType.Reject, pubRequest.getCause());
+			alarmService.registerAndSend(alarmRequest);
+		}
 
 		return restaurantId;
 	}

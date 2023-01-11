@@ -79,10 +79,9 @@ public class ScrapService {
 		return scrap.getId();
 	}
 
-	// TODO: public yn
-	private Restaurant getRestaurantById(Long restaurantId) {
-		return restaurantRepository.findById(restaurantId)
-			.orElseThrow(() -> new GeneralException(ResponseCode.BAD_REQUEST));
+	private Restaurant getRestaurantById(Long id) {
+		return restaurantRepository.findRestaurantByIdAndPublicYnNot(id, "N")
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_FOUND));
 	}
 
 	private User getUser(Long userId) {

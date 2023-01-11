@@ -6,5 +6,4 @@ public enum AlarmType {
 	Review,
 	Scrap,
 	Reject,
-	Pass
 }

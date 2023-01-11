@@ -62,6 +62,8 @@ public class RestaurantResponse {
 
 	private boolean isMine;
 
+	private String publicYn;
+
 	@JsonSerialize(using = LocalDateTimeSerializer.class)
 	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd a HH:mm")
@@ -79,6 +81,7 @@ public class RestaurantResponse {
 			.longitude(restaurant.getLongitude())
 			.code(restaurant.getCode())
 			.createDate(restaurant.getCreateDate())
+			.publicYn(restaurant.getPublicYn())
 			.build();
 	}
 }

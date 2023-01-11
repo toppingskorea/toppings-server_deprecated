@@ -54,6 +54,8 @@ public class RestaurantListResponse {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd a HH:mm")
 	private LocalDateTime createDate;
 
+	private String publicYn;
+
 	public static RestaurantListResponse entityToDto(Restaurant restaurant) {
 		return RestaurantListResponse.builder()
 			.id(restaurant.getId())
@@ -64,6 +66,7 @@ public class RestaurantListResponse {
 			.latitude(restaurant.getLatitude())
 			.longitude(restaurant.getLongitude())
 			.createDate(restaurant.getCreateDate())
+			.publicYn(restaurant.getPublicYn())
 			.build();
 	}
 }

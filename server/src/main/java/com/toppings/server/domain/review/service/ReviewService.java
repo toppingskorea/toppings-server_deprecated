@@ -94,10 +94,9 @@ public class ReviewService {
 		return images;
 	}
 
-	// TODO: public yn
 	private Restaurant getRestaurantById(Long id) {
-		return restaurantRepository.findById(id)
-			.orElseThrow(() -> new GeneralException(ResponseCode.BAD_REQUEST));
+		return restaurantRepository.findRestaurantByIdAndPublicYnNot(id, "N")
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_FOUND));
 	}
 
 	private User getUserById(Long id) {

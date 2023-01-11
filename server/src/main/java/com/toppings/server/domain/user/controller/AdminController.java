@@ -3,6 +3,8 @@ package com.toppings.server.domain.user.controller;
 import javax.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,7 +27,17 @@ public class AdminController {
 	 * 관리자 등록
 	 */
 	@PostMapping
+	// TODO: 권한 처리 추가
 	public ResponseEntity<?> registerAdmin(@Valid @RequestBody AdminRegisterRequest registerRequest) {
 		return ResponseEntity.ok(ApiDataResponse.of(adminService.register(registerRequest)));
+	}
+
+	/**
+	 * 관리자 메인페이지 카운트 조회
+	 */
+	@GetMapping("/count")
+	// @PreAuthorize("hasRole('ROLE_ADMIN')")
+	public ResponseEntity<?> getTotalCount() {
+		return ResponseEntity.ok(ApiDataResponse.of(adminService.getTotalCount()));
 	}
 }

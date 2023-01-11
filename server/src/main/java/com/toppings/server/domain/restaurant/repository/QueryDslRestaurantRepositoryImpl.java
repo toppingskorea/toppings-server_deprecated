@@ -37,11 +37,15 @@ public class QueryDslRestaurantRepositoryImpl implements QueryDslRestaurantRepos
 				restaurant.latitude.gt(searchRequest.getX1()),
 				restaurant.latitude.lt(searchRequest.getX2()),
 				restaurant.longitude.gt(searchRequest.getY1()),
-				restaurant.longitude.lt(searchRequest.getY2())
-				// TODO : public yn
+				restaurant.longitude.lt(searchRequest.getY2()),
+				notEqPublicYn()
 			)
 			.orderBy(restaurant.likeCount.desc())
 			.fetch();
+	}
+
+	private BooleanExpression notEqPublicYn() {
+		return restaurant.publicYn.ne("N");
 	}
 
 	@Override
@@ -49,7 +53,7 @@ public class QueryDslRestaurantRepositoryImpl implements QueryDslRestaurantRepos
 		return queryFactory.select(getFields())
 			.from(restaurant)
 			.leftJoin(restaurant.user)
-			.where(eqName(name)) // TODO : public yn
+			.where(eqName(name), notEqPublicYn())
 			.orderBy(restaurant.likeCount.desc())
 			.fetch();
 	}
@@ -59,7 +63,7 @@ public class QueryDslRestaurantRepositoryImpl implements QueryDslRestaurantRepos
 		return queryFactory.select(getFields())
 			.from(restaurant)
 			.leftJoin(restaurant.user)
-			.where(eqUserId(userId)) // TODO : public yn
+			.where(eqUserId(userId), notEqPublicYn())
 			.orderBy(restaurant.likeCount.desc())
 			.fetch();
 	}
@@ -71,6 +75,7 @@ public class QueryDslRestaurantRepositoryImpl implements QueryDslRestaurantRepos
 			.leftJoin(restaurant.user)
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
+			.orderBy(restaurant.id.desc())
 			.fetch();
 
 		Long totalCount = queryFactory.select(Wildcard.count).from(restaurant).fetch().get(0);
@@ -84,7 +89,8 @@ public class QueryDslRestaurantRepositoryImpl implements QueryDslRestaurantRepos
 	private QBean<RestaurantListResponse> getFields() {
 		return Projections.fields(RestaurantListResponse.class, restaurant.id, restaurant.name, restaurant.address,
 			restaurant.latitude, restaurant.longitude, restaurant.description, restaurant.type,
-			restaurant.thumbnail, restaurant.likeCount, restaurant.user.name.as("writer"));
+			restaurant.thumbnail, restaurant.likeCount, restaurant.user.name.as("writer"), restaurant.createDate,
+			restaurant.publicYn);
 	}
 
 	private BooleanExpression inIds(List<Long> ids) {

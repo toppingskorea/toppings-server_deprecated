@@ -98,7 +98,7 @@ public class UserService {
 		final User user = getUserById(userId);
 
 		String profile = request.getProfile();
-		if (hasText(profile) && isNotEqualsProfile(profile, user)) {
+		if (hasText(profile) && user.isNotEqualsProfile(profile)) {
 			S3Response s3Response = s3Uploader.uploadBase64(FileDecoder.base64StringToByteArray(profile),
 				imagePath + userId + "/");
 
@@ -110,13 +110,6 @@ public class UserService {
 		user.updateUserInfo(request.getName(), request.getCountry());
 		modifyUserHabit(request, user);
 		return user.getId();
-	}
-
-	private boolean isNotEqualsProfile(
-		String profile,
-		User user
-	) {
-		return !profile.equals(user.getProfile());
 	}
 
 	private void modifyUserHabit(

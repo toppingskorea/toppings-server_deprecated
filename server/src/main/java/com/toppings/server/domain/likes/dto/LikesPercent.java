@@ -22,4 +22,9 @@ public class LikesPercent {
 	private Long count;
 
 	private int percent;
+
+	public void calculatePercent(Long totalCount) {
+		double divisionValue = this.count / (double)totalCount;
+		this.percent = Math.toIntExact(Math.round(divisionValue * 100));
+	}
 }

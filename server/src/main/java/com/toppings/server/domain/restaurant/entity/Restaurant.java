@@ -23,6 +23,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.toppings.server.domain.restaurant.constant.FoodType;
+import com.toppings.server.domain.restaurant.dto.RestaurantModifyRequest;
 import com.toppings.server.domain.user.entity.User;
 import com.toppings.server.domain_global.entity.BaseEntity;
 
@@ -123,5 +124,27 @@ public class Restaurant extends BaseEntity {
 	public void downScrapCount() {
 		if (scrapCount > 0)
 			this.scrapCount -= 1;
+	}
+
+	public void updatePublicYn(boolean isPub) {
+		this.publicYn = isPub ? "Y" : "N";
+	}
+
+	public void updateRestaurantInfo(
+		RestaurantModifyRequest request,
+		String image
+	) {
+		this.name = request.getName() != null ? request.getName() : this.name;
+		this.address = request.getAddress() != null ? request.getAddress() : this.address;
+		this.description = request.getDescription() != null ? request.getDescription() : this.description;
+		this.type = request.getType() != null ? request.getType() : this.type;
+		this.thumbnail = image;
+	}
+
+	public void updateMapInfo(RestaurantModifyRequest request) {
+		this.zipcode = request.getZipcode() != null ? request.getZipcode() : this.zipcode;
+		this.code = request.getCode() != null ? request.getCode() : this.code;
+		this.latitude = request.getLatitude() != null ? request.getLatitude() : this.latitude;
+		this.longitude = request.getLongitude() != null ? request.getLongitude() : this.longitude;
 	}
 }

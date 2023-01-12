@@ -69,4 +69,8 @@ public class RestaurantListResponse {
 			.publicYn(restaurant.getPublicYn())
 			.build();
 	}
+
+	public void updateIsLike(boolean isLike) {
+		this.isLike = isLike;
+	}
 }

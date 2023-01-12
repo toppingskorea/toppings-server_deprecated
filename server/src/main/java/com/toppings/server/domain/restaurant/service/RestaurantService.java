@@ -1,7 +1,5 @@
 package com.toppings.server.domain.restaurant.service;
 
-import static org.springframework.util.StringUtils.*;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -125,8 +123,8 @@ public class RestaurantService {
 
 		final List<RestaurantAttach> images = modifyRestaurantAttach(request, restaurant);
 
-		RestaurantModifyRequest.setRestaurantInfo(request, restaurant, images.get(0).getImage());
-		RestaurantModifyRequest.setMapInfo(request, restaurant);
+		restaurant.updateRestaurantInfo(request, images.get(0).getImage());
+		restaurant.updateMapInfo(request);
 		return restaurant.getId();
 	}
 
@@ -249,18 +247,18 @@ public class RestaurantService {
 		Long userId
 	) {
 		final List<Long> likesIds = getMyLikesIds(getUserById(userId));
-		restaurantListResponses.forEach(restaurant -> restaurant.setLike(likesIds.contains(restaurant.getId())));
+		restaurantListResponses.forEach(restaurant -> restaurant.updateIsLike(likesIds.contains(restaurant.getId())));
 	}
 
 	private List<RestaurantListResponse> getRestaurantListResponseByCountry(RestaurantFilterSearchRequest searchRequest) {
-		if (isNullCountry(searchRequest))
+		if (searchRequest.isNullCountry())
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
 		return likeRepository.findRestaurantsByUserCountry(searchRequest);
 	}
 
 	private List<RestaurantListResponse> getRestaurantListResponsesByHabit(RestaurantFilterSearchRequest searchRequest) {
-		if (isNullHabit(searchRequest))
+		if (searchRequest.isNullHabit())
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
 		List<Long> ids = userHabitRepository.findUserIdByHabit(searchRequest);
@@ -268,22 +266,10 @@ public class RestaurantService {
 	}
 
 	private List<RestaurantListResponse> getRestaurantListResponseByName(RestaurantFilterSearchRequest searchRequest) {
-		if (isNullName(searchRequest))
+		if (searchRequest.isNullName())
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
 		return restaurantRepository.findAllByRestaurantName(searchRequest.getName());
-	}
-
-	private boolean isNullCountry(RestaurantFilterSearchRequest searchRequest) {
-		return searchRequest.getCountry() == null || !hasText(searchRequest.getCountry());
-	}
-
-	private boolean isNullHabit(RestaurantFilterSearchRequest searchRequest) {
-		return searchRequest.getHabit() == null;
-	}
-
-	private boolean isNullName(RestaurantFilterSearchRequest searchRequest) {
-		return searchRequest.getName() == null || !hasText(searchRequest.getName());
 	}
 
 	private List<Long> getMyLikesIds(User user) {
@@ -304,15 +290,15 @@ public class RestaurantService {
 		final RestaurantResponse restaurantResponse = RestaurantResponse.entityToDto(restaurant);
 
 		final List<String> images = getRestaurantImages(restaurant);
-		restaurantResponse.setImages(images);
-		restaurantResponse.setWriter(restaurant.getUser().getName());
-		restaurantResponse.setCountry(restaurant.getUser().getCountry());
-		restaurantResponse.setMine(restaurant.getUser().getId().equals(userId));
+		User restaurantUser = restaurant.getUser();
+		restaurantResponse.updateImages(images);
+		restaurantResponse.updateUserInfo(restaurantUser);
+		restaurantResponse.updateIsMine(restaurantUser.getId().equals(userId));
 
 		if (userId != null) {
 			User user = getUserById(userId);
-			restaurantResponse.setLike(likeRepository.findLikesByRestaurantAndUser(restaurant, user).isPresent());
-			restaurantResponse.setScrap(scrapRepository.findScrapByRestaurantAndUser(restaurant, user).isPresent());
+			restaurantResponse.updateIsLike(likeRepository.findLikesByRestaurantAndUser(restaurant, user).isPresent());
+			restaurantResponse.updateIsScrap(scrapRepository.findScrapByRestaurantAndUser(restaurant, user).isPresent());
 		}
 		return restaurantResponse;
 	}
@@ -347,20 +333,14 @@ public class RestaurantService {
 		Long totalCount,
 		List<LikesPercent> habitLikePercents
 	) {
-		habitLikePercents.forEach(habitLikes -> {
-			double divisionValue = habitLikes.getCount() / (double)totalCount;
-			habitLikes.setPercent(Math.toIntExact(Math.round(divisionValue * 100)));
-		});
+		habitLikePercents.forEach(habitLikes -> habitLikes.calculatePercent(totalCount));
 	}
 
 	private void setCountryLikesPercent(
 		Long totalCount,
 		List<LikesPercent> countryLikePercents
 	) {
-		countryLikePercents.forEach(countryLikes -> {
-			double divisionValue = countryLikes.getCount() / (double)totalCount;
-			countryLikes.setPercent(Math.toIntExact(Math.round(divisionValue * 100)));
-		});
+		countryLikePercents.forEach(countryLikes -> countryLikes.calculatePercent(totalCount));
 	}
 
 	/**
@@ -372,7 +352,7 @@ public class RestaurantService {
 		Long restaurantId
 	) {
 		final Restaurant restaurant = getRestaurantById(restaurantId);
-		restaurant.setPublicYn(pubRequest.getIsPub() ? "Y" : "N");
+		restaurant.updatePublicYn(pubRequest.getIsPub());
 
 		if (!pubRequest.getIsPub()) {
 			final AlarmRequest alarmRequest
@@ -398,7 +378,7 @@ public class RestaurantService {
 		final RestaurantResponse restaurantResponse = RestaurantResponse.entityToDto(restaurant);
 
 		final List<String> images = getRestaurantImages(restaurant);
-		restaurantResponse.setImages(images);
+		restaurantResponse.updateImages(images);
 		return restaurantResponse;
 	}
 }

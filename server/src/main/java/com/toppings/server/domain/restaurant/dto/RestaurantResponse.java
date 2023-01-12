@@ -17,6 +17,7 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.toppings.server.domain.restaurant.constant.FoodType;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
+import com.toppings.server.domain.user.entity.User;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -83,5 +84,27 @@ public class RestaurantResponse {
 			.createDate(restaurant.getCreateDate())
 			.publicYn(restaurant.getPublicYn())
 			.build();
+	}
+
+	public void updateImages(List<String> images) {
+		if (images != null && !images.isEmpty())
+			this.images = images;
+	}
+
+	public void updateIsLike(boolean isLike) {
+		this.isLike = isLike;
+	}
+
+	public void updateIsScrap(boolean isScrap) {
+		this.isScrap = isScrap;
+	}
+
+	public void updateUserInfo(User user) {
+		this.writer = user.getName();
+		this.country = user.getCountry();
+	}
+
+	public void updateIsMine(boolean isMine) {
+		this.isMine = isMine;
 	}
 }

@@ -42,7 +42,8 @@ public class AdminRestaurantController {
 	@GetMapping
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	public ResponseEntity<?> getRestaurantsForAdmin(@PageableDefault Pageable pageable) {
-		return ResponseEntity.ok(ApiDataResponse.of(PageResultResponse.of(restaurantService.findAllForAdmin(pageable))));
+		return ResponseEntity.ok(
+			ApiDataResponse.of(PageResultResponse.of(restaurantService.findAllForAdmin(pageable))));
 	}
 
 	/**

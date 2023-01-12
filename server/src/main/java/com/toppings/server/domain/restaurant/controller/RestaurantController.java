@@ -15,12 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.toppings.common.dto.ApiDataResponse;
-import com.toppings.common.dto.PubRequest;
 import com.toppings.server.domain.likes.service.LikeService;
+import com.toppings.server.domain.restaurant.dto.RestaurantFilterSearchRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantMapSearchRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantModifyRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantRequest;
-import com.toppings.server.domain.restaurant.dto.RestaurantFilterSearchRequest;
 import com.toppings.server.domain.restaurant.service.RestaurantService;
 import com.toppings.server.domain.review.dto.ReviewRequest;
 import com.toppings.server.domain.review.service.ReviewService;
@@ -65,19 +64,6 @@ public class RestaurantController {
 	) {
 		return ResponseEntity.ok(
 			ApiDataResponse.of(restaurantService.modify(restaurantModifyRequest, restaurantId, userId)));
-	}
-
-	/**
-	 * 음식점 공개여부 수정하기
-	 */
-	@PutMapping("/{restaurantId}/pub")
-	@PreAuthorize("hasRole('ROLE_ADMIN')")
-	public ResponseEntity<?> modifyRestaurantPub(
-		@Valid @RequestBody PubRequest pubRequest,
-		@PathVariable Long restaurantId
-	) {
-		return ResponseEntity.ok(
-			ApiDataResponse.of(restaurantService.modifyPub(pubRequest, restaurantId)));
 	}
 
 	/**

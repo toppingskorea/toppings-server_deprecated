@@ -15,4 +15,6 @@ public class PubRequest {
 
 	@NotNull(message = "공개 여부를 확인해주세요.")
 	private Boolean isPub;
+
+	private String cause;
 }

@@ -1,5 +1,6 @@
 package com.toppings.server.domain.restaurant.dto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.persistence.CollectionTable;
@@ -8,9 +9,15 @@ import javax.persistence.ElementCollection;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.toppings.server.domain.restaurant.constant.FoodType;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
+import com.toppings.server.domain.user.entity.User;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -56,6 +63,13 @@ public class RestaurantResponse {
 
 	private boolean isMine;
 
+	private String publicYn;
+
+	@JsonSerialize(using = LocalDateTimeSerializer.class)
+	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd a HH:mm")
+	private LocalDateTime createDate;
+
 	public static RestaurantResponse entityToDto(Restaurant restaurant) {
 		return RestaurantResponse.builder()
 			.id(restaurant.getId())
@@ -67,6 +81,30 @@ public class RestaurantResponse {
 			.latitude(restaurant.getLatitude())
 			.longitude(restaurant.getLongitude())
 			.code(restaurant.getCode())
+			.createDate(restaurant.getCreateDate())
+			.publicYn(restaurant.getPublicYn())
 			.build();
+	}
+
+	public void updateImages(List<String> images) {
+		if (images != null && !images.isEmpty())
+			this.images = images;
+	}
+
+	public void updateIsLike(boolean isLike) {
+		this.isLike = isLike;
+	}
+
+	public void updateIsScrap(boolean isScrap) {
+		this.isScrap = isScrap;
+	}
+
+	public void updateUserInfo(User user) {
+		this.writer = user.getName();
+		this.country = user.getCountry();
+	}
+
+	public void updateIsMine(boolean isMine) {
+		this.isMine = isMine;
 	}
 }

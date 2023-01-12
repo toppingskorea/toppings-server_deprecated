@@ -45,8 +45,9 @@ public class QueryDslLikeRepositoryImpl implements QueryDslLikeRepository {
 				likes.restaurant.latitude.lt(searchRequest.getX2()),
 				likes.restaurant.longitude.gt(searchRequest.getY1()),
 				likes.restaurant.longitude.lt(searchRequest.getY2()),
+				likes.restaurant.publicYn.ne("N"),
 				likes.user.country.eq(searchRequest.getCountry())
-			) // TODO : public yn
+			)
 			.groupBy(likes.restaurant.id)
 			.orderBy(OrderByNull.DEFAULT)
 			.fetch();
@@ -70,8 +71,9 @@ public class QueryDslLikeRepositoryImpl implements QueryDslLikeRepository {
 				likes.restaurant.latitude.lt(searchRequest.getX2()),
 				likes.restaurant.longitude.gt(searchRequest.getY1()),
 				likes.restaurant.longitude.lt(searchRequest.getY2()),
+				likes.restaurant.publicYn.ne("N"),
 				likes.user.id.in(ids)
-			) // TODO : public yn
+			)
 			.groupBy(likes.restaurant.id)
 			.orderBy(OrderByNull.DEFAULT)
 			.fetch();
@@ -85,7 +87,7 @@ public class QueryDslLikeRepositoryImpl implements QueryDslLikeRepository {
 		List<RestaurantListResponse> restaurantListResponses = queryFactory.select(getFields())
 			.from(restaurant)
 			.leftJoin(restaurant.user)
-			.where(restaurant.id.in(longMap.keySet()), restaurant.likeCount.gt(0)) // TODO : public yn
+			.where(restaurant.id.in(longMap.keySet()), restaurant.likeCount.gt(0))
 			.orderBy(restaurant.likeCount.desc())
 			.fetch();
 
@@ -120,7 +122,7 @@ public class QueryDslLikeRepositoryImpl implements QueryDslLikeRepository {
 			Projections.fields(LikesPercent.class, likes.count().as("count"), user.country))
 			.from(user)
 			.leftJoin(likes).on(user.id.eq(likes.user.id))
-			.where(eqRestaurantId(restaurantId)) // TODO : public yn
+			.where(eqRestaurantId(restaurantId))
 			.groupBy(user.country)
 			.orderBy(likes.count().desc(), OrderByNull.DEFAULT)
 			.fetch();
@@ -133,7 +135,7 @@ public class QueryDslLikeRepositoryImpl implements QueryDslLikeRepository {
 			.from(user)
 			.leftJoin(likes).on(user.id.eq(likes.user.id))
 			.leftJoin(userHabit).on(user.id.eq(userHabit.user.id))
-			.where(eqRestaurantId(restaurantId), userHabit.content.isNotNull()) // TODO : public yn
+			.where(eqRestaurantId(restaurantId), userHabit.content.isNotNull())
 			.groupBy(userHabit.content)
 			.orderBy(likes.count().desc(), OrderByNull.DEFAULT)
 			.fetch();

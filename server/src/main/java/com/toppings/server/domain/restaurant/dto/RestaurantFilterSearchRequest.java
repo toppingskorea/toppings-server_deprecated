@@ -1,5 +1,7 @@
 package com.toppings.server.domain.restaurant.dto;
 
+import static org.springframework.util.StringUtils.*;
+
 import javax.validation.constraints.NotNull;
 
 import com.toppings.server.domain.restaurant.constant.SearchType;
@@ -34,5 +36,17 @@ public class RestaurantFilterSearchRequest {
 	public boolean isValidPoint() {
 		return !this.type.equals(SearchType.Name)
 			&& (this.getX1() == null || this.getX2() == null || this.getY1() == null || this.getY2() == null);
+	}
+
+	public boolean isNullCountry() {
+		return !hasText(this.country);
+	}
+
+	public boolean isNullName() {
+		return !hasText(this.name);
+	}
+
+	public boolean isNullHabit() {
+		return this.habit == null;
 	}
 }

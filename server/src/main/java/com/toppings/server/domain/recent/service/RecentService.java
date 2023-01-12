@@ -55,10 +55,9 @@ public class RecentService {
 		return recent.getId();
 	}
 
-	// TODO: public yn
 	private void verifyRestaurantId(RecentRequest recentRequest) {
-		restaurantRepository.findById(recentRequest.getRestaurantId())
-			.orElseThrow(() -> new GeneralException(ResponseCode.BAD_REQUEST));
+		restaurantRepository.findRestaurantByIdAndPublicYnNot(recentRequest.getRestaurantId(), "N")
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_FOUND));
 	}
 
 	/**

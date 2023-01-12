@@ -60,4 +60,18 @@ public class AlarmResponse {
 			.createDate(alarm.getCreateDate())
 			.build();
 	}
+
+	public static AlarmResponse of(
+		Restaurant restaurant,
+		Alarm alarm
+	) {
+		return AlarmResponse.builder()
+			.id(alarm.getId())
+			.alarmType(alarm.getAlarmType())
+			.content(alarm.getContent())
+			.restaurantName(restaurant.getName())
+			.thumbnail(restaurant.getThumbnail())
+			.createDate(alarm.getCreateDate())
+			.build();
+	}
 }

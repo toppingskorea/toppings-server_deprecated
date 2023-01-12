@@ -54,6 +54,8 @@ public class AlarmService {
 		final Alarm savedAlarm = alarmRepository.save(alarm);
 
 		final AlarmResponse alarmResponse;
+
+		// TODO: Refactoring Pick
 		if (fromUser != null)
 			alarmResponse = AlarmResponse.of(restaurant, fromUser, savedAlarm);
 		else

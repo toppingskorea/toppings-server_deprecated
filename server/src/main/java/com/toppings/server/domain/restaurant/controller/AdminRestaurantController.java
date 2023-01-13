@@ -31,7 +31,7 @@ public class AdminRestaurantController {
 	 * 음식점 상세 조회하기 (관리자)
 	 */
 	@GetMapping("/{restaurantId}")
-	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	// @PreAuthorize("hasRole('ROLE_ADMIN')")
 	public ResponseEntity<?> getRestaurantForAdmin(@PathVariable Long restaurantId) {
 		return ResponseEntity.ok(ApiDataResponse.of(restaurantService.findOneForAdmin(restaurantId)));
 	}
@@ -40,7 +40,7 @@ public class AdminRestaurantController {
 	 * 음식점 목록 조회하기 (관리자)
 	 */
 	@GetMapping
-	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	// @PreAuthorize("hasRole('ROLE_ADMIN')")
 	public ResponseEntity<?> getRestaurantsForAdmin(@PageableDefault Pageable pageable) {
 		return ResponseEntity.ok(
 			ApiDataResponse.of(PageResultResponse.of(restaurantService.findAllForAdmin(pageable))));
@@ -50,7 +50,7 @@ public class AdminRestaurantController {
 	 * 음식점 공개여부 수정하기
 	 */
 	@PutMapping("/{restaurantId}")
-	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	// @PreAuthorize("hasRole('ROLE_ADMIN')")
 	public ResponseEntity<?> modifyRestaurantPub(
 		@Valid @RequestBody PubRequest pubRequest,
 		@PathVariable Long restaurantId

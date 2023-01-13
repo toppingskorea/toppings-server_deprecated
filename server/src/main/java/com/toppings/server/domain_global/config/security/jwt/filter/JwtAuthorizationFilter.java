@@ -1,12 +1,12 @@
 package com.toppings.server.domain_global.config.security.jwt.filter;
 
+import static org.springframework.util.StringUtils.*;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -19,10 +19,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.util.StringUtils;
 
 import com.toppings.common.constants.prop.CorsProperties;
-import com.toppings.server.domain.user.entity.User;
 import com.toppings.server.domain.user.service.UserService;
 import com.toppings.server.domain_global.config.aop.RequestLogAspect;
 import com.toppings.server.domain_global.config.security.jwt.JwtProperties;
@@ -57,10 +55,10 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 	) throws IOException, ServletException {
 		if (isDomainCheck(request)) {
 			String accessToken = getAccessToken(request);
-			if (idValidAccessToken(accessToken)) {
-				logger.debug("accessToken : " + accessToken);
-				System.out.println("accessToken : " + accessToken);
-				addAuthenticationTokenInSecurityContext(accessToken);
+			String accessCookieToken = getAccessTokenByCookie(request);
+			if (idValidAccessToken(accessToken) || idValidAccessToken(accessCookieToken)) {
+				String token = hasText(accessToken) ? accessToken : accessCookieToken;
+				addAuthenticationTokenInSecurityContext(token);
 			}
 		}
 		chain.doFilter(request, response);
@@ -100,10 +98,22 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
 	private String getAccessToken(HttpServletRequest request) {
 		String bearerToken = request.getHeader(JwtProperties.JWT_ACCESS_HEADER);
-		if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(JwtProperties.TOKEN_PREFIX))
+		if (hasText(bearerToken) && bearerToken.startsWith(JwtProperties.TOKEN_PREFIX))
 			return bearerToken.substring(7);
 		else
 			return null;
+	}
+
+	private String getAccessTokenByCookie(HttpServletRequest request) {
+		try {
+			return Arrays.stream(request.getCookies())
+				.filter(cookie -> cookie.getName().equals(JwtProperties.JWT_ACCESS_COOKIE))
+				.findFirst()
+				.map(Cookie::getValue)
+				.orElse(null);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	private boolean idValidAccessToken(String accessToken) {

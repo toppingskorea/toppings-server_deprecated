@@ -31,6 +31,7 @@ public class AdminRestaurantController {
 	 * 음식점 상세 조회하기 (관리자)
 	 */
 	@GetMapping("/{restaurantId}")
+	// TODO: 관리자 로그인 페이지 추가 시 권한 다시 추가하기
 	// @PreAuthorize("hasRole('ROLE_ADMIN')")
 	public ResponseEntity<?> getRestaurantForAdmin(@PathVariable Long restaurantId) {
 		return ResponseEntity.ok(ApiDataResponse.of(restaurantService.findOneForAdmin(restaurantId)));

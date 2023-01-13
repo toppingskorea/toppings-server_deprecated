@@ -65,6 +65,19 @@ public class JwtUtils {
 		return refreshToken;
 	}
 
+	public static String makeAccessTokenCookie(
+		HttpServletResponse response,
+		User user
+	) {
+		String accessToken = JwtUtils.createAccessToken(user);
+		Cookie cookie = new Cookie(JwtProperties.JWT_ACCESS_COOKIE, accessToken);
+		cookie.setMaxAge(JwtProperties.ACCESS_COOKIE_EXPIRATION_TIME);
+		cookie.setHttpOnly(true);
+		cookie.setPath("/");
+		response.addCookie(cookie);
+		return accessToken;
+	}
+
 	private static Claims getClaims(User user) {
 		Claims claims = Jwts.claims();
 		claims.put("uid", user.getId());

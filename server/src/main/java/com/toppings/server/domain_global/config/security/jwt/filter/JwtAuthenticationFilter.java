@@ -64,10 +64,14 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
 		PrincipalDetails principalDetails = (PrincipalDetails)authResult.getPrincipal();
-		response.addHeader(JwtProperties.JWT_ACCESS_HEADER, JwtUtils.createAccessToken(principalDetails.getUser()));
+		Auth role = principalDetails.getUser().getRole();
+		if (role.equals(Auth.ROLE_ADMIN))
+			JwtUtils.makeAccessTokenCookie(response, principalDetails.getUser());
+		else
+			response.addHeader(JwtProperties.JWT_ACCESS_HEADER, JwtUtils.createAccessToken(principalDetails.getUser()));
 
 		PrintWriter writer = response.getWriter();
-		ApiDataResponse<Auth> apiDataResponse = ApiDataResponse.of(principalDetails.getUser().getRole());
+		ApiDataResponse<Auth> apiDataResponse = ApiDataResponse.of(role);
 		writer.println(objectMapper.writeValueAsString(apiDataResponse));
 		writer.flush();
 		writer.close();

@@ -36,7 +36,7 @@ public class AdminController {
 	 * 관리자 메인페이지 카운트 조회
 	 */
 	@GetMapping("/count")
-	// @PreAuthorize("hasRole('ROLE_ADMIN')")
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	public ResponseEntity<?> getTotalCount() {
 		return ResponseEntity.ok(ApiDataResponse.of(adminService.getTotalCount()));
 	}

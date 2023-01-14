@@ -352,7 +352,8 @@ public class RestaurantService {
 		PubRequest pubRequest,
 		Long restaurantId
 	) {
-		final Restaurant restaurant = getRestaurantById(restaurantId);
+		final Restaurant restaurant = restaurantRepository.findById(restaurantId)
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_FOUND));
 		restaurant.updatePublicYn(pubRequest.getIsPub());
 
 		if (!pubRequest.getIsPub()) {

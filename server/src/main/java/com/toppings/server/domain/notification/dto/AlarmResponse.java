@@ -53,22 +53,8 @@ public class AlarmResponse {
 			.id(alarm.getId())
 			.alarmType(alarm.getAlarmType())
 			.content(alarm.getContent())
-			.country(user.getCountry())
-			.userName(user.getName())
-			.restaurantName(restaurant.getName())
-			.thumbnail(restaurant.getThumbnail())
-			.createDate(alarm.getCreateDate())
-			.build();
-	}
-
-	public static AlarmResponse of(
-		Restaurant restaurant,
-		Alarm alarm
-	) {
-		return AlarmResponse.builder()
-			.id(alarm.getId())
-			.alarmType(alarm.getAlarmType())
-			.content(alarm.getContent())
+			.country(user != null ? user.getCountry() : null)
+			.userName(user != null ? user.getName() : null)
 			.restaurantName(restaurant.getName())
 			.thumbnail(restaurant.getThumbnail())
 			.createDate(alarm.getCreateDate())

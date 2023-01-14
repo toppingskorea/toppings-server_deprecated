@@ -298,7 +298,8 @@ public class RestaurantService {
 		if (userId != null) {
 			User user = getUserById(userId);
 			restaurantResponse.updateIsLike(likeRepository.findLikesByRestaurantAndUser(restaurant, user).isPresent());
-			restaurantResponse.updateIsScrap(scrapRepository.findScrapByRestaurantAndUser(restaurant, user).isPresent());
+			restaurantResponse.updateIsScrap(
+				scrapRepository.findScrapByRestaurantAndUser(restaurant, user).isPresent());
 		}
 		return restaurantResponse;
 	}
@@ -374,7 +375,8 @@ public class RestaurantService {
 	 * 음식점 상세 조회 (관리자용)
 	 */
 	public RestaurantResponse findOneForAdmin(Long restaurantId) {
-		final Restaurant restaurant = getRestaurantById(restaurantId);
+		final Restaurant restaurant = restaurantRepository.findById(restaurantId)
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_FOUND));
 		final RestaurantResponse restaurantResponse = RestaurantResponse.entityToDto(restaurant);
 
 		final List<String> images = getRestaurantImages(restaurant);

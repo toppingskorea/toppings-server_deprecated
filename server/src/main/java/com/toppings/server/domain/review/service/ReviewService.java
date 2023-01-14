@@ -118,6 +118,7 @@ public class ReviewService {
 
 		final List<ReviewAttach> images = modifyReviewAttach(request, review);
 
+		// TODO: Refactoring Pick
 		ReviewModifyRequest.modifyReviewInfo(review, request, images.get(0).getImage());
 		return review.getId();
 	}
@@ -209,6 +210,8 @@ public class ReviewService {
 	) {
 		final Review review = getReviewById(reviewId);
 		final ReviewResponse reviewResponse = ReviewResponse.entityToDto(review, review.getUser());
+
+		// TODO: Refactoring Pick
 		reviewResponse.setImages(review.getImages().stream().map(ReviewAttach::getImage).collect(Collectors.toList()));
 		reviewResponse.setIsMine(review.getUser().getId().equals(userId));
 		reviewResponse.setHabits(Arrays.asList(review.getUser().getHabitContents().split(",")));

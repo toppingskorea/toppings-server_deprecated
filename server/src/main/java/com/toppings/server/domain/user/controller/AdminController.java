@@ -27,7 +27,7 @@ public class AdminController {
 	 * 관리자 등록
 	 */
 	@PostMapping
-	// TODO: 권한 처리 추가
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	public ResponseEntity<?> registerAdmin(@Valid @RequestBody AdminRegisterRequest registerRequest) {
 		return ResponseEntity.ok(ApiDataResponse.of(adminService.register(registerRequest)));
 	}
@@ -36,7 +36,7 @@ public class AdminController {
 	 * 관리자 메인페이지 카운트 조회
 	 */
 	@GetMapping("/count")
-	// @PreAuthorize("hasRole('ROLE_ADMIN')")
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	public ResponseEntity<?> getTotalCount() {
 		return ResponseEntity.ok(ApiDataResponse.of(adminService.getTotalCount()));
 	}

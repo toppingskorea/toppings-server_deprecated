@@ -53,11 +53,7 @@ public class AlarmService {
 		final Alarm alarm = Alarm.of(fromUser, restaurant, alarmRequest.getContent(), alarmRequest.getType());
 		final Alarm savedAlarm = alarmRepository.save(alarm);
 
-		final AlarmResponse alarmResponse;
-		if (fromUser != null)
-			alarmResponse = AlarmResponse.of(restaurant, fromUser, savedAlarm);
-		else
-			alarmResponse = AlarmResponse.of(restaurant, savedAlarm);
+		final AlarmResponse alarmResponse = AlarmResponse.of(restaurant, fromUser, savedAlarm);
 		template.convertAndSend("/sub/" + toUser.getId(), alarmResponse);
 	}
 

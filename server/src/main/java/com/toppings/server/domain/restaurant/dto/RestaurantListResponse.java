@@ -45,6 +45,8 @@ public class RestaurantListResponse {
 	// 작성자
 	private String writer;
 
+	private String country;
+
 	private boolean isLike;
 
 	private Long filterLikeCount;

@@ -89,8 +89,8 @@ public class QueryDslRestaurantRepositoryImpl implements QueryDslRestaurantRepos
 	private QBean<RestaurantListResponse> getFields() {
 		return Projections.fields(RestaurantListResponse.class, restaurant.id, restaurant.name, restaurant.address,
 			restaurant.latitude, restaurant.longitude, restaurant.description, restaurant.type,
-			restaurant.thumbnail, restaurant.likeCount, restaurant.user.name.as("writer"), restaurant.createDate,
-			restaurant.publicYn);
+			restaurant.thumbnail, restaurant.likeCount, restaurant.user.name.as("writer"), restaurant.user.country,
+			restaurant.createDate, restaurant.publicYn);
 	}
 
 	private BooleanExpression inIds(List<Long> ids) {

@@ -77,8 +77,8 @@ public class ReviewService {
 		reviewRepository.save(review);
 		reviewAttachRepository.saveAll(images);
 
-		final AlarmRequest alarmRequest = AlarmRequest.of(user, restaurant, AlarmType.Review, review.getDescription());
-		alarmService.registerAndSendRestaurantAlarm(alarmRequest);
+		final AlarmRequest alarmRequest = AlarmRequest.of(restaurant, AlarmType.Review, review.getDescription());
+		alarmService.registerRestaurantAlarm(alarmRequest, user, restaurant.getUser());
 
 		return review.getId();
 	}
@@ -290,8 +290,8 @@ public class ReviewService {
 
 		if (!pubRequest.getIsPub()) {
 			final AlarmRequest alarmRequest
-				= AlarmRequest.of(null, review, AlarmType.Reject, pubRequest.getCause());
-			alarmService.registerAndSendReviewAlarm(alarmRequest);
+				= AlarmRequest.of(review, AlarmType.Reject, pubRequest.getCause());
+			alarmService.registerReviewAlarm(alarmRequest, null, review.getUser());
 		}
 
 		return reviewId;

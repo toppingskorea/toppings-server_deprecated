@@ -49,33 +49,39 @@ public class AlarmService {
 		음식점 알람 저장 및 전송
 	 */
 	@Transactional
-	public void registerAndSendRestaurantAlarm(AlarmRequest alarmRequest) {
+	public void registerRestaurantAlarm(
+		AlarmRequest alarmRequest,
+		User fromUser,
+		User toUser
+	) {
 		// TODO: Alarm 중복 등록 방지
 		final Restaurant restaurant = alarmRequest.getRestaurant();
-		final User toUser = restaurant.getUser();
-		final User fromUser = alarmRequest.getFromUser();
-
 		final Alarm alarm = Alarm.of(fromUser, restaurant, alarmRequest.getContent(), alarmRequest.getType());
 		final Alarm savedAlarm = alarmRepository.save(alarm);
 
 		final AlarmResponse alarmResponse = AlarmResponse.of(restaurant, fromUser, savedAlarm);
-		template.convertAndSend("/sub/" + toUser.getId(), alarmResponse);
+		sendAlarm(toUser, alarmResponse);
 	}
 
-	/*
-		리뷰 알람 저장 및 전송
-	 */
 	@Transactional
-	public void registerAndSendReviewAlarm(AlarmRequest alarmRequest) {
+	public void registerReviewAlarm(
+		AlarmRequest alarmRequest,
+		User fromUser,
+		User toUser
+	) {
 		// TODO: Alarm 중복 등록 방지
 		final Review review = alarmRequest.getReview();
-		final User toUser = review.getUser();
-		final User fromUser = alarmRequest.getFromUser();
-
 		final Alarm alarm = Alarm.of(fromUser, review, alarmRequest.getContent(), alarmRequest.getType());
 		final Alarm savedAlarm = alarmRepository.save(alarm);
 
 		final AlarmResponse alarmResponse = AlarmResponse.of(review, fromUser, savedAlarm);
+		sendAlarm(toUser, alarmResponse);
+	}
+
+	private void sendAlarm(
+		User toUser,
+		AlarmResponse alarmResponse
+	) {
 		template.convertAndSend("/sub/" + toUser.getId(), alarmResponse);
 	}
 

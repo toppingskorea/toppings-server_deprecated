@@ -384,8 +384,8 @@ public class RestaurantService {
 
 		if (!pubRequest.getIsPub()) {
 			final AlarmRequest alarmRequest
-				= AlarmRequest.of(null, restaurant, AlarmType.Reject, pubRequest.getCause());
-			alarmService.registerAndSendRestaurantAlarm(alarmRequest);
+				= AlarmRequest.of(restaurant, AlarmType.Reject, pubRequest.getCause());
+			alarmService.registerRestaurantAlarm(alarmRequest, null, restaurant.getUser());
 		}
 
 		return restaurantId;

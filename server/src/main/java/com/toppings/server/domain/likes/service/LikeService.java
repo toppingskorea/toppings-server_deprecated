@@ -49,8 +49,8 @@ public class LikeService {
 		}
 		restaurant.upLikeCount();
 
-		final AlarmRequest alarmRequest = AlarmRequest.of(user, restaurant, AlarmType.Like);
-		alarmService.registerAndSendRestaurantAlarm(alarmRequest);
+		final AlarmRequest alarmRequest = AlarmRequest.of(restaurant, AlarmType.Like);
+		alarmService.registerRestaurantAlarm(alarmRequest, user, restaurant.getUser());
 
 		return StringReturnMessage.REGISTRATION_SUCCESS.getMessage();
 	}

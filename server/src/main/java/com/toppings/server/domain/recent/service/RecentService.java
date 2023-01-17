@@ -3,6 +3,8 @@ package com.toppings.server.domain.recent.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,11 +65,12 @@ public class RecentService {
 	/**
 	 * 최근 검색어 목록 조회
 	 */
-	public List<RecentResponse> findAll(
+	public Page<RecentResponse> findAll(
 		RecentType type,
-		Long userId
+		Long userId,
+		Pageable pageable
 	) {
-		return recentRepository.findRecents(type, userId);
+		return recentRepository.findRecents(type, userId, pageable);
 	}
 
 	/**

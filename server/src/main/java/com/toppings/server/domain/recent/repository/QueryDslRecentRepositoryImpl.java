@@ -1,22 +1,21 @@
 package com.toppings.server.domain.recent.repository;
 
 import static com.toppings.server.domain.recent.entity.QRecent.*;
-import static org.springframework.util.StringUtils.*;
 
 import java.util.List;
-import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.toppings.common.dto.PageWrapper;
 import com.toppings.server.domain.recent.constant.RecentType;
-import com.toppings.server.domain.recent.dto.RecentRequest;
 import com.toppings.server.domain.recent.dto.RecentResponse;
-import com.toppings.server.domain.recent.entity.Recent;
-import com.toppings.server.domain.user.entity.User;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,17 +27,28 @@ public class QueryDslRecentRepositoryImpl implements QueryDslRecentRepository {
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	public List<RecentResponse> findRecents(
+	public Page<RecentResponse> findRecents(
 		RecentType type,
-		Long id
+		Long id,
+		Pageable pageable
 	) {
-		return queryFactory.select(
+		List<RecentResponse> recentResponses = queryFactory.select(
 			Projections.fields(RecentResponse.class, recent.id, recent.keyword, recent.content, recent.type,
 				recent.category, recent.restaurantId))
 			.from(recent)
 			.where(eqType(type), eqUserId(id))
+			.offset(pageable.getOffset())
+			.limit(pageable.getPageSize())
 			.orderBy(recent.id.desc())
 			.fetch();
+
+		Long totalCount = queryFactory.select(Wildcard.count)
+			.from(recent)
+			.where(eqType(type), eqUserId(id))
+			.fetch()
+			.get(0);
+
+		return new PageWrapper<>(recentResponses, pageable.getPageNumber(), pageable.getPageSize(), totalCount);
 	}
 
 	private BooleanExpression eqType(RecentType type) {

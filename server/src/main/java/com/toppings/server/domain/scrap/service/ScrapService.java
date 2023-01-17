@@ -42,7 +42,7 @@ public class ScrapService {
 		restaurant.upScrapCount();
 
 		final AlarmRequest alarmRequest = AlarmRequest.of(user, restaurant, AlarmType.Scrap);
-		alarmService.registerAndSend(alarmRequest);
+		alarmService.registerAndSendRestaurantAlarm(alarmRequest);
 
 		return scrap.getId();
 	}

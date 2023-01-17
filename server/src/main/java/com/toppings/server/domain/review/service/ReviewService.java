@@ -8,10 +8,13 @@ import java.util.stream.Collectors;
 
 import javax.xml.bind.DatatypeConverter;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.toppings.common.constants.ResponseCode;
+import com.toppings.common.dto.PubRequest;
 import com.toppings.common.exception.GeneralException;
 import com.toppings.server.domain.notification.constant.AlarmType;
 import com.toppings.server.domain.notification.dto.AlarmRequest;
@@ -75,7 +78,7 @@ public class ReviewService {
 		reviewAttachRepository.saveAll(images);
 
 		final AlarmRequest alarmRequest = AlarmRequest.of(user, restaurant, AlarmType.Like, review.getDescription());
-		alarmService.registerAndSend(alarmRequest);
+		alarmService.registerAndSendRestaurantAlarm(alarmRequest);
 
 		return review.getId();
 	}
@@ -164,8 +167,8 @@ public class ReviewService {
 	}
 
 	private Review getReviewById(Long reviewId) {
-		return reviewRepository.findById(reviewId)
-			.orElseThrow(() -> new GeneralException(ResponseCode.BAD_REQUEST));
+		return reviewRepository.findReviewByIdAndPublicYnNot(reviewId, "N")
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_FOUND));
 	}
 
 	private boolean verifyReviewAndUser(
@@ -209,12 +212,67 @@ public class ReviewService {
 		Long userId
 	) {
 		final Review review = getReviewById(reviewId);
-		final ReviewResponse reviewResponse = ReviewResponse.entityToDto(review, review.getUser());
 
 		// TODO: Refactoring Pick
-		reviewResponse.setImages(review.getImages().stream().map(ReviewAttach::getImage).collect(Collectors.toList()));
-		reviewResponse.setIsMine(review.getUser().getId().equals(userId));
-		reviewResponse.setHabits(Arrays.asList(review.getUser().getHabitContents().split(",")));
+		final User user = review.getUser();
+		final ReviewResponse reviewResponse = ReviewResponse.entityToDto(review, user);
+		reviewResponse.setImages(getReviewImages(review));
+		reviewResponse.setIsMine(user.getId().equals(userId));
+		reviewResponse.setHabits(getUserHabits(user));
 		return reviewResponse;
+	}
+
+	/**
+	 * 리뷰 상세 조회 (관리자용)
+	 */
+	public ReviewResponse findOneForAdmin(Long reviewId) {
+		final Review review = getReviewByIdForAdmin(reviewId);
+
+		final User user = review.getUser();
+		final ReviewResponse reviewResponse = ReviewResponse.entityToDto(review, user);
+		reviewResponse.setImages(getReviewImages(review));
+		reviewResponse.setHabits(getUserHabits(user));
+
+		return reviewResponse;
+	}
+
+	private List<String> getReviewImages(Review review) {
+		return review.getImages().stream().map(ReviewAttach::getImage).collect(Collectors.toList());
+	}
+
+	private List<String> getUserHabits(User user) {
+		return Arrays.asList(user.getHabitContents().split(","));
+	}
+
+	/**
+	 * 리뷰 목록 조회 (관리자용)
+	 */
+	public Page<ReviewListResponse> findAllForAdmin(Pageable pageable) {
+		return reviewRepository.findAllForAdmin(pageable);
+	}
+
+	/**
+	 * 리뷰 공개여부 수정 (관리자용)
+	 */
+	@Transactional
+	public Long modifyPub(
+		PubRequest pubRequest,
+		Long reviewId
+	) {
+		final Review review = getReviewByIdForAdmin(reviewId);
+		review.updatePublicYn(pubRequest.getIsPub());
+
+		if (!pubRequest.getIsPub()) {
+			final AlarmRequest alarmRequest
+				= AlarmRequest.of(null, review, AlarmType.Reject, pubRequest.getCause());
+			alarmService.registerAndSendReviewAlarm(alarmRequest);
+		}
+
+		return reviewId;
+	}
+
+	private Review getReviewByIdForAdmin(Long reviewId) {
+		return reviewRepository.findById(reviewId)
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_FOUND));
 	}
 }

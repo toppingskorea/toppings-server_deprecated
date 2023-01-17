@@ -13,6 +13,7 @@ import com.toppings.server.domain.notification.dto.AlarmResponse;
 import com.toppings.server.domain.notification.entity.Alarm;
 import com.toppings.server.domain.notification.repository.AlarmRepository;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
+import com.toppings.server.domain.review.entity.Review;
 import com.toppings.server.domain.user.entity.User;
 import com.toppings.server.domain.user.repository.UserRepository;
 
@@ -42,10 +43,11 @@ public class AlarmService {
 	}
 
 	/*
-		알람 저장 및 전송
+		음식점 알람 저장 및 전송
 	 */
 	@Transactional
-	public void registerAndSend(AlarmRequest alarmRequest) {
+	public void registerAndSendRestaurantAlarm(AlarmRequest alarmRequest) {
+		// TODO: Alarm 중복 등록 방지
 		final Restaurant restaurant = alarmRequest.getRestaurant();
 		final User toUser = restaurant.getUser();
 		final User fromUser = alarmRequest.getFromUser();
@@ -54,6 +56,23 @@ public class AlarmService {
 		final Alarm savedAlarm = alarmRepository.save(alarm);
 
 		final AlarmResponse alarmResponse = AlarmResponse.of(restaurant, fromUser, savedAlarm);
+		template.convertAndSend("/sub/" + toUser.getId(), alarmResponse);
+	}
+
+	/*
+		리뷰 알람 저장 및 전송
+	 */
+	@Transactional
+	public void registerAndSendReviewAlarm(AlarmRequest alarmRequest) {
+		// TODO: Alarm 중복 등록 방지
+		final Review review = alarmRequest.getReview();
+		final User toUser = review.getUser();
+		final User fromUser = alarmRequest.getFromUser();
+
+		final Alarm alarm = Alarm.of(fromUser, review, alarmRequest.getContent(), alarmRequest.getType());
+		final Alarm savedAlarm = alarmRepository.save(alarm);
+
+		final AlarmResponse alarmResponse = AlarmResponse.of(review, fromUser, savedAlarm);
 		template.convertAndSend("/sub/" + toUser.getId(), alarmResponse);
 	}
 

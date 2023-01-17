@@ -68,6 +68,9 @@ public class Review extends BaseEntity {
 	@Column(name = "review_thumbnail", columnDefinition = "longtext")
 	private String thumbnail;
 
+	@Column(name = "public_yn", columnDefinition = "varchar(1) default 'P'")
+	private String publicYn;
+
 	// relation
 	public void updateUserAndRestaurant(
 		User user,
@@ -81,5 +84,9 @@ public class Review extends BaseEntity {
 	public void updateThumbnail(String image) {
 		if (!image.equals(this.thumbnail))
 			this.thumbnail = image;
+	}
+
+	public void updatePublicYn(boolean isPub) {
+		this.publicYn = isPub ? "Y" : "N";
 	}
 }

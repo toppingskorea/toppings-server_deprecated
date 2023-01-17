@@ -2,6 +2,7 @@ package com.toppings.server.domain.notification.dto;
 
 import com.toppings.server.domain.notification.constant.AlarmType;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
+import com.toppings.server.domain.review.entity.Review;
 import com.toppings.server.domain.user.entity.User;
 
 import lombok.AllArgsConstructor;
@@ -19,6 +20,8 @@ public class AlarmRequest {
 
 	private Restaurant restaurant;
 
+	private Review review;
+
 	private AlarmType type;
 
 	private String content;
@@ -32,6 +35,20 @@ public class AlarmRequest {
 		return AlarmRequest.builder()
 			.fromUser(fromUser)
 			.restaurant(restaurant)
+			.type(type)
+			.content(content)
+			.build();
+	}
+
+	public static AlarmRequest of(
+		User fromUser,
+		Review review,
+		AlarmType type,
+		String content
+	) {
+		return AlarmRequest.builder()
+			.fromUser(fromUser)
+			.review(review)
 			.type(type)
 			.content(content)
 			.build();

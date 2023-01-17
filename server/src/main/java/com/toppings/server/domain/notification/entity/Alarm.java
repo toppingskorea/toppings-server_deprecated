@@ -17,6 +17,7 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import com.toppings.server.domain.notification.constant.AlarmType;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
+import com.toppings.server.domain.review.entity.Review;
 import com.toppings.server.domain.user.entity.User;
 import com.toppings.server.domain_global.entity.BaseEntity;
 
@@ -59,6 +60,10 @@ public class Alarm extends BaseEntity {
 	@JoinColumn(name = "restaurant_id")
 	private Restaurant restaurant;
 
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "review_id")
+	private Review review;
+
 	public static Alarm of(
 		User user,
 		Restaurant restaurant,
@@ -70,6 +75,20 @@ public class Alarm extends BaseEntity {
 			.content(content)
 			.user(user)
 			.restaurant(restaurant)
+			.build();
+	}
+
+	public static Alarm of(
+		User user,
+		Review review,
+		String content,
+		AlarmType type
+	) {
+		return Alarm.builder()
+			.alarmType(type)
+			.content(content)
+			.user(user)
+			.review(review)
 			.build();
 	}
 }

@@ -43,6 +43,8 @@ public class ReviewResponse {
 
 	private List<String> habits;
 
+	private String publicYn;
+
 	public static ReviewResponse entityToDto(
 		Review review,
 		User user
@@ -53,6 +55,7 @@ public class ReviewResponse {
 			.modifiedAt(review.getUpdateDate())
 			.name(user.getName())
 			.country(user.getCountry())
+			.publicYn(review.getPublicYn())
 			.build();
 	}
 
@@ -61,6 +64,7 @@ public class ReviewResponse {
 			.id(review.getId())
 			.description(review.getDescription())
 			.modifiedAt(review.getUpdateDate())
+			.publicYn(review.getPublicYn())
 			.build();
 	}
 }

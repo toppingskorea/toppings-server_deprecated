@@ -42,4 +42,6 @@ public class ReviewListResponse {
 	private String habitContents;
 
 	private List<String> habits;
+
+	private String publicYn;
 }

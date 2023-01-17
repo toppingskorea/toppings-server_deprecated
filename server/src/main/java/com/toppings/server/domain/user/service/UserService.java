@@ -73,7 +73,7 @@ public class UserService {
 	}
 
 	private String getHabitContents(List<UserHabitRequest> habitRequests) {
-		return habitRequests != null ? habitRequests.stream().map(en -> en.getContent().name())
+		return habitRequests != null ? habitRequests.stream().map(en -> en.getContent().getName())
 			.collect(Collectors.joining(",", "", "")) : null;
 	}
 

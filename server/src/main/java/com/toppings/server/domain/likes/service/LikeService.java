@@ -42,7 +42,7 @@ public class LikeService {
 		restaurant.upLikeCount();
 
 		final AlarmRequest alarmRequest = AlarmRequest.of(user, restaurant, AlarmType.Like);
-		alarmService.registerAndSend(alarmRequest);
+		alarmService.registerAndSendRestaurantAlarm(alarmRequest);
 
 		return like.getId();
 	}

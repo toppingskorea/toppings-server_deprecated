@@ -360,9 +360,7 @@ public class RestaurantService {
 		Long totalCount,
 		List<LikesPercent> habitLikePercents
 	) {
-		habitLikePercents.forEach(habitLikes -> {
-			habitLikes.calculatePercent(totalCount);
-		});
+		habitLikePercents.forEach(habitLikes -> habitLikes.calculatePercent(totalCount));
 	}
 
 	private void setCountryLikesPercent(

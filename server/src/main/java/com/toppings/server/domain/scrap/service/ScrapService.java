@@ -72,7 +72,7 @@ public class ScrapService {
 		final Restaurant restaurant = getRestaurantById(restaurantId);
 
 		final Scrap scrap = scrapRepository.findScrapByRestaurantAndUser(restaurant, getUser(userId))
-			.orElseThrow(() -> new GeneralException(ResponseCode.BAD_REQUEST));
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_FOUND));
 
 		scrapRepository.deleteById(scrap.getId());
 		restaurant.downScrapCount();

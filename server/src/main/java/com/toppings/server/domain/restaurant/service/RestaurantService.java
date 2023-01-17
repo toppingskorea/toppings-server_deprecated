@@ -121,30 +121,56 @@ public class RestaurantService {
 		if (verifyRestaurantAndUser(userId, restaurant))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
-		final List<RestaurantAttach> images = modifyRestaurantAttach(request, restaurant);
-
-		restaurant.updateRestaurantInfo(request, images.get(0).getImage());
+		modifyRestaurantAttach(request, restaurant);
 		restaurant.updateMapInfo(request);
 		return restaurant.getId();
 	}
 
-	private List<RestaurantAttach> modifyRestaurantAttach(
+	private void modifyRestaurantAttach(
 		RestaurantModifyRequest request,
 		Restaurant restaurant
 	) {
 		if (isNotNullImage(request.getImages())) {
 			// 기존 이미지 제거
-			restaurantAttachRepository.deleteAllByIdInBatch(
-				restaurant.getImages().stream().map(RestaurantAttach::getId).collect(Collectors.toList()));
+			removeRestaurantImages(request, restaurant);
 
 			// 신규 이미지 등록
-			final List<RestaurantAttach> images
-				= getRestaurantAttaches(request.getImages(), request.getCode(), restaurant);
+			final List<String> originImages = getOriginImages(request);
+			final List<String> newImages = getNewImages(request);
+			final List<RestaurantAttach> images = getRestaurantAttaches(newImages, request.getCode(), restaurant);
+			restaurant.updateRestaurantInfo(request,
+				originImages.size() > 0 ? originImages.get(0) : images.get(0).getImage());
+
 			restaurantAttachRepository.saveAll(images);
-			return images;
 		} else {
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 		}
+	}
+
+	private void removeRestaurantImages(
+		RestaurantModifyRequest request,
+		Restaurant restaurant
+	) {
+		restaurantAttachRepository.deleteAllByIdInBatch(
+			restaurant.getImages()
+				.stream()
+				.filter(en -> !request.getImages().contains(en.getImage()))
+				.map(RestaurantAttach::getId)
+				.collect(Collectors.toList()));
+	}
+
+	private List<String> getNewImages(RestaurantModifyRequest request) {
+		return request.getImages()
+			.stream()
+			.filter(image -> !image.contains("https:"))
+			.collect(Collectors.toList());
+	}
+
+	private List<String> getOriginImages(RestaurantModifyRequest request) {
+		return request.getImages()
+			.stream()
+			.filter(image -> image.contains("https:"))
+			.collect(Collectors.toList());
 	}
 
 	private boolean isNotNullImage(List<String> images) {
@@ -334,7 +360,9 @@ public class RestaurantService {
 		Long totalCount,
 		List<LikesPercent> habitLikePercents
 	) {
-		habitLikePercents.forEach(habitLikes -> habitLikes.calculatePercent(totalCount));
+		habitLikePercents.forEach(habitLikes -> {
+			habitLikes.calculatePercent(totalCount);
+		});
 	}
 
 	private void setCountryLikesPercent(

@@ -17,7 +17,7 @@ public class LikesPercent {
 
 	private String country;
 
-	private Habit habit;
+	private String habit;
 
 	private Long count;
 

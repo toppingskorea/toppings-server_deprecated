@@ -1,6 +1,7 @@
 package com.toppings.server.domain.user.entity;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -19,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.toppings.server.domain.user.constant.Habit;
 import com.toppings.server.domain.user.constant.HabitTitle;
+import com.toppings.server.domain.user.constant.converter.HabitConverter;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -45,7 +47,8 @@ public class UserHabit {
 	@Column(name = "user_habit_title", columnDefinition = "varchar(100)")
 	private HabitTitle title;
 
-	@Enumerated(EnumType.STRING)
+	// @Enumerated(EnumType.STRING)
+	@Convert(converter = HabitConverter.class)
 	@Column(name = "user_habit_content", columnDefinition = "varchar(100)")
 	private Habit content;
 
@@ -55,4 +58,8 @@ public class UserHabit {
 	@ToString.Exclude
 	@JsonIgnore
 	private User user;
+
+	public static Habit from(String value) {
+		return Habit.valueOf(value.toUpperCase());
+	}
 }

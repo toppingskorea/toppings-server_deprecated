@@ -1,6 +1,5 @@
 package com.toppings.server.domain.review.repository;
 
-import static com.toppings.server.domain.restaurant.entity.QRestaurant.*;
 import static com.toppings.server.domain.review.entity.QReview.*;
 
 import java.util.List;
@@ -30,11 +29,12 @@ public class QueryDslReviewRepositoryImpl implements QueryDslReviewRepository {
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	public List<ReviewListResponse> findReviewByRestaurantId(
+	public Page<ReviewListResponse> findReviewByRestaurantId(
 		Long restaurantId,
-		Long userId
+		Long userId,
+		Pageable pageable
 	) {
-		return queryFactory.select(
+		List<ReviewListResponse> reviewListResponses = queryFactory.select(
 			Projections.fields(ReviewListResponse.class, review.id, review.description, review.thumbnail,
 				review.updateDate.as("modifiedAt"), review.user.name, review.user.country,
 				getIsMine(userId).as("isMine"), review.user.habitContents, review.publicYn
@@ -42,31 +42,62 @@ public class QueryDslReviewRepositoryImpl implements QueryDslReviewRepository {
 			.from(review)
 			.innerJoin(review.user)
 			.where(review.restaurant.id.eq(restaurantId), notEqPublicYn())
+			.offset(pageable.getOffset())
+			.limit(pageable.getPageSize())
 			.orderBy(review.updateDate.desc())
 			.fetch();
+
+		Long totalCount = queryFactory.select(Wildcard.count)
+			.from(review)
+			.where(review.restaurant.id.eq(restaurantId), notEqPublicYn())
+			.fetch()
+			.get(0);
+
+		return new PageWrapper<>(reviewListResponses, pageable.getPageNumber(), pageable.getPageSize(), totalCount);
 	}
 
 	@Override
-	public List<RestaurantListResponse> findRestaurantByUserForReview(Long userId) {
+	public Page<RestaurantListResponse> findRestaurantByUserForReview(
+		Long userId,
+		Pageable pageable
+	) {
+		List<RestaurantListResponse> restaurantListResponses = queryFactory.select(getFields())
+			.distinct()
+			.from(review)
+			.leftJoin(review.restaurant)
+			.leftJoin(review.user)
+			.where(eqUserId(userId), notEqPublicYn())
+			.offset(pageable.getOffset())
+			.limit(pageable.getPageSize())
+			.orderBy(review.restaurant.likeCount.desc(), review.restaurant.id.desc())
+			.fetch();
+
+		Long totalCount = queryFactory.select(Wildcard.count)
+			.distinct()
+			.from(review)
+			.leftJoin(review.restaurant)
+			.where(eqUserId(userId), notEqPublicYn())
+			.fetch()
+			.get(0);
+
+		return new PageWrapper<>(restaurantListResponses, pageable.getPageNumber(), pageable.getPageSize(), totalCount);
+	}
+
+	@Override
+	public Integer findRestaurantCountForReview(Long userId) {
 		return queryFactory.select(getFields())
 			.distinct()
 			.from(review)
 			.leftJoin(review.restaurant)
 			.leftJoin(review.user)
-			.where(eqUserId(userId))
+			.where(eqUserId(userId), notEqPublicYn())
 			.orderBy(review.restaurant.likeCount.desc())
-			.fetch();
+			.fetch().size();
 	}
 
 	@Override
 	public Page<ReviewListResponse> findAllForAdmin(Pageable pageable) {
-		List<ReviewListResponse> reviewListResponses = getReviewListResponses(pageable);
-		Long totalCount = queryFactory.select(Wildcard.count).from(review).fetch().get(0);
-		return new PageWrapper<>(reviewListResponses, pageable.getPageNumber(), pageable.getPageSize(), totalCount);
-	}
-
-	private List<ReviewListResponse> getReviewListResponses(Pageable pageable) {
-		return queryFactory.select(
+		List<ReviewListResponse> reviewListResponses = queryFactory.select(
 			Projections.fields(ReviewListResponse.class, review.id, review.description, review.thumbnail,
 				review.updateDate.as("modifiedAt"), review.user.name, review.user.country, review.user.habitContents,
 				review.publicYn))
@@ -76,6 +107,10 @@ public class QueryDslReviewRepositoryImpl implements QueryDslReviewRepository {
 			.limit(pageable.getPageSize())
 			.orderBy(review.id.desc())
 			.fetch();
+
+		Long totalCount = queryFactory.select(Wildcard.count).from(review).fetch().get(0);
+
+		return new PageWrapper<>(reviewListResponses, pageable.getPageNumber(), pageable.getPageSize(), totalCount);
 	}
 
 	private BooleanExpression eqUserId(Long userId) {

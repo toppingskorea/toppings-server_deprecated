@@ -59,13 +59,26 @@ public class QueryDslRestaurantRepositoryImpl implements QueryDslRestaurantRepos
 	}
 
 	@Override
-	public List<RestaurantListResponse> findRestaurantByUser(Long userId) {
-		return queryFactory.select(getFields())
+	public Page<RestaurantListResponse> findRestaurantByUser(
+		Long userId,
+		Pageable pageable
+	) {
+		List<RestaurantListResponse> restaurantListResponses = queryFactory.select(getFields())
 			.from(restaurant)
 			.leftJoin(restaurant.user)
 			.where(eqUserId(userId), notEqPublicYn())
-			.orderBy(restaurant.likeCount.desc())
+			.offset(pageable.getOffset())
+			.limit(pageable.getPageSize())
+			.orderBy(restaurant.likeCount.desc(), restaurant.id.desc())
 			.fetch();
+
+		Long totalCount = queryFactory.select(Wildcard.count)
+			.from(restaurant)
+			.where(eqUserId(userId), notEqPublicYn())
+			.fetch()
+			.get(0);
+
+		return new PageWrapper<>(restaurantListResponses, pageable.getPageNumber(), pageable.getPageSize(), totalCount);
 	}
 
 	@Override

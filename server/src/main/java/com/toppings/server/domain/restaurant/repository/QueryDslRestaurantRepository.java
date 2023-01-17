@@ -14,7 +14,10 @@ public interface QueryDslRestaurantRepository {
 
 	List<RestaurantListResponse> findAllByRestaurantName(String name);
 
-	List<RestaurantListResponse> findRestaurantByUser(Long userId);
+	Page<RestaurantListResponse> findRestaurantByUser(
+		Long userId,
+		Pageable pageable
+	);
 
 	Page<RestaurantListResponse> findAllForAdmin(Pageable pageable);
 }

@@ -1,7 +1,7 @@
 package com.toppings.server.domain.notification.service;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,9 +33,12 @@ public class AlarmService {
 	/**
 	 * 최근 알람 조회 (가입 이후 모든 알림이 날짜 최신순으로 정렬 되어서 보여지는 것)
 	 */
-	public List<AlarmResponse> findAlarms(Long userId) {
+	public Page<AlarmResponse> findAlarms(
+		Long userId,
+		Pageable pageable
+	) {
 		final User user = getUserById(userId);
-		return alarmRepository.findAlarms(user.getId());
+		return alarmRepository.findAlarms(user.getId(), pageable);
 	}
 
 	private User getUserById(Long id) {

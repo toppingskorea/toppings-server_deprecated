@@ -77,7 +77,7 @@ public class ReviewService {
 		reviewRepository.save(review);
 		reviewAttachRepository.saveAll(images);
 
-		final AlarmRequest alarmRequest = AlarmRequest.of(user, restaurant, AlarmType.Like, review.getDescription());
+		final AlarmRequest alarmRequest = AlarmRequest.of(user, restaurant, AlarmType.Review, review.getDescription());
 		alarmService.registerAndSendRestaurantAlarm(alarmRequest);
 
 		return review.getId();
@@ -119,30 +119,55 @@ public class ReviewService {
 		if (verifyReviewAndUser(review, userId))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
-		final List<ReviewAttach> images = modifyReviewAttach(request, review);
-
-		// TODO: Refactoring Pick
-		ReviewModifyRequest.modifyReviewInfo(review, request, images.get(0).getImage());
+		modifyReviewAttach(request, review);
 		return review.getId();
 	}
 
-	private List<ReviewAttach> modifyReviewAttach(
+	private void modifyReviewAttach(
 		ReviewModifyRequest request,
 		Review review
 	) {
 		if (isNotNullImage(request.getImages())) {
 			// 기존 이미지 제거
-			reviewAttachRepository.deleteAllByIdInBatch(
-				review.getImages().stream().map(ReviewAttach::getId).collect(Collectors.toList()));
+			removeReviewImages(request, review);
 
 			// 신규 이미지 등록
-			final List<ReviewAttach> reviewAttaches
-				= getReviewAttaches(request.getImages(), review.getRestaurant().getId(), review);
-			reviewAttachRepository.saveAll(reviewAttaches);
-			return reviewAttaches;
+			final List<String> originImages = getOriginImages(request);
+			final List<String> newImages = getNewImages(request);
+			final List<ReviewAttach> images = getReviewAttaches(newImages, review.getRestaurant().getId(), review);
+			ReviewModifyRequest.modifyReviewInfo(review, request,
+				originImages.size() > 0 ? originImages.get(0) : images.get(0).getImage());
+
+			reviewAttachRepository.saveAll(images);
 		} else {
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 		}
+	}
+
+	private void removeReviewImages(
+		ReviewModifyRequest request,
+		Review review
+	) {
+		reviewAttachRepository.deleteAllByIdInBatch(
+			review.getImages()
+				.stream()
+				.filter(en -> !request.getImages().contains(en.getImage()))
+				.map(ReviewAttach::getId)
+				.collect(Collectors.toList()));
+	}
+
+	private List<String> getNewImages(ReviewModifyRequest request) {
+		return request.getImages()
+			.stream()
+			.filter(image -> !image.contains("https:"))
+			.collect(Collectors.toList());
+	}
+
+	private List<String> getOriginImages(ReviewModifyRequest request) {
+		return request.getImages()
+			.stream()
+			.filter(image -> image.contains("https:"))
+			.collect(Collectors.toList());
 	}
 
 	private boolean isNotNullImage(List<String> images) {
@@ -188,14 +213,15 @@ public class ReviewService {
 	/**
 	 * 음석점 댓글 목록 조회
 	 */
-	public List<ReviewListResponse> findAll(
+	public Page<ReviewListResponse> findAll(
 		Long restaurantId,
-		Long userId
+		Long userId,
+		Pageable pageable
 	) {
 		final Restaurant restaurant = getRestaurantById(restaurantId);
-		final List<ReviewListResponse> reviewListResponses
-			= reviewRepository.findReviewByRestaurantId(restaurant.getId(), userId);
-		reviewListResponses.forEach(en -> {
+		final Page<ReviewListResponse> reviewListResponses
+			= reviewRepository.findReviewByRestaurantId(restaurant.getId(), userId, pageable);
+		reviewListResponses.getContent().forEach(en -> {
 			en.setHabits(en.getHabitContents() != null ?
 				Arrays.asList(en.getHabitContents().split(",")) :
 				Collections.emptyList());

@@ -2,6 +2,8 @@ package com.toppings.server.domain.restaurant.controller;
 
 import javax.validation.Valid;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.toppings.common.dto.ApiDataResponse;
+import com.toppings.common.dto.PageResultResponse;
 import com.toppings.server.domain.likes.service.LikeService;
 import com.toppings.server.domain.restaurant.dto.RestaurantFilterSearchRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantMapSearchRequest;
@@ -140,9 +143,11 @@ public class RestaurantController {
 	@GetMapping("/{restaurantId}/review")
 	public ResponseEntity<?> getReviews(
 		@PathVariable Long restaurantId,
-		@AuthenticationPrincipal Long userId
+		@AuthenticationPrincipal Long userId,
+		@PageableDefault Pageable pageable
 	) {
-		return ResponseEntity.ok(ApiDataResponse.of(reviewService.findAll(restaurantId, userId)));
+		return ResponseEntity.ok(
+			ApiDataResponse.of(PageResultResponse.of(reviewService.findAll(restaurantId, userId, pageable))));
 	}
 
 	// ---- like

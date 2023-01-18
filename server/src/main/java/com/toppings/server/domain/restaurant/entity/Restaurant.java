@@ -1,5 +1,7 @@
 package com.toppings.server.domain.restaurant.entity;
 
+import static org.springframework.util.StringUtils.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -88,6 +90,9 @@ public class Restaurant extends BaseEntity {
 	@Column(name = "public_yn", columnDefinition = "varchar(1) default 'P'")
 	private String publicYn;
 
+	@Column(name = "reject_cause")
+	private String cause;
+
 	// 사진 경로랑 주소
 	@OneToMany(mappedBy = "restaurant", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	private List<RestaurantAttach> images = new ArrayList<>();
@@ -128,6 +133,13 @@ public class Restaurant extends BaseEntity {
 
 	public void updatePublicYn(boolean isPub) {
 		this.publicYn = isPub ? "Y" : "N";
+	}
+
+	public void updateCause(String cause) {
+		if (hasText(cause))
+			this.cause = cause;
+		else
+			this.cause = null;
 	}
 
 	public void updateRestaurantInfo(

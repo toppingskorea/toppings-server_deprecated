@@ -8,12 +8,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.toppings.common.constants.ResponseCode;
 import com.toppings.common.exception.GeneralException;
+import com.toppings.server.domain.notification.constant.AlarmType;
 import com.toppings.server.domain.notification.dto.AlarmRequest;
 import com.toppings.server.domain.notification.dto.AlarmResponse;
 import com.toppings.server.domain.notification.entity.Alarm;
 import com.toppings.server.domain.notification.repository.AlarmRepository;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
+import com.toppings.server.domain.restaurant.repository.RestaurantRepository;
 import com.toppings.server.domain.review.entity.Review;
+import com.toppings.server.domain.review.repository.ReviewRepository;
 import com.toppings.server.domain.user.entity.User;
 import com.toppings.server.domain.user.repository.UserRepository;
 
@@ -27,6 +30,10 @@ public class AlarmService {
 	private final AlarmRepository alarmRepository;
 
 	private final UserRepository userRepository;
+
+	private final ReviewRepository reviewRepository;
+
+	private final RestaurantRepository restaurantRepository;
 
 	private final SimpMessagingTemplate template;
 
@@ -42,40 +49,90 @@ public class AlarmService {
 	}
 
 	private User getUserById(Long id) {
-		return userRepository.findById(id).orElseThrow(() -> new GeneralException(ResponseCode.BAD_REQUEST));
+		return userRepository.findById(id).orElseThrow(() -> new GeneralException(ResponseCode.NOT_FOUND));
+	}
+
+	private Review getReviewById(Long id) {
+		return reviewRepository.findReviewByIdAndPublicYnNot(id, "N")
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_FOUND));
+	}
+
+	private Restaurant getRestaurantById(Long id) {
+		return restaurantRepository.findRestaurantByIdAndPublicYnNot(id, "N")
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_FOUND));
 	}
 
 	/*
 		음식점 알람 저장 및 전송
 	 */
 	@Transactional
-	public void registerRestaurantAlarm(
-		AlarmRequest alarmRequest,
-		User fromUser,
-		User toUser
+	public Long registerAlarm(
+		Long userId,
+		AlarmRequest alarmRequest
 	) {
-		// TODO: Alarm 중복 등록 방지
-		final Restaurant restaurant = alarmRequest.getRestaurant();
-		final Alarm alarm = Alarm.of(fromUser, restaurant, alarmRequest.getContent(), alarmRequest.getType());
-		final Alarm savedAlarm = alarmRepository.save(alarm);
+		final User fromUser = getUserById(userId);
+		final AlarmType alarmType = alarmRequest.getType();
 
-		final AlarmResponse alarmResponse = AlarmResponse.of(restaurant, fromUser, savedAlarm);
+		final Alarm alarm;
+		final User toUser;
+
+		if (alarmType.equals(AlarmType.RejectReview)) {
+			final Review review = getReviewById(alarmRequest.getId());
+			toUser = review.getUser();
+			alarm = getReviewAlarm(fromUser, alarmType, toUser, review);
+		} else {
+			final Restaurant restaurant = getRestaurantById(alarmRequest.getId());
+			toUser = restaurant.getUser();
+			alarm = getRestaurantAlarm(fromUser, alarmType, toUser, restaurant, alarmRequest);
+		}
+
+		alarmRepository.save(alarm);
+		AlarmResponse alarmResponse = AlarmResponse.of(fromUser, alarm);
 		sendAlarm(toUser, alarmResponse);
+		return alarm.getId();
 	}
 
-	@Transactional
-	public void registerReviewAlarm(
-		AlarmRequest alarmRequest,
-		User fromUser,
-		User toUser
+	private Alarm getRestaurantAlarm(
+		User user,
+		AlarmType alarmType,
+		User toUser,
+		Restaurant restaurant,
+		AlarmRequest alarmRequest
 	) {
-		// TODO: Alarm 중복 등록 방지
-		final Review review = alarmRequest.getReview();
-		final Alarm alarm = Alarm.of(fromUser, review, alarmRequest.getContent(), alarmRequest.getType());
-		final Alarm savedAlarm = alarmRepository.save(alarm);
+		String content = alarmType.equals(AlarmType.RejectRestaurant)
+			? restaurant.getCause() : alarmRequest.getContent();
+		final Alarm alarm = Alarm.of(user, restaurant, content, alarmType);
+		alarm.updateCode(generateId(alarmType, user, toUser, String.valueOf(restaurant.getCode())));
+		return alarm;
+	}
 
-		final AlarmResponse alarmResponse = AlarmResponse.of(review, fromUser, savedAlarm);
-		sendAlarm(toUser, alarmResponse);
+	private Alarm getReviewAlarm(
+		User user,
+		AlarmType alarmType,
+		User toUser,
+		Review review
+	) {
+		final Alarm alarm = Alarm.of(user, review, review.getCause(), alarmType);
+		alarm.updateCode(generateId(alarmType, user, toUser, String.valueOf(review.getId())));
+		return alarm;
+	}
+
+	private String generateId(
+		AlarmType type,
+		User fromUser,
+		User toUser,
+		String id
+	) {
+		StringBuilder builder = new StringBuilder(type.name());
+		builder.append("_")
+			.append(isRejectAlarm(type) ? toUser.getUsername() : fromUser.getUsername())
+			.append("_")
+			.append(id);
+		return builder.toString();
+	}
+
+	private boolean isRejectAlarm(AlarmType type) {
+		return type.equals(AlarmType.RejectReview) || type.equals(AlarmType.RejectRestaurant);
 	}
 
 	private void sendAlarm(
@@ -83,10 +140,5 @@ public class AlarmService {
 		AlarmResponse alarmResponse
 	) {
 		template.convertAndSend("/sub/" + toUser.getId(), alarmResponse);
-	}
-
-	@Transactional
-	public void removeAlarm(Restaurant restaurant) {
-		alarmRepository.deleteBatchByRestaurant(restaurant);
 	}
 }

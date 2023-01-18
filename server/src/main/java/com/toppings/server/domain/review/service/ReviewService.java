@@ -16,9 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.toppings.common.constants.ResponseCode;
 import com.toppings.common.dto.PubRequest;
 import com.toppings.common.exception.GeneralException;
-import com.toppings.server.domain.notification.constant.AlarmType;
-import com.toppings.server.domain.notification.dto.AlarmRequest;
-import com.toppings.server.domain.notification.service.AlarmService;
+import com.toppings.server.domain.notification.repository.AlarmRepository;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
 import com.toppings.server.domain.restaurant.repository.RestaurantRepository;
 import com.toppings.server.domain.review.dto.ReviewListResponse;
@@ -50,7 +48,7 @@ public class ReviewService {
 
 	private final ReviewAttachRepository reviewAttachRepository;
 
-	private final AlarmService alarmService;
+	private final AlarmRepository alarmRepository;
 
 	private final S3Uploader s3Uploader;
 
@@ -76,9 +74,6 @@ public class ReviewService {
 		review.updateThumbnail(images.get(0).getImage());
 		reviewRepository.save(review);
 		reviewAttachRepository.saveAll(images);
-
-		final AlarmRequest alarmRequest = AlarmRequest.of(restaurant, AlarmType.Review, review.getDescription());
-		alarmService.registerRestaurantAlarm(alarmRequest, user, restaurant.getUser());
 
 		return review.getId();
 	}
@@ -187,6 +182,7 @@ public class ReviewService {
 		if (verifyReviewAndUser(review, user))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
+		alarmRepository.deleteBatchByReview(review);
 		reviewRepository.delete(review);
 		return reviewId;
 	}
@@ -287,13 +283,7 @@ public class ReviewService {
 	) {
 		final Review review = getReviewByIdForAdmin(reviewId);
 		review.updatePublicYn(pubRequest.getIsPub());
-
-		if (!pubRequest.getIsPub()) {
-			final AlarmRequest alarmRequest
-				= AlarmRequest.of(review, AlarmType.Reject, pubRequest.getCause());
-			alarmService.registerReviewAlarm(alarmRequest, null, review.getUser());
-		}
-
+		review.updateCause(pubRequest.getCause());
 		return reviewId;
 	}
 

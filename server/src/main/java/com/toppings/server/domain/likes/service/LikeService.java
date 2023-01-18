@@ -29,8 +29,6 @@ public class LikeService {
 
 	private final UserRepository userRepository;
 
-	private final AlarmService alarmService;
-
 	@Transactional
 	public String register(
 		Long restaurantId,
@@ -48,9 +46,6 @@ public class LikeService {
 			throw new GeneralException(ResponseCode.DUPLICATED_ITEM);
 		}
 		restaurant.upLikeCount();
-
-		final AlarmRequest alarmRequest = AlarmRequest.of(restaurant, AlarmType.Like);
-		alarmService.registerRestaurantAlarm(alarmRequest, user, restaurant.getUser());
 
 		return StringReturnMessage.REGISTRATION_SUCCESS.getMessage();
 	}

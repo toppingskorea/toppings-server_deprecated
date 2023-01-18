@@ -30,8 +30,8 @@ public class QueryDslAlarmRepositoryImpl implements QueryDslAlarmRepository {
 		Pageable pageable
 	) {
 		List<AlarmResponse> alarmResponses = queryFactory.select(
-			Projections.fields(AlarmResponse.class, alarm.id, alarm.user.name.as("userName"), alarm.user.country,
-				alarm.content, alarm.alarmType, alarm.restaurant.name.as("restaurantName"), alarm.restaurant.thumbnail))
+			Projections.fields(AlarmResponse.class, alarm.user.name.as("userName"), alarm.user.country, alarm.content,
+				alarm.alarmType, alarm.restaurant.name.as("restaurantName"), alarm.restaurant.thumbnail))
 			.from(alarm)
 			.leftJoin(alarm.user)
 			.leftJoin(alarm.restaurant)

@@ -18,9 +18,7 @@ import com.toppings.common.exception.GeneralException;
 import com.toppings.server.domain.likes.dto.LikesPercent;
 import com.toppings.server.domain.likes.dto.LikesPercentResponse;
 import com.toppings.server.domain.likes.repository.LikeRepository;
-import com.toppings.server.domain.notification.constant.AlarmType;
-import com.toppings.server.domain.notification.dto.AlarmRequest;
-import com.toppings.server.domain.notification.service.AlarmService;
+import com.toppings.server.domain.notification.repository.AlarmRepository;
 import com.toppings.server.domain.restaurant.dto.RestaurantFilterSearchRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantListResponse;
 import com.toppings.server.domain.restaurant.dto.RestaurantMapSearchRequest;
@@ -61,7 +59,7 @@ public class RestaurantService {
 
 	private final ReviewRepository reviewRepository;
 
-	private final AlarmService alarmService;
+	private final AlarmRepository alarmRepository;
 
 	private final S3Uploader s3Uploader;
 
@@ -218,7 +216,7 @@ public class RestaurantService {
 		reviewRepository.deleteBatchByRestaurant(restaurant);
 		likeRepository.deleteBatchByRestaurant(restaurant);
 		scrapRepository.deleteBatchByRestaurant(restaurant);
-		alarmService.removeAlarm(restaurant);
+		alarmRepository.deleteBatchByRestaurant(restaurant);
 	}
 
 	/**
@@ -381,13 +379,7 @@ public class RestaurantService {
 		final Restaurant restaurant = restaurantRepository.findById(restaurantId)
 			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_FOUND));
 		restaurant.updatePublicYn(pubRequest.getIsPub());
-
-		if (!pubRequest.getIsPub()) {
-			final AlarmRequest alarmRequest
-				= AlarmRequest.of(restaurant, AlarmType.Reject, pubRequest.getCause());
-			alarmService.registerRestaurantAlarm(alarmRequest, null, restaurant.getUser());
-		}
-
+		restaurant.updateCause(pubRequest.getCause());
 		return restaurantId;
 	}
 

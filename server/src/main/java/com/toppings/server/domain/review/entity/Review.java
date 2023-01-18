@@ -1,5 +1,7 @@
 package com.toppings.server.domain.review.entity;
 
+import static org.springframework.util.StringUtils.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,6 +73,9 @@ public class Review extends BaseEntity {
 	@Column(name = "public_yn", columnDefinition = "varchar(1) default 'P'")
 	private String publicYn;
 
+	@Column(name = "reject_cause")
+	private String cause;
+
 	// relation
 	public void updateUserAndRestaurant(
 		User user,
@@ -88,5 +93,12 @@ public class Review extends BaseEntity {
 
 	public void updatePublicYn(boolean isPub) {
 		this.publicYn = isPub ? "Y" : "N";
+	}
+
+	public void updateCause(String cause) {
+		if (hasText(cause))
+			this.cause = cause;
+		else
+			this.cause = null;
 	}
 }

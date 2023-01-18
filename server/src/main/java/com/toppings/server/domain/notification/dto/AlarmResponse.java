@@ -26,8 +26,6 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AlarmResponse {
 
-	private Long id;
-
 	private String userName;
 
 	private String country;
@@ -46,34 +44,20 @@ public class AlarmResponse {
 	private LocalDateTime createDate;
 
 	public static AlarmResponse of(
-		Restaurant restaurant,
 		User user,
 		Alarm alarm
 	) {
-		return AlarmResponse.builder()
-			.id(alarm.getId())
-			.alarmType(alarm.getAlarmType())
-			.content(alarm.getContent())
-			.country(user != null ? user.getCountry() : null)
-			.userName(user != null ? user.getName() : null)
-			.restaurantName(restaurant.getName())
-			.thumbnail(restaurant.getThumbnail())
-			.createDate(alarm.getCreateDate())
-			.build();
-	}
+		Restaurant restaurant = alarm.getRestaurant();
+		Review review = alarm.getReview();
+		String thumbnail = restaurant != null ? restaurant.getThumbnail() : review.getThumbnail();
 
-	public static AlarmResponse of(
-		Review review,
-		User user,
-		Alarm alarm
-	) {
 		return AlarmResponse.builder()
-			.id(alarm.getId())
 			.alarmType(alarm.getAlarmType())
 			.content(alarm.getContent())
-			.country(user != null ? user.getCountry() : null)
-			.userName(user != null ? user.getName() : null)
-			.thumbnail(review.getThumbnail())
+			.country(user.getCountry() == null ? user.getCountry() : null)
+			.userName(user.getName())
+			.restaurantName(alarm.getRestaurant() != null ? alarm.getRestaurant().getName() : null)
+			.thumbnail(thumbnail)
 			.createDate(alarm.getCreateDate())
 			.build();
 	}

@@ -23,12 +23,12 @@ import com.toppings.server.domain_global.entity.BaseEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@Data
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -45,6 +45,9 @@ public class Alarm extends BaseEntity {
 	@Column(name = "alarm_id")
 	private Long id;
 
+	@Column(name = "alarm_code", unique = true)
+	private String code;
+
 	@Column(name = "alarm_content", columnDefinition = "text")
 	private String content;
 
@@ -54,14 +57,17 @@ public class Alarm extends BaseEntity {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
+	@ToString.Exclude
 	private User user;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "restaurant_id")
+	@ToString.Exclude
 	private Restaurant restaurant;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "review_id")
+	@ToString.Exclude
 	private Review review;
 
 	public static Alarm of(
@@ -73,7 +79,7 @@ public class Alarm extends BaseEntity {
 		return Alarm.builder()
 			.alarmType(type)
 			.content(content)
-			.user(user)
+			.user(user.getId() != null ? user : null)
 			.restaurant(restaurant)
 			.build();
 	}
@@ -87,8 +93,12 @@ public class Alarm extends BaseEntity {
 		return Alarm.builder()
 			.alarmType(type)
 			.content(content)
-			.user(user)
+			.user(user.getId() != null ? user : null)
 			.review(review)
 			.build();
+	}
+
+	public void updateCode(String code) {
+		this.code = code;
 	}
 }

@@ -237,10 +237,12 @@ public class ReviewService {
 
 		// TODO: Refactoring Pick
 		final User user = review.getUser();
+		final Restaurant restaurant = review.getRestaurant();
 		final ReviewResponse reviewResponse = ReviewResponse.entityToDto(review, user);
 		reviewResponse.setImages(getReviewImages(review));
 		reviewResponse.setIsMine(user.getId().equals(userId));
 		reviewResponse.setHabits(getUserHabits(user));
+		reviewResponse.setRestaurantName(restaurant.getName());
 		return reviewResponse;
 	}
 

@@ -28,6 +28,8 @@ public class ReviewResponse {
 
 	private String description;
 
+	private String restaurantName;
+
 	private List<String> images;
 
 	@JsonSerialize(using = LocalDateTimeSerializer.class)
@@ -43,6 +45,8 @@ public class ReviewResponse {
 
 	private List<String> habits;
 
+	private String userProfile;
+
 	private String publicYn;
 
 	public static ReviewResponse entityToDto(
@@ -55,6 +59,7 @@ public class ReviewResponse {
 			.modifiedAt(review.getUpdateDate())
 			.name(user.getName())
 			.country(user.getCountry())
+			.userProfile(user.getProfile())
 			.publicYn(review.getPublicYn())
 			.build();
 	}

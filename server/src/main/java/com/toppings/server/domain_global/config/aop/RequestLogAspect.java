@@ -30,7 +30,7 @@ public class RequestLogAspect {
 	public void onRequest() {
 	}
 
-	@Pointcut("execution(* com.game_studio.pr.server.domain.*.controller.*.*(..))")
+	@Pointcut("execution(* com.toppings.server.domain.*.controller.*.*(..))")
 	public void onServerController() {
 	}
 
@@ -38,7 +38,7 @@ public class RequestLogAspect {
 	public void onService() {
 	}
 
-	@Pointcut("execution(* com.game_studio.pr.server.domain.*.service.*.*(..))")
+	@Pointcut("execution(* com.toppings.server.domain.*.service.*.*(..))")
 	public void onServerService() {
 	}
 

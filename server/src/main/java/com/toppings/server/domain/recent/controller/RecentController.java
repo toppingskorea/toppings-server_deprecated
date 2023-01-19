@@ -3,6 +3,7 @@ package com.toppings.server.domain.recent.controller;
 import javax.validation.Valid;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -49,7 +50,7 @@ public class RecentController {
 	public ResponseEntity<?> getRecents(
 		RecentType type,
 		@AuthenticationPrincipal Long userId,
-		Pageable pageable
+		@PageableDefault Pageable pageable
 	) {
 		return ResponseEntity.ok(
 			ApiDataResponse.of(PageResultResponse.of(recentService.findAll(type, userId, pageable))));

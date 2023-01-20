@@ -38,7 +38,7 @@ public class QueryDslScrapRepositoryImpl implements QueryDslScrapRepository {
 			.where(eqUserId(userId), notEqPublicYn())
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
-			.orderBy(scrap.id.desc())
+			.orderBy(scrap.createDate.desc())
 			.fetch();
 
 		Long totalCount = queryFactory.select(Wildcard.count)

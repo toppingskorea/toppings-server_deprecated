@@ -125,7 +125,7 @@ public class QueryDslReviewRepositoryImpl implements QueryDslReviewRepository {
 		return Projections.fields(RestaurantListResponse.class, review.restaurant.id, review.restaurant.name,
 			review.restaurant.address, review.restaurant.latitude, review.restaurant.longitude,
 			review.restaurant.description, review.restaurant.type, review.restaurant.thumbnail,
-			review.restaurant.likeCount, review.user.name.as("writer"));
+			review.restaurant.likeCount, review.user.name.as("writer"), review.id.as("reviewId"));
 	}
 
 	private BooleanExpression notEqPublicYn() {

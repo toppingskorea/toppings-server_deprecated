@@ -38,7 +38,7 @@ public class QueryDslScrapRepositoryImpl implements QueryDslScrapRepository {
 			.where(eqUserId(userId), notEqPublicYn())
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
-			.orderBy(scrap.restaurant.likeCount.desc(), scrap.restaurant.id.desc())
+			.orderBy(scrap.id.desc())
 			.fetch();
 
 		Long totalCount = queryFactory.select(Wildcard.count)

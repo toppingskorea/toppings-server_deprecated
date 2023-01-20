@@ -69,7 +69,7 @@ public class QueryDslReviewRepositoryImpl implements QueryDslReviewRepository {
 			.where(eqUserId(userId), notEqPublicYn())
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
-			.orderBy(review.restaurant.likeCount.desc(), review.restaurant.id.desc())
+			.orderBy(review.id.desc())
 			.fetch();
 
 		Long totalCount = queryFactory.select(Wildcard.count)

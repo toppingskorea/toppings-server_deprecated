@@ -69,7 +69,7 @@ public class QueryDslRestaurantRepositoryImpl implements QueryDslRestaurantRepos
 			.where(eqUserId(userId), notEqPublicYn())
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
-			.orderBy(restaurant.likeCount.desc(), restaurant.id.desc())
+			.orderBy(restaurant.id.desc())
 			.fetch();
 
 		Long totalCount = queryFactory.select(Wildcard.count)

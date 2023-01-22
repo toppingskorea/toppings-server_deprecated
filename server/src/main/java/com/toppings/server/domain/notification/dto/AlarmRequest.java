@@ -22,4 +22,8 @@ public class AlarmRequest {
 	private AlarmType type;
 
 	private String content;
+
+	public boolean isRejectType() {
+		return this.type.equals(AlarmType.RejectRestaurant) || this.type.equals(AlarmType.RejectReview);
+	}
 }

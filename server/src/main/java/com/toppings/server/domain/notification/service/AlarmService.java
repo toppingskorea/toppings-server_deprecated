@@ -54,13 +54,23 @@ public class AlarmService {
 		return userRepository.findById(id).orElseThrow(() -> new GeneralException(ResponseCode.NOT_FOUND));
 	}
 
-	private Review getReviewById(Long id) {
+	private Review getReviewByIdAndPubYn(Long id) {
 		return reviewRepository.findReviewByIdAndPublicYnNot(id, "N")
 			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_FOUND));
 	}
 
-	private Restaurant getRestaurantById(Long id) {
+	private Review getReviewById(Long id) {
+		return reviewRepository.findById(id)
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_FOUND));
+	}
+
+	private Restaurant getRestaurantByIdAndPubYn(Long id) {
 		return restaurantRepository.findRestaurantByIdAndPublicYnNot(id, "N")
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_FOUND));
+	}
+
+	private Restaurant getRestaurantById(Long id) {
+		return restaurantRepository.findById(id)
 			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_FOUND));
 	}
 
@@ -79,11 +89,13 @@ public class AlarmService {
 		final User toUser;
 
 		if (alarmType.equals(AlarmType.RejectReview)) {
-			final Review review = getReviewById(alarmRequest.getId());
+			final Review review = alarmRequest.isRejectType() ?
+				getReviewById(alarmRequest.getId()) : getReviewByIdAndPubYn(alarmRequest.getId());
 			toUser = review.getUser();
 			alarm = getReviewAlarm(fromUser, alarmType, toUser, review);
 		} else {
-			final Restaurant restaurant = getRestaurantById(alarmRequest.getId());
+			final Restaurant restaurant = alarmRequest.isRejectType() ?
+				getRestaurantById(alarmRequest.getId()) : getRestaurantByIdAndPubYn(alarmRequest.getId());
 			toUser = restaurant.getUser();
 			alarm = getRestaurantAlarm(fromUser, alarmType, toUser, restaurant, alarmRequest);
 		}

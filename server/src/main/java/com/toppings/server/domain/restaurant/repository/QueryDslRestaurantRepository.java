@@ -20,4 +20,6 @@ public interface QueryDslRestaurantRepository {
 	);
 
 	Page<RestaurantListResponse> findAllForAdmin(Pageable pageable);
+
+	Integer findRestaurantCountByUser(Long userId);
 }

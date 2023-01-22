@@ -11,9 +11,17 @@ import lombok.NoArgsConstructor;
 @Builder
 public class UserCount {
 
-	private Integer postCount;
+	private int postCount;
 
-	private Integer scrapCount;
+	private int scrapCount;
 
-	private Integer reviewCount;
+	private int reviewCount;
+
+	public static UserCount of(int postCount, int scrapCount, int reviewCount) {
+		return UserCount.builder()
+			.postCount(postCount)
+			.scrapCount(scrapCount)
+			.reviewCount(reviewCount)
+			.build();
+	}
 }

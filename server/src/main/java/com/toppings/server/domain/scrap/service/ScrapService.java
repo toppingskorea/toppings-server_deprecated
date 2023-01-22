@@ -61,7 +61,6 @@ public class ScrapService {
 		User user,
 		Restaurant restaurant
 	) {
-		System.out.println("user = " + user);
 		return Scrap.builder()
 			.id(user.getUsername() + "_" + restaurant.getCode())
 			.restaurant(restaurant)

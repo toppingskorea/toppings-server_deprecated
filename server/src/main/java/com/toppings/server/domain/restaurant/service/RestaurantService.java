@@ -137,7 +137,7 @@ public class RestaurantService {
 			final List<String> newImages = getNewImages(request);
 			final List<RestaurantAttach> images = getRestaurantAttaches(newImages, request.getCode(), restaurant);
 			restaurant.updateRestaurantInfo(request,
-				originImages.size() > 0 ? originImages.get(0) : images.get(0).getImage());
+				!originImages.isEmpty() ? originImages.get(0) : images.get(0).getImage());
 
 			restaurantAttachRepository.saveAll(images);
 		} else {

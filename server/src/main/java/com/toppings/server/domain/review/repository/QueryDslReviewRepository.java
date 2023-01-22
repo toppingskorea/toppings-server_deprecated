@@ -19,7 +19,7 @@ public interface QueryDslReviewRepository {
 		Pageable pageable
 	);
 
-	Integer findRestaurantCountForReview(Long userId);
+	Integer findRestaurantReviewCountByUser(Long userId);
 
 	Page<ReviewListResponse> findAllForAdmin(Pageable pageable);
 }

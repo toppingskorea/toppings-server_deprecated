@@ -11,4 +11,6 @@ public interface QueryDslScrapRepository {
 		Long userId,
 		Pageable pageable
 	);
+
+	Integer findRestaurantScrapCountByUser(Long userId);
 }

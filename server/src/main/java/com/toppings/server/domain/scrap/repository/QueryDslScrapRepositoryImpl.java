@@ -51,6 +51,15 @@ public class QueryDslScrapRepositoryImpl implements QueryDslScrapRepository {
 		return new PageWrapper<>(restaurantListResponses, pageable.getPageNumber(), pageable.getPageSize(), totalCount);
 	}
 
+	@Override
+	public Integer findRestaurantScrapCountByUser(Long userId) {
+		return queryFactory.select(getFields())
+			.from(scrap)
+			.leftJoin(scrap.restaurant)
+			.where(eqUserId(userId), notEqPublicYn())
+			.fetch().size();
+	}
+
 	private BooleanExpression notEqPublicYn() {
 		return scrap.restaurant.publicYn.ne("N");
 	}

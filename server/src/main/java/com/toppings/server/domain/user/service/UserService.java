@@ -165,9 +165,11 @@ public class UserService {
 		final User user = getUserById(userId);
 		final UserResponse userResponse = UserResponse.entityToDto(user);
 
-		// TODO: public yn 적용된 카운트로 수정
-		UserCount userCount = userRepository.getUserCount(userId);
-		userCount.setReviewCount(reviewRepository.findRestaurantCountForReview(userId));
+		UserCount userCount = UserCount.of(
+			restaurantRepository.findRestaurantCountByUser(userId),
+			scrapRepository.findRestaurantScrapCountByUser(userId),
+			reviewRepository.findRestaurantReviewCountByUser(userId)
+		);
 
 		userResponse.updateCount(userCount);
 		userResponse.updateHabits(getUserHabitResponses(user.getHabits()));
@@ -211,7 +213,10 @@ public class UserService {
 	/**
 	 * 회원 리뷰단 게시물 정보 조회
 	 */
-	public Page<RestaurantListResponse> findReviewByUser(Long userId, Pageable pageable) {
+	public Page<RestaurantListResponse> findReviewByUser(
+		Long userId,
+		Pageable pageable
+	) {
 		final User user = getUserById(userId);
 		final Page<RestaurantListResponse> restaurantListResponses
 			= reviewRepository.findRestaurantByUserForReview(user.getId(), pageable);

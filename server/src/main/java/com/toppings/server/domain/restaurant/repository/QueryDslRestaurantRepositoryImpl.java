@@ -95,6 +95,14 @@ public class QueryDslRestaurantRepositoryImpl implements QueryDslRestaurantRepos
 		return new PageWrapper<>(restaurantListResponses, pageable.getPageNumber(), pageable.getPageSize(), totalCount);
 	}
 
+	@Override
+	public Integer findRestaurantCountByUser(Long userId) {
+		return queryFactory.select(getFields())
+			.from(restaurant)
+			.where(eqUserId(userId), notEqPublicYn())
+			.fetch().size();
+	}
+
 	private BooleanExpression eqUserId(Long userId) {
 		return restaurant.user.id.eq(userId);
 	}
@@ -104,10 +112,6 @@ public class QueryDslRestaurantRepositoryImpl implements QueryDslRestaurantRepos
 			restaurant.latitude, restaurant.longitude, restaurant.description, restaurant.type,
 			restaurant.thumbnail, restaurant.likeCount, restaurant.user.name.as("writer"), restaurant.user.country,
 			restaurant.createDate, restaurant.publicYn);
-	}
-
-	private BooleanExpression inIds(List<Long> ids) {
-		return ids.size() > 0 ? restaurant.id.in(ids) : null;
 	}
 
 	private BooleanExpression eqName(String name) {

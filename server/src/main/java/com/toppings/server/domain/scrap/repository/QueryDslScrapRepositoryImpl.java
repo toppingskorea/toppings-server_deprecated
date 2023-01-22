@@ -53,11 +53,11 @@ public class QueryDslScrapRepositoryImpl implements QueryDslScrapRepository {
 
 	@Override
 	public Integer findRestaurantScrapCountByUser(Long userId) {
-		return queryFactory.select(getFields())
+		return Math.toIntExact(queryFactory.select(Wildcard.count)
 			.from(scrap)
 			.leftJoin(scrap.restaurant)
 			.where(eqUserId(userId), notEqPublicYn())
-			.fetch().size();
+			.fetch().get(0));
 	}
 
 	private BooleanExpression notEqPublicYn() {

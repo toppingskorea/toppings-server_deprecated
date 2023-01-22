@@ -97,10 +97,10 @@ public class QueryDslRestaurantRepositoryImpl implements QueryDslRestaurantRepos
 
 	@Override
 	public Integer findRestaurantCountByUser(Long userId) {
-		return queryFactory.select(getFields())
+		return Math.toIntExact(queryFactory.select(Wildcard.count)
 			.from(restaurant)
 			.where(eqUserId(userId), notEqPublicYn())
-			.fetch().size();
+			.fetch().get(0));
 	}
 
 	private BooleanExpression eqUserId(Long userId) {

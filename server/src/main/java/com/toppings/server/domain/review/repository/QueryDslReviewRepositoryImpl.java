@@ -85,14 +85,12 @@ public class QueryDslReviewRepositoryImpl implements QueryDslReviewRepository {
 
 	@Override
 	public Integer findRestaurantReviewCountByUser(Long userId) {
-		return queryFactory.select(getFields())
+		return Math.toIntExact(queryFactory.select(Wildcard.count)
 			.distinct()
 			.from(review)
 			.leftJoin(review.restaurant)
-			.leftJoin(review.user)
 			.where(eqUserId(userId), notEqPublicYn())
-			.orderBy(review.restaurant.likeCount.desc())
-			.fetch().size();
+			.fetch().get(0));
 	}
 
 	@Override

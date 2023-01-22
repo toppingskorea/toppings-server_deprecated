@@ -1,5 +1,7 @@
 package com.toppings.server.domain.notification.service;
 
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -86,7 +88,12 @@ public class AlarmService {
 			alarm = getRestaurantAlarm(fromUser, alarmType, toUser, restaurant, alarmRequest);
 		}
 
-		alarmRepository.save(alarm);
+		try {
+			alarmRepository.save(alarm);
+		} catch (Exception e) {
+			throw new GeneralException(ResponseCode.DUPLICATED_USER);
+		}
+
 		AlarmResponse alarmResponse = AlarmResponse.of(fromUser, alarm);
 		sendAlarm(toUser, alarmResponse);
 		return alarm.getId();
@@ -127,7 +134,8 @@ public class AlarmService {
 		builder.append("_")
 			.append(isRejectAlarm(type) ? toUser.getUsername() : fromUser.getUsername())
 			.append("_")
-			.append(id);
+			.append(id)
+			.append(UUID.randomUUID());
 		return builder.toString();
 	}
 

@@ -146,8 +146,7 @@ public class AlarmService {
 		builder.append("_")
 			.append(isRejectAlarm(type) ? toUser.getUsername() : fromUser.getUsername())
 			.append("_")
-			.append(id)
-			.append(UUID.randomUUID());
+			.append(id);
 		return builder.toString();
 	}
 

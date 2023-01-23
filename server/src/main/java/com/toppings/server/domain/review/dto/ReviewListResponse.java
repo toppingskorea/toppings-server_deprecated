@@ -44,4 +44,6 @@ public class ReviewListResponse {
 	private List<String> habits;
 
 	private String publicYn;
+
+	private String restaurantName;
 }

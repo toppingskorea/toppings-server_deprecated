@@ -98,9 +98,10 @@ public class QueryDslReviewRepositoryImpl implements QueryDslReviewRepository {
 		List<ReviewListResponse> reviewListResponses = queryFactory.select(
 			Projections.fields(ReviewListResponse.class, review.id, review.description, review.thumbnail,
 				review.updateDate.as("modifiedAt"), review.user.name, review.user.country, review.user.habitContents,
-				review.publicYn))
+				review.publicYn, review.restaurant.name.as("restaurantName")))
 			.from(review)
 			.innerJoin(review.user)
+			.leftJoin(review.restaurant)
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.orderBy(review.id.desc())

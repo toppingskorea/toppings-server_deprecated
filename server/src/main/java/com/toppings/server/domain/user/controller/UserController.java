@@ -2,6 +2,8 @@ package com.toppings.server.domain.user.controller;
 
 import javax.validation.Valid;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.toppings.common.dto.ApiDataResponse;
+import com.toppings.common.dto.PageResultResponse;
 import com.toppings.server.domain.user.dto.UserModifyRequest;
 import com.toppings.server.domain.user.dto.UserRegisterRequest;
 import com.toppings.server.domain.user.service.UserService;
@@ -83,8 +86,12 @@ public class UserController {
 	 */
 	@GetMapping("/scrap")
 	@PreAuthorize("hasRole('ROLE_USER')")
-	public ResponseEntity<?> getScrapByUser(@AuthenticationPrincipal Long userId) {
-		return ResponseEntity.ok(ApiDataResponse.of(userService.findScrapByUser(userId)));
+	public ResponseEntity<?> getScrapByUser(
+		@AuthenticationPrincipal Long userId,
+		@PageableDefault Pageable pageable
+	) {
+		return ResponseEntity.ok(
+			ApiDataResponse.of(PageResultResponse.of(userService.findScrapByUser(userId, pageable))));
 	}
 
 	/**
@@ -92,8 +99,12 @@ public class UserController {
 	 */
 	@GetMapping("/restaurant")
 	@PreAuthorize("hasRole('ROLE_USER')")
-	public ResponseEntity<?> getRestaurantByUser(@AuthenticationPrincipal Long userId) {
-		return ResponseEntity.ok(ApiDataResponse.of(userService.findRestaurantByUser(userId)));
+	public ResponseEntity<?> getRestaurantByUser(
+		@AuthenticationPrincipal Long userId,
+		@PageableDefault Pageable pageable
+	) {
+		return ResponseEntity.ok(
+			ApiDataResponse.of(PageResultResponse.of(userService.findRestaurantByUser(userId, pageable))));
 	}
 
 	/**
@@ -101,8 +112,12 @@ public class UserController {
 	 */
 	@GetMapping("/review")
 	@PreAuthorize("hasRole('ROLE_USER')")
-	public ResponseEntity<?> getReviewByUser(@AuthenticationPrincipal Long userId) {
-		return ResponseEntity.ok(ApiDataResponse.of(userService.findReviewByUser(userId)));
+	public ResponseEntity<?> getReviewByUser(
+		@AuthenticationPrincipal Long userId,
+		@PageableDefault Pageable pageable
+	) {
+		return ResponseEntity.ok(
+			ApiDataResponse.of(PageResultResponse.of(userService.findReviewByUser(userId, pageable))));
 	}
 
 	/**

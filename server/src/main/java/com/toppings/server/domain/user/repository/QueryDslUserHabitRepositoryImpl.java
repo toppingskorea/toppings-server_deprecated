@@ -23,7 +23,7 @@ public class QueryDslUserHabitRepositoryImpl implements QueryDslUserHabitReposit
 		return queryFactory.select(userHabit.user.id)
 			.from(userHabit)
 			.leftJoin(userHabit.user)
-			.where(userHabit.content.eq(searchRequest.getHabit()))
+			.where(userHabit.content.eq(searchRequest.getHabit().getName()))
 			.fetch();
 	}
 }

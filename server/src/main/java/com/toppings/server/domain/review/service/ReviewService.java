@@ -8,14 +8,15 @@ import java.util.stream.Collectors;
 
 import javax.xml.bind.DatatypeConverter;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.toppings.common.constants.ResponseCode;
+import com.toppings.common.dto.PubRequest;
 import com.toppings.common.exception.GeneralException;
-import com.toppings.server.domain.notification.constant.AlarmType;
-import com.toppings.server.domain.notification.dto.AlarmRequest;
-import com.toppings.server.domain.notification.service.AlarmService;
+import com.toppings.server.domain.notification.repository.AlarmRepository;
 import com.toppings.server.domain.restaurant.entity.Restaurant;
 import com.toppings.server.domain.restaurant.repository.RestaurantRepository;
 import com.toppings.server.domain.review.dto.ReviewListResponse;
@@ -47,7 +48,7 @@ public class ReviewService {
 
 	private final ReviewAttachRepository reviewAttachRepository;
 
-	private final AlarmService alarmService;
+	private final AlarmRepository alarmRepository;
 
 	private final S3Uploader s3Uploader;
 
@@ -73,9 +74,6 @@ public class ReviewService {
 		review.updateThumbnail(images.get(0).getImage());
 		reviewRepository.save(review);
 		reviewAttachRepository.saveAll(images);
-
-		final AlarmRequest alarmRequest = AlarmRequest.of(user, restaurant, AlarmType.Like, review.getDescription());
-		alarmService.registerAndSend(alarmRequest);
 
 		return review.getId();
 	}
@@ -116,30 +114,55 @@ public class ReviewService {
 		if (verifyReviewAndUser(review, userId))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
-		final List<ReviewAttach> images = modifyReviewAttach(request, review);
-
-		// TODO: Refactoring Pick
-		ReviewModifyRequest.modifyReviewInfo(review, request, images.get(0).getImage());
+		modifyReviewAttach(request, review);
 		return review.getId();
 	}
 
-	private List<ReviewAttach> modifyReviewAttach(
+	private void modifyReviewAttach(
 		ReviewModifyRequest request,
 		Review review
 	) {
 		if (isNotNullImage(request.getImages())) {
 			// 기존 이미지 제거
-			reviewAttachRepository.deleteAllByIdInBatch(
-				review.getImages().stream().map(ReviewAttach::getId).collect(Collectors.toList()));
+			removeReviewImages(request, review);
 
 			// 신규 이미지 등록
-			final List<ReviewAttach> reviewAttaches
-				= getReviewAttaches(request.getImages(), review.getRestaurant().getId(), review);
-			reviewAttachRepository.saveAll(reviewAttaches);
-			return reviewAttaches;
+			final List<String> originImages = getOriginImages(request);
+			final List<String> newImages = getNewImages(request);
+			final List<ReviewAttach> images = getReviewAttaches(newImages, review.getRestaurant().getId(), review);
+			ReviewModifyRequest.modifyReviewInfo(review, request,
+				originImages.size() > 0 ? originImages.get(0) : images.get(0).getImage());
+
+			reviewAttachRepository.saveAll(images);
 		} else {
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 		}
+	}
+
+	private void removeReviewImages(
+		ReviewModifyRequest request,
+		Review review
+	) {
+		reviewAttachRepository.deleteAllByIdInBatch(
+			review.getImages()
+				.stream()
+				.filter(en -> !request.getImages().contains(en.getImage()))
+				.map(ReviewAttach::getId)
+				.collect(Collectors.toList()));
+	}
+
+	private List<String> getNewImages(ReviewModifyRequest request) {
+		return request.getImages()
+			.stream()
+			.filter(image -> !image.contains("https:"))
+			.collect(Collectors.toList());
+	}
+
+	private List<String> getOriginImages(ReviewModifyRequest request) {
+		return request.getImages()
+			.stream()
+			.filter(image -> image.contains("https:"))
+			.collect(Collectors.toList());
 	}
 
 	private boolean isNotNullImage(List<String> images) {
@@ -159,13 +182,14 @@ public class ReviewService {
 		if (verifyReviewAndUser(review, user))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
+		alarmRepository.deleteBatchByReview(review);
 		reviewRepository.delete(review);
 		return reviewId;
 	}
 
 	private Review getReviewById(Long reviewId) {
-		return reviewRepository.findById(reviewId)
-			.orElseThrow(() -> new GeneralException(ResponseCode.BAD_REQUEST));
+		return reviewRepository.findReviewByIdAndPublicYnNot(reviewId, "N")
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_FOUND));
 	}
 
 	private boolean verifyReviewAndUser(
@@ -185,14 +209,15 @@ public class ReviewService {
 	/**
 	 * 음석점 댓글 목록 조회
 	 */
-	public List<ReviewListResponse> findAll(
+	public Page<ReviewListResponse> findAll(
 		Long restaurantId,
-		Long userId
+		Long userId,
+		Pageable pageable
 	) {
 		final Restaurant restaurant = getRestaurantById(restaurantId);
-		final List<ReviewListResponse> reviewListResponses
-			= reviewRepository.findReviewByRestaurantId(restaurant.getId(), userId);
-		reviewListResponses.forEach(en -> {
+		final Page<ReviewListResponse> reviewListResponses
+			= reviewRepository.findReviewByRestaurantId(restaurant.getId(), userId, pageable);
+		reviewListResponses.getContent().forEach(en -> {
 			en.setHabits(en.getHabitContents() != null ?
 				Arrays.asList(en.getHabitContents().split(",")) :
 				Collections.emptyList());
@@ -209,12 +234,63 @@ public class ReviewService {
 		Long userId
 	) {
 		final Review review = getReviewById(reviewId);
-		final ReviewResponse reviewResponse = ReviewResponse.entityToDto(review, review.getUser());
 
 		// TODO: Refactoring Pick
-		reviewResponse.setImages(review.getImages().stream().map(ReviewAttach::getImage).collect(Collectors.toList()));
-		reviewResponse.setIsMine(review.getUser().getId().equals(userId));
-		reviewResponse.setHabits(Arrays.asList(review.getUser().getHabitContents().split(",")));
+		final User user = review.getUser();
+		final Restaurant restaurant = review.getRestaurant();
+		final ReviewResponse reviewResponse = ReviewResponse.entityToDto(review, user);
+		reviewResponse.setImages(getReviewImages(review));
+		reviewResponse.setIsMine(user.getId().equals(userId));
+		reviewResponse.setHabits(getUserHabits(user));
+		reviewResponse.setRestaurantName(restaurant.getName());
 		return reviewResponse;
+	}
+
+	/**
+	 * 리뷰 상세 조회 (관리자용)
+	 */
+	public ReviewResponse findOneForAdmin(Long reviewId) {
+		final Review review = getReviewByIdForAdmin(reviewId);
+
+		final User user = review.getUser();
+		final ReviewResponse reviewResponse = ReviewResponse.entityToDto(review, user);
+		reviewResponse.setImages(getReviewImages(review));
+		reviewResponse.setHabits(getUserHabits(user));
+
+		return reviewResponse;
+	}
+
+	private List<String> getReviewImages(Review review) {
+		return review.getImages().stream().map(ReviewAttach::getImage).collect(Collectors.toList());
+	}
+
+	private List<String> getUserHabits(User user) {
+		return Arrays.asList(user.getHabitContents().split(","));
+	}
+
+	/**
+	 * 리뷰 목록 조회 (관리자용)
+	 */
+	public Page<ReviewListResponse> findAllForAdmin(Pageable pageable) {
+		return reviewRepository.findAllForAdmin(pageable);
+	}
+
+	/**
+	 * 리뷰 공개여부 수정 (관리자용)
+	 */
+	@Transactional
+	public Long modifyPub(
+		PubRequest pubRequest,
+		Long reviewId
+	) {
+		final Review review = getReviewByIdForAdmin(reviewId);
+		review.updatePublicYn(pubRequest.getIsPub());
+		review.updateCause(pubRequest.getCause());
+		return reviewId;
+	}
+
+	private Review getReviewByIdForAdmin(Long reviewId) {
+		return reviewRepository.findById(reviewId)
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_FOUND));
 	}
 }

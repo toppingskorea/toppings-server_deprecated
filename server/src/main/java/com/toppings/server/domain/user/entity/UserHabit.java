@@ -2,8 +2,6 @@ package com.toppings.server.domain.user.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -18,7 +16,6 @@ import org.hibernate.annotations.DynamicUpdate;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.toppings.server.domain.user.constant.Habit;
-import com.toppings.server.domain.user.constant.HabitTitle;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,13 +38,11 @@ public class UserHabit {
 	@Column(name = "user_habit_id")
 	private Long id;
 
-	@Enumerated(EnumType.STRING)
 	@Column(name = "user_habit_title", columnDefinition = "varchar(100)")
-	private HabitTitle title;
+	private String title;
 
-	@Enumerated(EnumType.STRING)
 	@Column(name = "user_habit_content", columnDefinition = "varchar(100)")
-	private Habit content;
+	private String content;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
@@ -55,4 +50,8 @@ public class UserHabit {
 	@ToString.Exclude
 	@JsonIgnore
 	private User user;
+
+	public static Habit from(String value) {
+		return Habit.valueOf(value.toUpperCase());
+	}
 }

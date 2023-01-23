@@ -59,13 +59,26 @@ public class QueryDslRestaurantRepositoryImpl implements QueryDslRestaurantRepos
 	}
 
 	@Override
-	public List<RestaurantListResponse> findRestaurantByUser(Long userId) {
-		return queryFactory.select(getFields())
+	public Page<RestaurantListResponse> findRestaurantByUser(
+		Long userId,
+		Pageable pageable
+	) {
+		List<RestaurantListResponse> restaurantListResponses = queryFactory.select(getFields())
 			.from(restaurant)
 			.leftJoin(restaurant.user)
 			.where(eqUserId(userId), notEqPublicYn())
-			.orderBy(restaurant.likeCount.desc())
+			.offset(pageable.getOffset())
+			.limit(pageable.getPageSize())
+			.orderBy(restaurant.id.desc())
 			.fetch();
+
+		Long totalCount = queryFactory.select(Wildcard.count)
+			.from(restaurant)
+			.where(eqUserId(userId), notEqPublicYn())
+			.fetch()
+			.get(0);
+
+		return new PageWrapper<>(restaurantListResponses, pageable.getPageNumber(), pageable.getPageSize(), totalCount);
 	}
 
 	@Override
@@ -82,6 +95,14 @@ public class QueryDslRestaurantRepositoryImpl implements QueryDslRestaurantRepos
 		return new PageWrapper<>(restaurantListResponses, pageable.getPageNumber(), pageable.getPageSize(), totalCount);
 	}
 
+	@Override
+	public Integer findRestaurantCountByUser(Long userId) {
+		return Math.toIntExact(queryFactory.select(Wildcard.count)
+			.from(restaurant)
+			.where(eqUserId(userId), notEqPublicYn())
+			.fetch().get(0));
+	}
+
 	private BooleanExpression eqUserId(Long userId) {
 		return restaurant.user.id.eq(userId);
 	}
@@ -89,12 +110,8 @@ public class QueryDslRestaurantRepositoryImpl implements QueryDslRestaurantRepos
 	private QBean<RestaurantListResponse> getFields() {
 		return Projections.fields(RestaurantListResponse.class, restaurant.id, restaurant.name, restaurant.address,
 			restaurant.latitude, restaurant.longitude, restaurant.description, restaurant.type,
-			restaurant.thumbnail, restaurant.likeCount, restaurant.user.name.as("writer"), restaurant.createDate,
-			restaurant.publicYn);
-	}
-
-	private BooleanExpression inIds(List<Long> ids) {
-		return ids.size() > 0 ? restaurant.id.in(ids) : null;
+			restaurant.thumbnail, restaurant.likeCount, restaurant.user.name.as("writer"), restaurant.user.country,
+			restaurant.createDate, restaurant.publicYn);
 	}
 
 	private BooleanExpression eqName(String name) {

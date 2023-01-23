@@ -17,14 +17,14 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserHabitResponse {
 
-	private HabitTitle title;
+	private String title;
 
 	private String content;
 
 	public static UserHabitResponse entityToDto(UserHabit userHabit) {
 		return UserHabitResponse.builder()
 			.title(userHabit.getTitle())
-			.content(userHabit.getContent().getName())
+			.content(userHabit.getContent())
 			.build();
 	}
 }

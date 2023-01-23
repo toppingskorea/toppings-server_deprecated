@@ -1,10 +1,16 @@
 package com.toppings.server.domain.scrap.repository;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import com.toppings.server.domain.restaurant.dto.RestaurantListResponse;
 
 public interface QueryDslScrapRepository {
 
-	List<RestaurantListResponse> findRestaurantByUserForScrap(Long userId);
+	Page<RestaurantListResponse> findRestaurantByUserForScrap(
+		Long userId,
+		Pageable pageable
+	);
+
+	Integer findRestaurantScrapCountByUser(Long userId);
 }

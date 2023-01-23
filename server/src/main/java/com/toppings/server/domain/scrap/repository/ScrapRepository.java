@@ -11,7 +11,7 @@ import com.toppings.server.domain.restaurant.entity.Restaurant;
 import com.toppings.server.domain.scrap.entity.Scrap;
 import com.toppings.server.domain.user.entity.User;
 
-public interface ScrapRepository extends JpaRepository<Scrap, Long>, QueryDslScrapRepository {
+public interface ScrapRepository extends JpaRepository<Scrap, String>, QueryDslScrapRepository {
 
 	Optional<Scrap> findScrapByRestaurantAndUser(
 		Restaurant restaurant,

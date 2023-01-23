@@ -18,9 +18,7 @@ import com.toppings.common.exception.GeneralException;
 import com.toppings.server.domain.likes.dto.LikesPercent;
 import com.toppings.server.domain.likes.dto.LikesPercentResponse;
 import com.toppings.server.domain.likes.repository.LikeRepository;
-import com.toppings.server.domain.notification.constant.AlarmType;
-import com.toppings.server.domain.notification.dto.AlarmRequest;
-import com.toppings.server.domain.notification.service.AlarmService;
+import com.toppings.server.domain.notification.repository.AlarmRepository;
 import com.toppings.server.domain.restaurant.dto.RestaurantFilterSearchRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantListResponse;
 import com.toppings.server.domain.restaurant.dto.RestaurantMapSearchRequest;
@@ -61,7 +59,7 @@ public class RestaurantService {
 
 	private final ReviewRepository reviewRepository;
 
-	private final AlarmService alarmService;
+	private final AlarmRepository alarmRepository;
 
 	private final S3Uploader s3Uploader;
 
@@ -121,30 +119,56 @@ public class RestaurantService {
 		if (verifyRestaurantAndUser(userId, restaurant))
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 
-		final List<RestaurantAttach> images = modifyRestaurantAttach(request, restaurant);
-
-		restaurant.updateRestaurantInfo(request, images.get(0).getImage());
+		modifyRestaurantAttach(request, restaurant);
 		restaurant.updateMapInfo(request);
 		return restaurant.getId();
 	}
 
-	private List<RestaurantAttach> modifyRestaurantAttach(
+	private void modifyRestaurantAttach(
 		RestaurantModifyRequest request,
 		Restaurant restaurant
 	) {
 		if (isNotNullImage(request.getImages())) {
 			// 기존 이미지 제거
-			restaurantAttachRepository.deleteAllByIdInBatch(
-				restaurant.getImages().stream().map(RestaurantAttach::getId).collect(Collectors.toList()));
+			removeRestaurantImages(request, restaurant);
 
 			// 신규 이미지 등록
-			final List<RestaurantAttach> images
-				= getRestaurantAttaches(request.getImages(), request.getCode(), restaurant);
+			final List<String> originImages = getOriginImages(request);
+			final List<String> newImages = getNewImages(request);
+			final List<RestaurantAttach> images = getRestaurantAttaches(newImages, request.getCode(), restaurant);
+			restaurant.updateRestaurantInfo(request,
+				!originImages.isEmpty() ? originImages.get(0) : images.get(0).getImage());
+
 			restaurantAttachRepository.saveAll(images);
-			return images;
 		} else {
 			throw new GeneralException(ResponseCode.BAD_REQUEST);
 		}
+	}
+
+	private void removeRestaurantImages(
+		RestaurantModifyRequest request,
+		Restaurant restaurant
+	) {
+		restaurantAttachRepository.deleteAllByIdInBatch(
+			restaurant.getImages()
+				.stream()
+				.filter(en -> !request.getImages().contains(en.getImage()))
+				.map(RestaurantAttach::getId)
+				.collect(Collectors.toList()));
+	}
+
+	private List<String> getNewImages(RestaurantModifyRequest request) {
+		return request.getImages()
+			.stream()
+			.filter(image -> !image.contains("https:"))
+			.collect(Collectors.toList());
+	}
+
+	private List<String> getOriginImages(RestaurantModifyRequest request) {
+		return request.getImages()
+			.stream()
+			.filter(image -> image.contains("https:"))
+			.collect(Collectors.toList());
 	}
 
 	private boolean isNotNullImage(List<String> images) {
@@ -192,7 +216,7 @@ public class RestaurantService {
 		reviewRepository.deleteBatchByRestaurant(restaurant);
 		likeRepository.deleteBatchByRestaurant(restaurant);
 		scrapRepository.deleteBatchByRestaurant(restaurant);
-		alarmService.removeAlarm(restaurant);
+		alarmRepository.deleteBatchByRestaurant(restaurant);
 	}
 
 	/**
@@ -298,7 +322,8 @@ public class RestaurantService {
 		if (userId != null) {
 			User user = getUserById(userId);
 			restaurantResponse.updateIsLike(likeRepository.findLikesByRestaurantAndUser(restaurant, user).isPresent());
-			restaurantResponse.updateIsScrap(scrapRepository.findScrapByRestaurantAndUser(restaurant, user).isPresent());
+			restaurantResponse.updateIsScrap(
+				scrapRepository.findScrapByRestaurantAndUser(restaurant, user).isPresent());
 		}
 		return restaurantResponse;
 	}
@@ -351,15 +376,10 @@ public class RestaurantService {
 		PubRequest pubRequest,
 		Long restaurantId
 	) {
-		final Restaurant restaurant = getRestaurantById(restaurantId);
+		final Restaurant restaurant = restaurantRepository.findById(restaurantId)
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_FOUND));
 		restaurant.updatePublicYn(pubRequest.getIsPub());
-
-		if (!pubRequest.getIsPub()) {
-			final AlarmRequest alarmRequest
-				= AlarmRequest.of(null, restaurant, AlarmType.Reject, pubRequest.getCause());
-			alarmService.registerAndSend(alarmRequest);
-		}
-
+		restaurant.updateCause(pubRequest.getCause());
 		return restaurantId;
 	}
 
@@ -374,7 +394,8 @@ public class RestaurantService {
 	 * 음식점 상세 조회 (관리자용)
 	 */
 	public RestaurantResponse findOneForAdmin(Long restaurantId) {
-		final Restaurant restaurant = getRestaurantById(restaurantId);
+		final Restaurant restaurant = restaurantRepository.findById(restaurantId)
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_FOUND));
 		final RestaurantResponse restaurantResponse = RestaurantResponse.entityToDto(restaurant);
 
 		final List<String> images = getRestaurantImages(restaurant);

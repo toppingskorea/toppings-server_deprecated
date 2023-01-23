@@ -22,8 +22,8 @@ public class UserHabitRequest {
 
 	public static UserHabit createUserHabit(UserHabitRequest request, User user) {
 		return UserHabit.builder()
-			.content(request.getContent())
-			.title(request.getTitle())
+			.content(request.getContent().getName())
+			.title(request.getTitle().name())
 			.user(user)
 			.build();
 	}

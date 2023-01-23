@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,7 +75,7 @@ public class UserService {
 	}
 
 	private String getHabitContents(List<UserHabitRequest> habitRequests) {
-		return habitRequests != null ? habitRequests.stream().map(en -> en.getContent().name())
+		return habitRequests != null ? habitRequests.stream().map(en -> en.getContent().getName())
 			.collect(Collectors.joining(",", "", "")) : null;
 	}
 
@@ -163,8 +165,11 @@ public class UserService {
 		final User user = getUserById(userId);
 		final UserResponse userResponse = UserResponse.entityToDto(user);
 
-		UserCount userCount = userRepository.getUserCount(userId);
-		userCount.setReviewCount(reviewRepository.findRestaurantByUserForReview(userId).size());
+		UserCount userCount = UserCount.of(
+			restaurantRepository.findRestaurantCountByUser(userId),
+			scrapRepository.findRestaurantScrapCountByUser(userId),
+			reviewRepository.findRestaurantReviewCountByUser(userId)
+		);
 
 		userResponse.updateCount(userCount);
 		userResponse.updateHabits(getUserHabitResponses(user.getHabits()));
@@ -180,33 +185,42 @@ public class UserService {
 	/**
 	 * 회원 스크랩 정보 조회
 	 */
-	public List<RestaurantListResponse> findScrapByUser(Long userId) {
+	public Page<RestaurantListResponse> findScrapByUser(
+		Long userId,
+		Pageable pageable
+	) {
 		final User user = getUserById(userId);
-		final List<RestaurantListResponse> restaurantListResponses
-			= scrapRepository.findRestaurantByUserForScrap(user.getId());
-		setIsLike(restaurantListResponses, user.getId());
+		final Page<RestaurantListResponse> restaurantListResponses
+			= scrapRepository.findRestaurantByUserForScrap(user.getId(), pageable);
+		setIsLike(restaurantListResponses.getContent(), user.getId());
 		return restaurantListResponses;
 	}
 
 	/**
 	 * 회원 게시물 정보 조회
 	 */
-	public List<RestaurantListResponse> findRestaurantByUser(Long userId) {
+	public Page<RestaurantListResponse> findRestaurantByUser(
+		Long userId,
+		Pageable pageable
+	) {
 		final User user = getUserById(userId);
-		final List<RestaurantListResponse> restaurantListResponses
-			= restaurantRepository.findRestaurantByUser(user.getId());
-		setIsLike(restaurantListResponses, user.getId());
+		final Page<RestaurantListResponse> restaurantListResponses
+			= restaurantRepository.findRestaurantByUser(user.getId(), pageable);
+		setIsLike(restaurantListResponses.getContent(), user.getId());
 		return restaurantListResponses;
 	}
 
 	/**
 	 * 회원 리뷰단 게시물 정보 조회
 	 */
-	public List<RestaurantListResponse> findReviewByUser(Long userId) {
+	public Page<RestaurantListResponse> findReviewByUser(
+		Long userId,
+		Pageable pageable
+	) {
 		final User user = getUserById(userId);
-		final List<RestaurantListResponse> restaurantListResponses
-			= reviewRepository.findRestaurantByUserForReview(user.getId());
-		setIsLike(restaurantListResponses, user.getId());
+		final Page<RestaurantListResponse> restaurantListResponses
+			= reviewRepository.findRestaurantByUserForReview(user.getId(), pageable);
+		setIsLike(restaurantListResponses.getContent(), user.getId());
 		return restaurantListResponses;
 	}
 

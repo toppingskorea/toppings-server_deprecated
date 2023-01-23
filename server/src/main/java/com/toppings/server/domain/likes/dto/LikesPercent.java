@@ -1,7 +1,6 @@
 package com.toppings.server.domain.likes.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.toppings.server.domain.user.constant.Habit;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,7 +16,7 @@ public class LikesPercent {
 
 	private String country;
 
-	private Habit habit;
+	private String habit;
 
 	private Long count;
 

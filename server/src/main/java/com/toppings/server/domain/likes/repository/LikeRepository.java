@@ -13,7 +13,7 @@ import com.toppings.server.domain.restaurant.entity.Restaurant;
 import com.toppings.server.domain.review.entity.Review;
 import com.toppings.server.domain.user.entity.User;
 
-public interface LikeRepository extends JpaRepository<Likes, Long>, QueryDslLikeRepository {
+public interface LikeRepository extends JpaRepository<Likes, String>, QueryDslLikeRepository {
 
 	Optional<Likes> findLikesByRestaurantAndUser(
 		Restaurant restaurant,

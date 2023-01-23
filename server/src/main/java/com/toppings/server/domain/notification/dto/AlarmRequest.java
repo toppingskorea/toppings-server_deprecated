@@ -1,8 +1,8 @@
 package com.toppings.server.domain.notification.dto;
 
+import javax.validation.constraints.NotNull;
+
 import com.toppings.server.domain.notification.constant.AlarmType;
-import com.toppings.server.domain.restaurant.entity.Restaurant;
-import com.toppings.server.domain.user.entity.User;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,47 +15,15 @@ import lombok.NoArgsConstructor;
 @Builder
 public class AlarmRequest {
 
-	private User fromUser;
+	@NotNull(message = "음식점 또는 댓글 id 를 넣어주세요.")
+	private Long id;
 
-	private Restaurant restaurant;
-
+	@NotNull(message = "알람 유형을 확인해주세요.")
 	private AlarmType type;
 
 	private String content;
 
-	public static AlarmRequest of(
-		User fromUser,
-		Restaurant restaurant,
-		AlarmType type,
-		String content
-	) {
-		return AlarmRequest.builder()
-			.fromUser(fromUser)
-			.restaurant(restaurant)
-			.type(type)
-			.content(content)
-			.build();
-	}
-
-	public static AlarmRequest of(
-		User fromUser,
-		Restaurant restaurant,
-		AlarmType type
-	) {
-		return AlarmRequest.builder()
-			.fromUser(fromUser)
-			.restaurant(restaurant)
-			.type(type)
-			.build();
-	}
-
-	public static AlarmRequest of(
-		Restaurant restaurant,
-		AlarmType type
-	) {
-		return AlarmRequest.builder()
-			.restaurant(restaurant)
-			.type(type)
-			.build();
+	public boolean isRejectType() {
+		return this.type.equals(AlarmType.RejectRestaurant) || this.type.equals(AlarmType.RejectReview);
 	}
 }

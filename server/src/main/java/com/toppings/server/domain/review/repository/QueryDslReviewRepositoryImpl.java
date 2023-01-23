@@ -92,7 +92,7 @@ public class QueryDslReviewRepositoryImpl implements QueryDslReviewRepository {
 			.distinct()
 			.from(review)
 			.leftJoin(review.restaurant)
-			.where(eqUserId(userId), notEqPublicYn())
+			.where(eqUserId(userId), notEqPublicYn(), notMine(userId))
 			.fetch().get(0));
 	}
 

@@ -59,7 +59,7 @@ public class QueryDslScrapRepositoryImpl implements QueryDslScrapRepository {
 		return Math.toIntExact(queryFactory.select(Wildcard.count)
 			.from(scrap)
 			.leftJoin(scrap.restaurant)
-			.where(eqUserId(userId), notEqPublicYn())
+			.where(eqUserId(userId), notEqPublicYn(), notMine(userId))
 			.fetch().get(0));
 	}
 

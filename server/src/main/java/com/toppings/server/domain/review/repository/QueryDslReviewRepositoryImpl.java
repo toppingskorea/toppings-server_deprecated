@@ -64,8 +64,7 @@ public class QueryDslReviewRepositoryImpl implements QueryDslReviewRepository {
 		List<RestaurantListResponse> restaurantListResponses = queryFactory.select(getFields())
 			.distinct()
 			.from(review)
-			.leftJoin(review.restaurant)
-			.leftJoin(review.user)
+			.leftJoin(review.restaurant.user)
 			.where(eqUserId(userId), notEqPublicYn())
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
@@ -124,7 +123,7 @@ public class QueryDslReviewRepositoryImpl implements QueryDslReviewRepository {
 		return Projections.fields(RestaurantListResponse.class, review.restaurant.id, review.restaurant.name,
 			review.restaurant.address, review.restaurant.latitude, review.restaurant.longitude,
 			review.restaurant.description, review.restaurant.type, review.restaurant.thumbnail,
-			review.restaurant.likeCount, review.user.name.as("writer"), review.restaurant.publicYn,
+			review.restaurant.likeCount, review.restaurant.user.name.as("writer"), review.restaurant.publicYn,
 			review.id.as("reviewId"));
 	}
 

@@ -33,8 +33,7 @@ public class QueryDslScrapRepositoryImpl implements QueryDslScrapRepository {
 	) {
 		List<RestaurantListResponse> restaurantListResponses = queryFactory.select(getFields())
 			.from(scrap)
-			.leftJoin(scrap.restaurant)
-			.leftJoin(scrap.user)
+			.leftJoin(scrap.restaurant.user)
 			.where(eqUserId(userId), notEqPublicYn())
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
@@ -72,6 +71,6 @@ public class QueryDslScrapRepositoryImpl implements QueryDslScrapRepository {
 		return Projections.fields(RestaurantListResponse.class, scrap.restaurant.id, scrap.restaurant.name,
 			scrap.restaurant.address, scrap.restaurant.latitude, scrap.restaurant.longitude,
 			scrap.restaurant.description, scrap.restaurant.type, scrap.restaurant.thumbnail, scrap.restaurant.likeCount,
-			scrap.user.name.as("writer"));
+			scrap.restaurant.user.name.as("writer"));
 	}
 }

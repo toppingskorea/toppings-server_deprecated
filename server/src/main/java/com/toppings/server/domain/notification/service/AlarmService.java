@@ -89,16 +89,17 @@ public class AlarmService {
 		final User toUser;
 
 		if (alarmType.equals(AlarmType.RejectReview)) {
-			final Review review = alarmRequest.isRejectType() ?
-				getReviewById(alarmRequest.getId()) : getReviewByIdAndPubYn(alarmRequest.getId());
+			final Review review = getReview(alarmRequest);
 			toUser = review.getUser();
 			alarm = getReviewAlarm(fromUser, alarmType, toUser, review);
 		} else {
-			final Restaurant restaurant = alarmRequest.isRejectType() ?
-				getRestaurantById(alarmRequest.getId()) : getRestaurantByIdAndPubYn(alarmRequest.getId());
+			final Restaurant restaurant = getRestaurant(alarmRequest);
 			toUser = restaurant.getUser();
 			alarm = getRestaurantAlarm(fromUser, alarmType, toUser, restaurant, alarmRequest);
 		}
+
+		if (isSameUser(fromUser, toUser))
+			throw new GeneralException(ResponseCode.SAME_USER);
 
 		try {
 			alarmRepository.save(alarm);
@@ -109,6 +110,23 @@ public class AlarmService {
 		AlarmResponse alarmResponse = AlarmResponse.of(fromUser, alarm);
 		sendAlarm(toUser, alarmResponse);
 		return alarm.getId();
+	}
+
+	private Restaurant getRestaurant(AlarmRequest alarmRequest) {
+		return alarmRequest.isRejectType() ?
+			getRestaurantById(alarmRequest.getId()) : getRestaurantByIdAndPubYn(alarmRequest.getId());
+	}
+
+	private Review getReview(AlarmRequest alarmRequest) {
+		return alarmRequest.isRejectType() ?
+			getReviewById(alarmRequest.getId()) : getReviewByIdAndPubYn(alarmRequest.getId());
+	}
+
+	private boolean isSameUser(
+		User fromUser,
+		User toUser
+	) {
+		return fromUser.getId().equals(toUser.getId());
 	}
 
 	private Alarm getRestaurantAlarm(

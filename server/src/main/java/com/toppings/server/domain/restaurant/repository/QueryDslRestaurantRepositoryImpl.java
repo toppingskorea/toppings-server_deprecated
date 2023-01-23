@@ -1,6 +1,7 @@
 package com.toppings.server.domain.restaurant.repository;
 
 import static com.toppings.server.domain.restaurant.entity.QRestaurant.*;
+import static com.toppings.server.domain.scrap.entity.QScrap.*;
 import static org.springframework.util.StringUtils.*;
 
 import java.util.List;

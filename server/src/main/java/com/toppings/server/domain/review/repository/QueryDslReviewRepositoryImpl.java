@@ -65,7 +65,7 @@ public class QueryDslReviewRepositoryImpl implements QueryDslReviewRepository {
 			.distinct()
 			.from(review)
 			.leftJoin(review.restaurant.user)
-			.where(eqUserId(userId), notEqPublicYn())
+			.where(eqUserId(userId), notEqPublicYn(), notMine(userId))
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.orderBy(review.id.desc())
@@ -75,11 +75,15 @@ public class QueryDslReviewRepositoryImpl implements QueryDslReviewRepository {
 			.distinct()
 			.from(review)
 			.leftJoin(review.restaurant)
-			.where(eqUserId(userId), notEqPublicYn())
+			.where(eqUserId(userId), notEqPublicYn(), notMine(userId))
 			.fetch()
 			.get(0);
 
 		return new PageWrapper<>(restaurantListResponses, pageable.getPageNumber(), pageable.getPageSize(), totalCount);
+	}
+
+	private BooleanExpression notMine(Long userId) {
+		return review.restaurant.user.id.ne(userId);
 	}
 
 	@Override

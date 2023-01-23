@@ -34,7 +34,7 @@ public class QueryDslScrapRepositoryImpl implements QueryDslScrapRepository {
 		List<RestaurantListResponse> restaurantListResponses = queryFactory.select(getFields())
 			.from(scrap)
 			.leftJoin(scrap.restaurant.user)
-			.where(eqUserId(userId), notEqPublicYn())
+			.where(eqUserId(userId), notEqPublicYn(), notMine(userId))
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.orderBy(scrap.createDate.desc())
@@ -43,11 +43,15 @@ public class QueryDslScrapRepositoryImpl implements QueryDslScrapRepository {
 		Long totalCount = queryFactory.select(Wildcard.count)
 			.from(scrap)
 			.leftJoin(scrap.restaurant)
-			.where(eqUserId(userId), notEqPublicYn())
+			.where(eqUserId(userId), notEqPublicYn(), notMine(userId))
 			.fetch()
 			.get(0);
 
 		return new PageWrapper<>(restaurantListResponses, pageable.getPageNumber(), pageable.getPageSize(), totalCount);
+	}
+
+	private BooleanExpression notMine(Long userId) {
+		return scrap.restaurant.user.id.ne(userId);
 	}
 
 	@Override

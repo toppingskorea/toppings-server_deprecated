@@ -23,6 +23,7 @@ public enum ResponseCode {
     DB_DATA_NOT_FOUND(400, ResponseCategory.CLIENT_SIDE, "Data is not found"),
     FILE_NOT_FOUND(400, ResponseCategory.CLIENT_SIDE, "File not found"),
     DUPLICATED_ITEM(400, ResponseCategory.CLIENT_SIDE, "Duplicated item"),
+    SAME_USER(400, ResponseCategory.CLIENT_SIDE, "Same User"),
 
     // 5xx error case
     INTERNAL_ERROR(500, ResponseCategory.SERVER_SIDE, "Internal error"),

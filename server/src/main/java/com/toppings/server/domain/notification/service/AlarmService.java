@@ -89,16 +89,17 @@ public class AlarmService {
 		final User toUser;
 
 		if (alarmType.equals(AlarmType.RejectReview)) {
-			final Review review = alarmRequest.isRejectType() ?
-				getReviewById(alarmRequest.getId()) : getReviewByIdAndPubYn(alarmRequest.getId());
+			final Review review = getReview(alarmRequest);
 			toUser = review.getUser();
 			alarm = getReviewAlarm(fromUser, alarmType, toUser, review);
 		} else {
-			final Restaurant restaurant = alarmRequest.isRejectType() ?
-				getRestaurantById(alarmRequest.getId()) : getRestaurantByIdAndPubYn(alarmRequest.getId());
+			final Restaurant restaurant = getRestaurant(alarmRequest);
 			toUser = restaurant.getUser();
 			alarm = getRestaurantAlarm(fromUser, alarmType, toUser, restaurant, alarmRequest);
 		}
+
+		// if (isSameUser(fromUser, toUser))
+		// 	throw new GeneralException(ResponseCode.SAME_USER);
 
 		try {
 			alarmRepository.save(alarm);
@@ -111,8 +112,25 @@ public class AlarmService {
 		return alarm.getId();
 	}
 
+	private Restaurant getRestaurant(AlarmRequest alarmRequest) {
+		return alarmRequest.isRejectType() ?
+			getRestaurantById(alarmRequest.getId()) : getRestaurantByIdAndPubYn(alarmRequest.getId());
+	}
+
+	private Review getReview(AlarmRequest alarmRequest) {
+		return alarmRequest.isRejectType() ?
+			getReviewById(alarmRequest.getId()) : getReviewByIdAndPubYn(alarmRequest.getId());
+	}
+
+	private boolean isSameUser(
+		User fromUser,
+		User toUser
+	) {
+		return fromUser.getId().equals(toUser.getId());
+	}
+
 	private Alarm getRestaurantAlarm(
-		User user,
+		User fromUser,
 		AlarmType alarmType,
 		User toUser,
 		Restaurant restaurant,
@@ -120,19 +138,19 @@ public class AlarmService {
 	) {
 		String content = alarmType.equals(AlarmType.RejectRestaurant)
 			? restaurant.getCause() : alarmRequest.getContent();
-		final Alarm alarm = Alarm.of(user, restaurant, content, alarmType);
-		alarm.updateCode(generateId(alarmType, user, toUser, String.valueOf(restaurant.getCode())));
+		final Alarm alarm = Alarm.of(fromUser, toUser, restaurant, content, alarmType);
+		alarm.updateCode(generateId(alarmType, fromUser, toUser, String.valueOf(restaurant.getCode())));
 		return alarm;
 	}
 
 	private Alarm getReviewAlarm(
-		User user,
+		User fromUser,
 		AlarmType alarmType,
 		User toUser,
 		Review review
 	) {
-		final Alarm alarm = Alarm.of(user, review, review.getCause(), alarmType);
-		alarm.updateCode(generateId(alarmType, user, toUser, String.valueOf(review.getId())));
+		final Alarm alarm = Alarm.of(fromUser, toUser, review, review.getCause(), alarmType);
+		alarm.updateCode(generateId(alarmType, fromUser, toUser, String.valueOf(review.getId())));
 		return alarm;
 	}
 

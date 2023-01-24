@@ -61,6 +61,11 @@ public class Alarm extends BaseEntity {
 	private User user;
 
 	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "to_user_id")
+	@ToString.Exclude
+	private User toUser;
+
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "restaurant_id")
 	@ToString.Exclude
 	private Restaurant restaurant;
@@ -72,6 +77,7 @@ public class Alarm extends BaseEntity {
 
 	public static Alarm of(
 		User user,
+		User toUser,
 		Restaurant restaurant,
 		String content,
 		AlarmType type
@@ -80,12 +86,14 @@ public class Alarm extends BaseEntity {
 			.alarmType(type)
 			.content(content)
 			.user(user.getId() != null ? user : null)
+			.toUser(toUser)
 			.restaurant(restaurant)
 			.build();
 	}
 
 	public static Alarm of(
 		User user,
+		User toUser,
 		Review review,
 		String content,
 		AlarmType type
@@ -94,6 +102,7 @@ public class Alarm extends BaseEntity {
 			.alarmType(type)
 			.content(content)
 			.user(user.getId() != null ? user : null)
+			.toUser(toUser)
 			.review(review)
 			.build();
 	}

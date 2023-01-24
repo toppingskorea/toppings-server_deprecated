@@ -98,8 +98,8 @@ public class AlarmService {
 			alarm = getRestaurantAlarm(fromUser, alarmType, toUser, restaurant, alarmRequest);
 		}
 
-		if (isSameUser(fromUser, toUser))
-			throw new GeneralException(ResponseCode.SAME_USER);
+		// if (isSameUser(fromUser, toUser))
+		// 	throw new GeneralException(ResponseCode.SAME_USER);
 
 		try {
 			alarmRepository.save(alarm);
@@ -130,7 +130,7 @@ public class AlarmService {
 	}
 
 	private Alarm getRestaurantAlarm(
-		User user,
+		User fromUser,
 		AlarmType alarmType,
 		User toUser,
 		Restaurant restaurant,
@@ -138,19 +138,19 @@ public class AlarmService {
 	) {
 		String content = alarmType.equals(AlarmType.RejectRestaurant)
 			? restaurant.getCause() : alarmRequest.getContent();
-		final Alarm alarm = Alarm.of(user, restaurant, content, alarmType);
-		alarm.updateCode(generateId(alarmType, user, toUser, String.valueOf(restaurant.getCode())));
+		final Alarm alarm = Alarm.of(fromUser, toUser, restaurant, content, alarmType);
+		alarm.updateCode(generateId(alarmType, fromUser, toUser, String.valueOf(restaurant.getCode())));
 		return alarm;
 	}
 
 	private Alarm getReviewAlarm(
-		User user,
+		User fromUser,
 		AlarmType alarmType,
 		User toUser,
 		Review review
 	) {
-		final Alarm alarm = Alarm.of(user, review, review.getCause(), alarmType);
-		alarm.updateCode(generateId(alarmType, user, toUser, String.valueOf(review.getId())));
+		final Alarm alarm = Alarm.of(fromUser, toUser, review, review.getCause(), alarmType);
+		alarm.updateCode(generateId(alarmType, fromUser, toUser, String.valueOf(review.getId())));
 		return alarm;
 	}
 
@@ -164,7 +164,8 @@ public class AlarmService {
 		builder.append("_")
 			.append(isRejectAlarm(type) ? toUser.getUsername() : fromUser.getUsername())
 			.append("_")
-			.append(id);
+			.append(id)
+			.append(UUID.randomUUID());
 		return builder.toString();
 	}
 

@@ -31,7 +31,8 @@ public class QueryDslAlarmRepositoryImpl implements QueryDslAlarmRepository {
 	) {
 		List<AlarmResponse> alarmResponses = queryFactory.select(
 			Projections.fields(AlarmResponse.class, alarm.user.name.as("userName"), alarm.user.country, alarm.content,
-				alarm.alarmType, alarm.restaurant.name.as("restaurantName"), alarm.restaurant.thumbnail))
+				alarm.alarmType, alarm.restaurant.name.as("restaurantName"), alarm.restaurant.thumbnail,
+				alarm.user.profile, alarm.createDate))
 			.from(alarm)
 			.leftJoin(alarm.user)
 			.leftJoin(alarm.restaurant)

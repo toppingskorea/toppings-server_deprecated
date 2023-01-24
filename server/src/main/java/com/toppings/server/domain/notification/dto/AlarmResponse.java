@@ -38,6 +38,8 @@ public class AlarmResponse {
 
 	private String thumbnail;
 
+	private String profile;
+
 	@JsonSerialize(using = LocalDateTimeSerializer.class)
 	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy.MM.dd HH:mm")
@@ -56,6 +58,7 @@ public class AlarmResponse {
 			.content(alarm.getContent())
 			.country(user.getCountry() == null ? user.getCountry() : null)
 			.userName(user.getName())
+			.profile(user.getProfile())
 			.restaurantName(alarm.getRestaurant() != null ? alarm.getRestaurant().getName() : null)
 			.thumbnail(thumbnail)
 			.createDate(alarm.getCreateDate())

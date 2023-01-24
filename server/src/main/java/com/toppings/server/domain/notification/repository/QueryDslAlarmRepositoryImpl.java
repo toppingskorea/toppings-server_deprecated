@@ -36,7 +36,7 @@ public class QueryDslAlarmRepositoryImpl implements QueryDslAlarmRepository {
 			.from(alarm)
 			.leftJoin(alarm.user)
 			.leftJoin(alarm.restaurant)
-			.where(alarm.user.id.eq(userId))
+			.where(alarm.toUser.id.eq(userId))
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.orderBy(alarm.id.desc())

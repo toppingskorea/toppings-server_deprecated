@@ -133,4 +133,13 @@ public class UserController {
 	public ResponseEntity<?> removeUser(@AuthenticationPrincipal Long userId) {
 		return ResponseEntity.ok(ApiDataResponse.of(userService.removeUser(userId)));
 	}
+
+	/**
+	 * 유저 id 조회
+	 */
+	@GetMapping("/id")
+	@PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_TEMP')")
+	public ResponseEntity<?> getUserId(@AuthenticationPrincipal Long userId) {
+		return ResponseEntity.ok(ApiDataResponse.of(userId));
+	}
 }

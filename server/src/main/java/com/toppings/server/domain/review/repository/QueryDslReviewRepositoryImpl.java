@@ -41,7 +41,7 @@ public class QueryDslReviewRepositoryImpl implements QueryDslReviewRepository {
 			))
 			.from(review)
 			.innerJoin(review.user)
-			.where(review.restaurant.id.eq(restaurantId), notEqPublicYn())
+			.where(review.restaurant.id.eq(restaurantId), notEqRestaurantPublicYn(), notEqReviewPublicYn())
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.orderBy(review.updateDate.desc())
@@ -49,7 +49,7 @@ public class QueryDslReviewRepositoryImpl implements QueryDslReviewRepository {
 
 		Long totalCount = queryFactory.select(Wildcard.count)
 			.from(review)
-			.where(review.restaurant.id.eq(restaurantId), notEqPublicYn())
+			.where(review.restaurant.id.eq(restaurantId), notEqRestaurantPublicYn())
 			.fetch()
 			.get(0);
 
@@ -65,7 +65,7 @@ public class QueryDslReviewRepositoryImpl implements QueryDslReviewRepository {
 			.distinct()
 			.from(review)
 			.leftJoin(review.restaurant.user)
-			.where(eqUserId(userId), notEqPublicYn(), notMine(userId))
+			.where(eqUserId(userId), notEqRestaurantPublicYn(), notMine(userId), notEqReviewPublicYn())
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.orderBy(review.id.desc())
@@ -75,7 +75,7 @@ public class QueryDslReviewRepositoryImpl implements QueryDslReviewRepository {
 			.distinct()
 			.from(review)
 			.leftJoin(review.restaurant)
-			.where(eqUserId(userId), notEqPublicYn(), notMine(userId))
+			.where(eqUserId(userId), notEqRestaurantPublicYn(), notMine(userId), notEqReviewPublicYn())
 			.fetch()
 			.get(0);
 
@@ -92,7 +92,7 @@ public class QueryDslReviewRepositoryImpl implements QueryDslReviewRepository {
 			.distinct()
 			.from(review)
 			.leftJoin(review.restaurant)
-			.where(eqUserId(userId), notEqPublicYn(), notMine(userId))
+			.where(eqUserId(userId), notEqRestaurantPublicYn(), notMine(userId), notEqReviewPublicYn())
 			.fetch().get(0));
 	}
 
@@ -131,7 +131,11 @@ public class QueryDslReviewRepositoryImpl implements QueryDslReviewRepository {
 			review.id.as("reviewId"));
 	}
 
-	private BooleanExpression notEqPublicYn() {
+	private BooleanExpression notEqRestaurantPublicYn() {
 		return review.restaurant.publicYn.ne("N");
+	}
+
+	private BooleanExpression notEqReviewPublicYn() {
+		return review.publicYn.ne("N");
 	}
 }

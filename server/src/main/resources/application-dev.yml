@@ -58,7 +58,7 @@ jwt:
   thirdKey: ENC(JCimNz/aAkb221yp5rf3d7zdz/6ny63Emb9DOkABlx/sdSLIGmd+BzUPcq8CvWBvQfGzUOGQqqUcF3m8u8g/Aas5dL/l4LwbviMJPbdFiqU=)
 
 server:
-  port: 80
+  port: 28080
 
 cloud:
   aws:

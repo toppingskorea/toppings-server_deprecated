@@ -49,6 +49,8 @@ public class ReviewResponse {
 
 	private String publicYn;
 
+	private String cause;
+
 	public static ReviewResponse entityToDto(
 		Review review,
 		User user

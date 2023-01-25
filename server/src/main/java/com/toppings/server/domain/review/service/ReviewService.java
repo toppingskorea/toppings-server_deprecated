@@ -256,6 +256,7 @@ public class ReviewService {
 		final ReviewResponse reviewResponse = ReviewResponse.entityToDto(review, user);
 		reviewResponse.setImages(getReviewImages(review));
 		reviewResponse.setHabits(getUserHabits(user));
+		reviewResponse.setCause(review.getCause());
 
 		return reviewResponse;
 	}

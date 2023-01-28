@@ -51,6 +51,8 @@ public class ReviewResponse {
 
 	private String cause;
 
+	private Long restaurantId;
+
 	public static ReviewResponse entityToDto(
 		Review review,
 		User user

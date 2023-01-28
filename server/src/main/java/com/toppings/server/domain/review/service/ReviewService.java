@@ -243,6 +243,7 @@ public class ReviewService {
 		reviewResponse.setIsMine(user.getId().equals(userId));
 		reviewResponse.setHabits(getUserHabits(user));
 		reviewResponse.setRestaurantName(restaurant.getName());
+		reviewResponse.setRestaurantId(restaurant.getId());
 		return reviewResponse;
 	}
 

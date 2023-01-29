@@ -6,3 +6,5 @@ spring:
         - local
       dev:
         - dev
+      prod:
+        - main

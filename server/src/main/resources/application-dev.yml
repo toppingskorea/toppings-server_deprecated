@@ -59,6 +59,11 @@ jwt:
 
 server:
   port: 28080
+#  ssl:
+#    enabled: true
+#    key-store: classpath:keystore.p12
+#    key-store-type: PKCS12
+#    key-store-password: ENC(e1ed9w9WLKrieQ2YuDGSXUTsWcZq/cYj)
 
 cloud:
   aws:

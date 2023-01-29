@@ -397,6 +397,7 @@ public class RestaurantService {
 		final Restaurant restaurant = restaurantRepository.findById(restaurantId)
 			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_FOUND));
 		final RestaurantResponse restaurantResponse = RestaurantResponse.entityToDto(restaurant);
+		restaurantResponse.updateCause(restaurant.getCause());
 
 		final List<String> images = getRestaurantImages(restaurant);
 		restaurantResponse.updateImages(images);

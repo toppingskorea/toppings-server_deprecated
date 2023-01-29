@@ -243,6 +243,7 @@ public class ReviewService {
 		reviewResponse.setIsMine(user.getId().equals(userId));
 		reviewResponse.setHabits(getUserHabits(user));
 		reviewResponse.setRestaurantName(restaurant.getName());
+		reviewResponse.setRestaurantId(restaurant.getId());
 		return reviewResponse;
 	}
 
@@ -256,6 +257,7 @@ public class ReviewService {
 		final ReviewResponse reviewResponse = ReviewResponse.entityToDto(review, user);
 		reviewResponse.setImages(getReviewImages(review));
 		reviewResponse.setHabits(getUserHabits(user));
+		reviewResponse.setCause(review.getCause());
 
 		return reviewResponse;
 	}

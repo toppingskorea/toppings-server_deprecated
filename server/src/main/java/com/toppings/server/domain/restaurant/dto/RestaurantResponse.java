@@ -70,6 +70,8 @@ public class RestaurantResponse {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd a HH:mm")
 	private LocalDateTime createDate;
 
+	private String cause;
+
 	public static RestaurantResponse entityToDto(Restaurant restaurant) {
 		return RestaurantResponse.builder()
 			.id(restaurant.getId())
@@ -106,5 +108,9 @@ public class RestaurantResponse {
 
 	public void updateIsMine(boolean isMine) {
 		this.isMine = isMine;
+	}
+
+	public void updateCause(String cause) {
+		this.cause = cause;
 	}
 }

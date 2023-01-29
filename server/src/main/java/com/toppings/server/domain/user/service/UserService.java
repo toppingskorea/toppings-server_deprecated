@@ -3,6 +3,7 @@ package com.toppings.server.domain.user.service;
 import static org.springframework.util.StringUtils.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -118,20 +119,48 @@ public class UserService {
 		UserModifyRequest request,
 		User user
 	) {
-		final List<UserHabit> userHabits = user.getHabits();
-
-		// 기존 식습관 제거
-		userHabitRepository.deleteAllByIdInBatch(getUserIdsFromHabits(user));
-		userHabits.clear();
+		if (isSameHabits(request, user))
+			return;
 
 		if (request.notEmptyHabit()) {
+			// 기존 식습관 제거
+			userHabitRepository.deleteAllByIdInBatch(getUserIdsFromHabits(user));
+
 			// 신규 식습관 등록
+			final List<UserHabit> userHabits = new ArrayList<>();
 			for (UserHabitRequest habitRequest : request.getHabits())
 				userHabits.add(UserHabitRequest.createUserHabit(habitRequest, user));
-			userHabitRepository.saveAll(userHabits);
 
+			userHabitRepository.saveAll(userHabits);
 			user.updateHabitContents(getHabitContents(request.getHabits()));
 		}
+	}
+
+	private boolean isSameHabits(
+		UserModifyRequest request,
+		User user
+	) {
+		List<String> reqHabitNames = getReqHabitNames(request);
+		List<String> userHabitNames = getUserHabitNames(user);
+		return isSameNames(reqHabitNames, userHabitNames);
+	}
+
+	private boolean isSameNames(
+		List<String> reqHabitNames,
+		List<String> userHabitNames
+	) {
+		return userHabitNames.size() == reqHabitNames.size() && userHabitNames.containsAll(reqHabitNames);
+	}
+
+	private List<String> getUserHabitNames(User user) {
+		return Arrays.asList(user.getHabitContents().split(","));
+	}
+
+	private List<String> getReqHabitNames(UserModifyRequest request) {
+		return request.getHabits()
+			.stream()
+			.map(habit -> habit.getContent().getName())
+			.collect(Collectors.toList());
 	}
 
 	private List<Long> getUserIdsFromHabits(User user) {

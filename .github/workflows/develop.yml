@@ -9,7 +9,7 @@ name: Gradle Package
 
 on:
   push:
-    branches: ["main"]
+    branches: ["develop"]
 
 env:
   VERSION: ${{ github.sha }}
@@ -38,10 +38,10 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: ./main.Dockerfile
+          file: ./Dockerfile
           no-cache: true
           push: true
-          tags: ${{ secrets.DOCKERHUB_REPONAME }}/toppings-main-server:latest
+          tags: ${{ secrets.DOCKERHUB_REPONAME }}/toppings-dev-server:latest
           build-args: |
             TOPPINGS_KEY=${{ secrets.TOPPINGS_KEY }}
 
@@ -60,7 +60,7 @@ jobs:
         run: |
           pwd
           docker rm -f ${{ env.NAME }}-container
-          docker pull ${{ secrets.DOCKERHUB_REPONAME }}/toppings-main-server:latest
-          docker create --name ${{ env.NAME }}-container -p 28080:28080 -e TZ=Asia/Seoul ${{ secrets.DOCKERHUB_REPONAME }}/toppings-main-server:latest
+          docker pull ${{ secrets.DOCKERHUB_REPONAME }}/toppings-dev-server:latest
+          docker create --name ${{ env.NAME }}-container -p 28080:28080 -e TZ=Asia/Seoul ${{ secrets.DOCKERHUB_REPONAME }}/toppings-dev-server:latest
           docker start ${{ env.NAME }}-container
           docker image prune -f

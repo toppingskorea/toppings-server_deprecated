@@ -15,5 +15,6 @@ ENV TOPPINGS_KEY ${TOPPINGS_KEY}
 COPY --from=builder ./server/build/libs/*.jar app.jar
 
 EXPOSE 28081
+EXPOSE 80
 
 ENTRYPOINT java -jar -Djasypt.encryptor.password=${TOPPINGS_KEY} -Dspring.profiles.active=prod app.jar -Duser.timezone=Asia/Seoul

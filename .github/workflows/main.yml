@@ -61,6 +61,6 @@ jobs:
           pwd
           docker rm -f ${{ env.NAME }}-container
           docker pull ${{ secrets.DOCKERHUB_REPONAME }}/toppings-main-server:latest
-          docker create --name ${{ env.NAME }}-container -p 28081:28081 -e TZ=Asia/Seoul ${{ secrets.DOCKERHUB_REPONAME }}/toppings-main-server:latest
+          docker create --name ${{ env.NAME }}-container -p 28081:80 -e TZ=Asia/Seoul ${{ secrets.DOCKERHUB_REPONAME }}/toppings-main-server:latest
           docker start ${{ env.NAME }}-container
           docker image prune -f

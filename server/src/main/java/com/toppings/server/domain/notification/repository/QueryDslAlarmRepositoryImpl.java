@@ -44,7 +44,7 @@ public class QueryDslAlarmRepositoryImpl implements QueryDslAlarmRepository {
 
 		Long totalCount = queryFactory.select(Wildcard.count)
 			.from(alarm)
-			.where(alarm.user.id.eq(userId))
+			.where(alarm.toUser.id.eq(userId))
 			.fetch()
 			.get(0);
 

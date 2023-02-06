@@ -12,14 +12,14 @@ public class CorsProperties {
 	public static List<String> devUrls = List.of("http://127.0.0.1:80", "http://127.0.0.1:3000",
 		"http://localhost:3000", "https://toppings.co.kr", "http://toppings.co.kr", "https://dev.toppings.co.kr",
 		"http://dev.toppings.co.kr", "http://admin.toppings.co.kr", "https://admin.toppings.co.kr",
-		"https://f9ba-14-52-187-234.jp.ngrok.io", "https://planet.toppings.co.kr"
+		"https://f9ba-14-52-187-234.jp.ngrok.io", "https://planet.toppings.co.kr", "https://f733-14-52-187-234.jp.ngrok.io"
 	);
 
 	public static String[] getDevUrlStrings() {
 		return new String[] {"http://127.0.0.1:80", "http://127.0.0.1:3000",
 			"http://localhost:3000", "https://toppings.co.kr", "http://toppings.co.kr", "https://dev.toppings.co.kr",
 			"http://dev.toppings.co.kr", "http://admin.toppings.co.kr", "https://admin.toppings.co.kr",
-			"https://f9ba-14-52-187-234.jp.ngrok.io", "https://planet.toppings.co.kr"};
+			"https://f9ba-14-52-187-234.jp.ngrok.io", "https://planet.toppings.co.kr", "https://f733-14-52-187-234.jp.ngrok.io"};
 	}
 
 	public static String[] getProdUrlStrings() {

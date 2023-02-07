@@ -58,8 +58,7 @@ public class AdminRestaurantController {
 		@Valid @RequestBody PubRequest pubRequest,
 		@PathVariable Long restaurantId
 	) {
-		return ResponseEntity.ok(
-			ApiDataResponse.of(restaurantService.modifyPub(pubRequest, restaurantId)));
+		return ResponseEntity.ok(ApiDataResponse.of(restaurantService.modifyPub(pubRequest, restaurantId)));
 	}
 
 	/**
@@ -71,7 +70,6 @@ public class AdminRestaurantController {
 		@Valid @RequestBody RestaurantRequest request,
 		@AuthenticationPrincipal Long userId
 	) {
-		return ResponseEntity.ok(
-			ApiDataResponse.of(restaurantService.register(request, userId)));
+		return ResponseEntity.ok(ApiDataResponse.of(restaurantService.register(request, userId)));
 	}
 }

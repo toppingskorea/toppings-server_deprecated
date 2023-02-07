@@ -1,5 +1,6 @@
 package com.toppings.server.domain.review.repository;
 
+import static com.toppings.server.domain.restaurant.entity.QRestaurant.*;
 import static com.toppings.server.domain.review.entity.QReview.*;
 
 import java.util.List;
@@ -18,6 +19,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.toppings.common.dto.PageWrapper;
 import com.toppings.server.domain.restaurant.dto.RestaurantListResponse;
 import com.toppings.server.domain.review.dto.ReviewListResponse;
+import com.toppings.server.domain.user.constant.Auth;
 
 import lombok.RequiredArgsConstructor;
 
@@ -128,7 +130,7 @@ public class QueryDslReviewRepositoryImpl implements QueryDslReviewRepository {
 			review.restaurant.address, review.restaurant.latitude, review.restaurant.longitude,
 			review.restaurant.description, review.restaurant.type, review.restaurant.thumbnail,
 			review.restaurant.likeCount, review.restaurant.user.name.as("writer"), review.restaurant.publicYn,
-			review.id.as("reviewId"));
+			review.id.as("reviewId"), review.restaurant.user.role.eq(Auth.ROLE_ADMIN).as("isAdmin"));
 	}
 
 	private BooleanExpression notEqRestaurantPublicYn() {

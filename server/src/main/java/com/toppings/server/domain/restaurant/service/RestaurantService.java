@@ -247,8 +247,11 @@ public class RestaurantService {
 				restaurantListResponses = Collections.emptyList();
 		}
 
-		if (userId != null)
-			setIsLike(restaurantListResponses, userId);
+		if (userId != null) {
+			final User user = getUserById(userId);
+			updateFlag(restaurantListResponses, user);
+		}
+
 		return restaurantListResponses;
 	}
 
@@ -261,16 +264,20 @@ public class RestaurantService {
 	) {
 		final List<RestaurantListResponse> restaurantListResponses
 			= restaurantRepository.findAllBySearchForMap(searchRequest);
-		if (userId != null)
-			setIsLike(restaurantListResponses, userId);
+
+		if (userId != null) {
+			final User user = getUserById(userId);
+			updateFlag(restaurantListResponses, user);
+		}
+
 		return restaurantListResponses;
 	}
 
-	private void setIsLike(
+	private void updateFlag(
 		List<RestaurantListResponse> restaurantListResponses,
-		Long userId
+		User user
 	) {
-		final List<Long> likesIds = getMyLikesIds(getUserById(userId));
+		final List<Long> likesIds = getMyLikesIds(user);
 		restaurantListResponses.forEach(restaurant -> restaurant.updateIsLike(likesIds.contains(restaurant.getId())));
 	}
 
@@ -318,6 +325,7 @@ public class RestaurantService {
 		restaurantResponse.updateImages(images);
 		restaurantResponse.updateUserInfo(restaurantUser);
 		restaurantResponse.updateIsMine(restaurantUser.getId().equals(userId));
+		restaurantResponse.updateIsAdmin(restaurantUser.isAdmin());
 
 		if (userId != null) {
 			User user = getUserById(userId);
@@ -401,6 +409,10 @@ public class RestaurantService {
 
 		final List<String> images = getRestaurantImages(restaurant);
 		restaurantResponse.updateImages(images);
+
+		final User user = restaurant.getUser();
+		restaurantResponse.updateIsAdmin(user.isAdmin());
+
 		return restaurantResponse;
 	}
 }

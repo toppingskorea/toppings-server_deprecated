@@ -19,6 +19,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.toppings.common.dto.PageWrapper;
 import com.toppings.server.domain.restaurant.dto.RestaurantListResponse;
 import com.toppings.server.domain.restaurant.dto.RestaurantMapSearchRequest;
+import com.toppings.server.domain.user.constant.Auth;
 
 import lombok.RequiredArgsConstructor;
 
@@ -112,7 +113,7 @@ public class QueryDslRestaurantRepositoryImpl implements QueryDslRestaurantRepos
 		return Projections.fields(RestaurantListResponse.class, restaurant.id, restaurant.name, restaurant.address,
 			restaurant.latitude, restaurant.longitude, restaurant.description, restaurant.type,
 			restaurant.thumbnail, restaurant.likeCount, restaurant.user.name.as("writer"), restaurant.user.country,
-			restaurant.createDate, restaurant.publicYn);
+			restaurant.createDate, restaurant.publicYn, restaurant.user.role.eq(Auth.ROLE_ADMIN).as("isAdmin"));
 	}
 
 	private BooleanExpression eqName(String name) {

@@ -143,6 +143,10 @@ public class User extends BaseEntity {
 		this.country = country;
 	}
 
+	public boolean isAdmin() {
+		return this.role.equals(Auth.ROLE_ADMIN);
+	}
+
 	public boolean isNotEqualsProfile(String profile) {
 		return !profile.equals(this.profile);
 	}

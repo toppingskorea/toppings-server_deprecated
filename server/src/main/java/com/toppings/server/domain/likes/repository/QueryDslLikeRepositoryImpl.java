@@ -21,6 +21,7 @@ import com.toppings.server.domain.likes.dto.FilterLikesCount;
 import com.toppings.server.domain.likes.dto.LikesPercent;
 import com.toppings.server.domain.restaurant.dto.RestaurantFilterSearchRequest;
 import com.toppings.server.domain.restaurant.dto.RestaurantListResponse;
+import com.toppings.server.domain.user.constant.Auth;
 import com.toppings.server.domain_global.utils.query.OrderByNull;
 
 import lombok.RequiredArgsConstructor;
@@ -113,7 +114,7 @@ public class QueryDslLikeRepositoryImpl implements QueryDslLikeRepository {
 		return Projections.fields(RestaurantListResponse.class, restaurant.id, restaurant.name,
 			restaurant.address, restaurant.latitude, restaurant.longitude,
 			restaurant.description, restaurant.type, restaurant.thumbnail, restaurant.likeCount,
-			restaurant.user.name.as("writer"));
+			restaurant.user.name.as("writer"), restaurant.user.role.eq(Auth.ROLE_ADMIN).as("isAdmin"));
 	}
 
 	@Override

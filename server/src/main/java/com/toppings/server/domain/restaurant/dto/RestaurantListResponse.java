@@ -62,6 +62,8 @@ public class RestaurantListResponse {
 	@JsonIgnore
 	private Long reviewId;
 
+	private boolean isAdmin;
+
 	public static RestaurantListResponse entityToDto(Restaurant restaurant) {
 		return RestaurantListResponse.builder()
 			.id(restaurant.getId())

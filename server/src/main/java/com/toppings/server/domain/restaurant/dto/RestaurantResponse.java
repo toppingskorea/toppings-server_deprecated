@@ -72,6 +72,8 @@ public class RestaurantResponse {
 
 	private String cause;
 
+	private boolean isAdmin;
+
 	public static RestaurantResponse entityToDto(Restaurant restaurant) {
 		return RestaurantResponse.builder()
 			.id(restaurant.getId())
@@ -91,6 +93,10 @@ public class RestaurantResponse {
 	public void updateImages(List<String> images) {
 		if (images != null && !images.isEmpty())
 			this.images = images;
+	}
+
+	public void updateIsAdmin(boolean isAdmin) {
+		this.isAdmin = isAdmin;
 	}
 
 	public void updateIsLike(boolean isLike) {

@@ -1,5 +1,6 @@
 package com.toppings.server.domain.scrap.repository;
 
+import static com.toppings.server.domain.restaurant.entity.QRestaurant.*;
 import static com.toppings.server.domain.scrap.entity.QScrap.*;
 
 import java.util.List;
@@ -16,6 +17,7 @@ import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.toppings.common.dto.PageWrapper;
 import com.toppings.server.domain.restaurant.dto.RestaurantListResponse;
+import com.toppings.server.domain.user.constant.Auth;
 
 import lombok.RequiredArgsConstructor;
 
@@ -75,6 +77,6 @@ public class QueryDslScrapRepositoryImpl implements QueryDslScrapRepository {
 		return Projections.fields(RestaurantListResponse.class, scrap.restaurant.id, scrap.restaurant.name,
 			scrap.restaurant.address, scrap.restaurant.latitude, scrap.restaurant.longitude,
 			scrap.restaurant.description, scrap.restaurant.type, scrap.restaurant.thumbnail, scrap.restaurant.likeCount,
-			scrap.restaurant.user.name.as("writer"));
+			scrap.restaurant.user.name.as("writer"), scrap.restaurant.user.role.eq(Auth.ROLE_ADMIN).as("isAdmin"));
 	}
 }

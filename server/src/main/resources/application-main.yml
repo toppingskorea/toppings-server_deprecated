@@ -40,7 +40,7 @@ spring:
             scope:
               - profile_nickname
               - account_email
-            redirect-uri: ENC(rXhaxm6bfR0iwf/YpdOuASOyKox1ZoM1m0GaYhHjfpo6gitbgje0iAHZd76v+EJPK1UWxfyp0zTgzY6k9mmjJw==)
+            redirect-uri: ENC(bOhtnL+EdvV7vVbdSnazRmexF6sVtVcajlGZt53ddKJueA1+5z0KqRhQjXhx119bQseYeTIALTcQr97Mt9yI3g==)
             client-authentication-method: POST
             authorization-grant-type: authorization_code
             client-name: kakao

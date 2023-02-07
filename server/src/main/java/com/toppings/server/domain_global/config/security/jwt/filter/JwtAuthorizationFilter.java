@@ -56,10 +56,11 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 		if (isDomainCheck(request)) {
 			String accessToken = getAccessToken(request);
 			String accessCookieToken = getAccessTokenByCookie(request);
-			if (idValidAccessToken(accessToken) || idValidAccessToken(accessCookieToken)) {
-				String token = hasText(accessToken) ? accessToken : accessCookieToken;
-				addAuthenticationTokenInSecurityContext(token);
-			}
+			if (idValidAccessToken(accessToken))
+				addAuthenticationTokenInSecurityContext(accessToken);
+
+			else if (idValidAccessToken(accessCookieToken))
+				addAuthenticationTokenInSecurityContext(accessCookieToken);
 		}
 		chain.doFilter(request, response);
 	}

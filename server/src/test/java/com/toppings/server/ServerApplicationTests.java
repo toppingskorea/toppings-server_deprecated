@@ -18,14 +18,14 @@ class ServerApplicationTests {
 	@Test
 	@DisplayName("1. 프로퍼티값 암호화 코드")
 	void jasypt() {
-		String value1 = "toppings";
+		String value1 = "value1";
 		String value2 = "value2";
 		System.out.println(jasyptEncoding(value1));
 		System.out.println(jasyptEncoding(value2));
 	}
 
 	public String jasyptEncoding(String value) {
-		String key = "emimanghamzz";
+		String key = "key";
 		StandardPBEStringEncryptor pbeEnc = new StandardPBEStringEncryptor();
 		pbeEnc.setAlgorithm("PBEWithMD5AndDES");
 		pbeEnc.setPassword(key);

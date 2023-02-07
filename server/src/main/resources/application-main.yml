@@ -1,9 +1,9 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ENC(z61gICWIRHVJt8l5Z8T5eeF8Lns2kqDM2yhS/cvKgq69YzeWVREvLnah0yI85Lhp70gHOnQLldvV1SJ8urlnX1fuhWU8CE81vRvu73XuR/TCoARA/ifaCxDAsNvwmT+D+eJtsnjVIZa1sDg6oKQSuFKZ8ZPfWxPM)
+    url: ENC(n8Yzh7HKbVHSzF8+mvJ2NBibLlrn/Zp0Q3N9PaojyVYPNmOIi+xyWOfifrtcMFUMi7LL94WS6BhCVv1HqXwnOLPdS/DX2qC8+qEAJLJlZkefc0FNXxq/YTMXATfKYtcmuoiXmDLZzxj7VdfwtyRDvEFeFI6i/O1Z)
     username: ENC(MhpbnQ6zaisNbaA5eglung==)
-    password: ENC(5hQDKxFH/RxTU2YwBekk5w==)
+    password: ENC(9CkHc7Ta26fozzlGqfhjcUOQXzfFBj1L)
 #  cache:
 #    type: redis
 #    redis:

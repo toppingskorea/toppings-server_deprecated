@@ -66,7 +66,7 @@ public class AdminRestaurantController {
 	 * 음식점 등록하기
 	 */
 	@PostMapping
-	// @PreAuthorize("hasRole('ROLE_ADMIN')")
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	public ResponseEntity<?> registerRestaurant(
 		@Valid @RequestBody RestaurantRequest request,
 		@AuthenticationPrincipal Long userId

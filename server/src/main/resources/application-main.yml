@@ -20,7 +20,7 @@ spring:
       hibernate:
         format_sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
       jdbc:
         time_zone: Asia/Seoul
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
@@ -40,7 +40,7 @@ spring:
             scope:
               - profile_nickname
               - account_email
-            redirect-uri: ENC(rXhaxm6bfR0iwf/YpdOuASOyKox1ZoM1m0GaYhHjfpo6gitbgje0iAHZd76v+EJPK1UWxfyp0zTgzY6k9mmjJw==)
+            redirect-uri: ENC(bOhtnL+EdvV7vVbdSnazRmexF6sVtVcajlGZt53ddKJueA1+5z0KqRhQjXhx119bQseYeTIALTcQr97Mt9yI3g==)
             client-authentication-method: POST
             authorization-grant-type: authorization_code
             client-name: kakao
@@ -58,7 +58,7 @@ jwt:
   thirdKey: ENC(JCimNz/aAkb221yp5rf3d7zdz/6ny63Emb9DOkABlx/sdSLIGmd+BzUPcq8CvWBvQfGzUOGQqqUcF3m8u8g/Aas5dL/l4LwbviMJPbdFiqU=)
 
 server:
-  port: 80
+  port: 28081
   ssl:
     enabled: true
     key-store: classpath:tps-keystore.p12

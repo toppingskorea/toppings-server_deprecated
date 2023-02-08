@@ -122,10 +122,10 @@ public class UserService {
 		if (isSameHabits(request, user))
 			return;
 
-		if (request.notEmptyHabit()) {
-			// 기존 식습관 제거
-			userHabitRepository.deleteAllByIdInBatch(getUserIdsFromHabits(user));
+		// 기존 식습관 제거
+		userHabitRepository.deleteAllByIdInBatch(getUserIdsFromHabits(user));
 
+		if (request.notEmptyHabit()) {
 			// 신규 식습관 등록
 			final List<UserHabit> userHabits = new ArrayList<>();
 			for (UserHabitRequest habitRequest : request.getHabits())

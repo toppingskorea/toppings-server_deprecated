@@ -74,6 +74,8 @@ public class RestaurantResponse {
 
 	private boolean isAdmin;
 
+	private String instagramId;
+
 	public static RestaurantResponse entityToDto(Restaurant restaurant) {
 		return RestaurantResponse.builder()
 			.id(restaurant.getId())
@@ -87,6 +89,7 @@ public class RestaurantResponse {
 			.code(restaurant.getCode())
 			.createDate(restaurant.getCreateDate())
 			.publicYn(restaurant.getPublicYn())
+			.instagramId(restaurant.getInstagramId())
 			.build();
 	}
 

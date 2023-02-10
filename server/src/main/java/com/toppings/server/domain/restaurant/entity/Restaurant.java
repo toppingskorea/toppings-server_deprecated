@@ -93,6 +93,9 @@ public class Restaurant extends BaseEntity {
 	@Column(name = "reject_cause")
 	private String cause;
 
+	@Column(name = "instagram_id")
+	private String instagramId;
+
 	// 사진 경로랑 주소
 	@OneToMany(mappedBy = "restaurant", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	private List<RestaurantAttach> images = new ArrayList<>();

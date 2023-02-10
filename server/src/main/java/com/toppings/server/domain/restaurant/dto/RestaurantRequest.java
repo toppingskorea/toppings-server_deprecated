@@ -50,6 +50,8 @@ public class RestaurantRequest {
 	@Size(min = 1, message = "이미지를 확인해주세요")
 	private List<String> images;
 
+	private String instagramId;
+
 	public static Restaurant dtoToEntity(
 		RestaurantRequest request,
 		User user
@@ -63,6 +65,7 @@ public class RestaurantRequest {
 			.longitude(request.getLongitude())
 			.type(request.getType())
 			.code(request.getCode())
+			.instagramId(request.getInstagramId())
 			.user(user)
 			.build();
 	}

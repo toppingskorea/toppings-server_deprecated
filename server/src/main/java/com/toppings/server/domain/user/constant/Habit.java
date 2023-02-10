@@ -12,6 +12,7 @@ public enum Habit {
     Vegetarian("Vegetarian"),
     Lowcarb("Low carb"),
     Nosugar("No sugar"),
+    Muslimfriendly("Muslim friendly"),
     Halal("Halal"),
 
     // Religion

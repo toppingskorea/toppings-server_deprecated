@@ -94,6 +94,7 @@ public class Alarm extends BaseEntity {
 	public static Alarm of(
 		User user,
 		User toUser,
+		Restaurant restaurant,
 		Review review,
 		String content,
 		AlarmType type

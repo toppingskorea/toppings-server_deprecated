@@ -84,7 +84,6 @@ public class AlarmService {
 	) {
 		final User fromUser = getUserById(userId);
 		final AlarmType alarmType = alarmRequest.getType();
-
 		final Alarm alarm;
 		final User toUser;
 
@@ -98,8 +97,8 @@ public class AlarmService {
 			alarm = getRestaurantAlarm(fromUser, alarmType, toUser, restaurant, alarmRequest);
 		}
 
-		// if (isSameUser(fromUser, toUser))
-		// 	throw new GeneralException(ResponseCode.SAME_USER);
+		if (isSameUser(fromUser, toUser))
+			throw new GeneralException(ResponseCode.SAME_USER);
 
 		try {
 			alarmRepository.save(alarm);
@@ -149,7 +148,7 @@ public class AlarmService {
 		User toUser,
 		Review review
 	) {
-		final Alarm alarm = Alarm.of(fromUser, toUser, review, review.getCause(), alarmType);
+		final Alarm alarm = Alarm.of(fromUser, toUser, review.getRestaurant(), review, review.getCause(), alarmType);
 		alarm.updateCode(generateId(alarmType, fromUser, toUser, String.valueOf(review.getId())));
 		return alarm;
 	}

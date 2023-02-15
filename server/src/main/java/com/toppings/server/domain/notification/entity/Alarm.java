@@ -104,6 +104,7 @@ public class Alarm extends BaseEntity {
 			.content(content)
 			.user(user.getId() != null ? user : null)
 			.toUser(toUser)
+			.restaurant(restaurant)
 			.review(review)
 			.build();
 	}

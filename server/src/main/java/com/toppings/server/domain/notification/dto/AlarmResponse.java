@@ -26,6 +26,8 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AlarmResponse {
 
+	private Long restaurantId;
+
 	private String userName;
 
 	private String country;
@@ -54,6 +56,7 @@ public class AlarmResponse {
 		String thumbnail = restaurant != null ? restaurant.getThumbnail() : review.getThumbnail();
 
 		return AlarmResponse.builder()
+			.restaurantId(alarm.getRestaurant().getId())
 			.alarmType(alarm.getAlarmType())
 			.content(alarm.getContent())
 			.country(user.getCountry() == null ? user.getCountry() : null)

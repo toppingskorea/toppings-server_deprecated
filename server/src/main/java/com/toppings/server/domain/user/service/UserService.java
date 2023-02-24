@@ -140,6 +140,9 @@ public class UserService {
 		UserModifyRequest request,
 		User user
 	) {
+		if (request.getHabits() == null)
+			return false;
+
 		List<String> reqHabitNames = getReqHabitNames(request);
 		List<String> userHabitNames = getUserHabitNames(user);
 		return isSameNames(reqHabitNames, userHabitNames);

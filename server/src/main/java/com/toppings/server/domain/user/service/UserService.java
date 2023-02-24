@@ -4,6 +4,8 @@ import static org.springframework.util.StringUtils.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -153,11 +155,13 @@ public class UserService {
 		List<String> reqHabitNames,
 		List<String> userHabitNames
 	) {
-		return userHabitNames.size() == reqHabitNames.size() && userHabitNames.containsAll(reqHabitNames);
+		return userHabitNames.size() == reqHabitNames.size() && new HashSet<>(userHabitNames).containsAll(reqHabitNames);
 	}
 
 	private List<String> getUserHabitNames(User user) {
-		return Arrays.asList(user.getHabitContents().split(","));
+		return hasText(user.getHabitContents()) ?
+			Arrays.asList(user.getHabitContents().split(",")) :
+			Collections.emptyList();
 	}
 
 	private List<String> getReqHabitNames(UserModifyRequest request) {

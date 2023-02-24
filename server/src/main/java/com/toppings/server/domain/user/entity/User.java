@@ -143,6 +143,10 @@ public class User extends BaseEntity {
 		this.country = country;
 	}
 
+	public void initHabitContent() {
+		this.habitContents = null;
+	}
+
 	public boolean isAdmin() {
 		return this.role.equals(Auth.ROLE_ADMIN);
 	}

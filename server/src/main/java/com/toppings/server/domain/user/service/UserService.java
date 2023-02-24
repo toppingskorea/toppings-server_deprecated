@@ -124,6 +124,7 @@ public class UserService {
 
 		// 기존 식습관 제거
 		userHabitRepository.deleteAllByIdInBatch(getUserIdsFromHabits(user));
+		user.initHabitContent();
 
 		if (request.notEmptyHabit()) {
 			// 신규 식습관 등록

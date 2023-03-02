@@ -1,6 +1,7 @@
 package com.toppings.server.domain_global.config.security.oauth;
 
 import java.util.Objects;
+import java.util.UUID;
 
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -58,11 +59,15 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
 	private User getUser(OAuth2UserInfo oAuth2UserInfo) {
 		String providerId = oAuth2UserInfo.getProviderId();
 		String email = oAuth2UserInfo.getEmail();
-		String name = oAuth2UserInfo.getName();
+		String name = getRandomNickname();
 		User user = userRepository.findUserByUsername(providerId).orElse(null);
 		if (user == null)
 			user = registerUser(providerId, email, name);
 		return user;
+	}
+
+	private static String getRandomNickname() {
+		return "user_" + UUID.randomUUID().toString().split("-")[4];
 	}
 
 	// 사용자 등록 (가입)

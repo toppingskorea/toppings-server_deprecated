@@ -24,16 +24,9 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
 
 	private final UserRepository userRepository;
 
-	/*
-		- oauth2 로그인 성공 시 해당 메소드로 넘어온 OAuth2UserRequest 객체를 통해 사용자 리소스를 가져올 수 있다.
-		- OAuth2AuthenticationException 예외가 발생하면 handler 패키지의 OAuth2FailHandler가 동작하고
-		  성공적으로 메소드가 끝나면 OAuth2SuccessHandler가 동작한다.
-	 */
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-		System.out.println("userRequest : " + userRequest);
 		OAuth2User oAuth2User = super.loadUser(userRequest);
-		System.out.println("oAuth2User.getAttributes() : " + oAuth2User.getAttributes());
 		OAuth2UserInfo oAuth2UserInfo = getOAuth2UserInfo(userRequest, oAuth2User);
 		try {
 			User user = getUser(Objects.requireNonNull(oAuth2UserInfo));

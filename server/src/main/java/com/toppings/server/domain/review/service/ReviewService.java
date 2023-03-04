@@ -1,5 +1,7 @@
 package com.toppings.server.domain.review.service;
 
+import static org.springframework.util.StringUtils.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -267,7 +269,7 @@ public class ReviewService {
 	}
 
 	private List<String> getUserHabits(User user) {
-		return Arrays.asList(user.getHabitContents().split(","));
+		return hasText(user.getHabitContents()) ? Arrays.asList(user.getHabitContents().split(",")) : null;
 	}
 
 	/**

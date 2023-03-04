@@ -269,7 +269,8 @@ public class ReviewService {
 	}
 
 	private List<String> getUserHabits(User user) {
-		return hasText(user.getHabitContents()) ? Arrays.asList(user.getHabitContents().split(",")) : null;
+		return hasText(user.getHabitContents()) ? Arrays.asList(user.getHabitContents().split(",")) :
+			Collections.emptyList();
 	}
 
 	/**

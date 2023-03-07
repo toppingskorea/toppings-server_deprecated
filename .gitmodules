@@ -1,0 +1,3 @@
+[submodule "server/src/main/resources/toppings-server-config"]
+	path = server/src/main/resources/toppings-server-config
+	url = https://github.com/toppingskorea/toppings-server-config.git

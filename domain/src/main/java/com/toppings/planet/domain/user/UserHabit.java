@@ -2,9 +2,9 @@ package com.toppings.planet.domain.user;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -13,16 +13,13 @@ import javax.persistence.Table;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.toppings.planet.domain.user.constants.Habit;
+import com.toppings.planet.domain.user.constants.HabitTitle;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
-@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -33,20 +30,18 @@ import lombok.ToString;
 public class UserHabit {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "user_habit_id")
-	private Long id;
+	private String id;
 
-	@Column(name = "user_habit_title", columnDefinition = "varchar(100)")
-	private String title;
+	@Enumerated(EnumType.STRING)
+	@Column(name = "user_habit_title", columnDefinition = "varchar(50)")
+	private HabitTitle title;
 
+	@Enumerated(EnumType.STRING)
 	@Column(name = "user_habit_content", columnDefinition = "varchar(100)")
-	private String content;
+	private Habit content;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
-	@JsonIgnoreProperties({"images"})
-	@ToString.Exclude
-	@JsonIgnore
 	private User user;
 }

@@ -66,7 +66,6 @@ public class User extends BaseEntity {
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	private List<UserHabit> habits = new ArrayList<>();
-	;
 
 	@Column(name = "user_role", columnDefinition = "varchar(20)")
 	@Enumerated(EnumType.STRING)

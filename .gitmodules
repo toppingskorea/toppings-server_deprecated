@@ -1,3 +1,4 @@
 [submodule "toppings-server-config"]
 	path = toppings-server-config
 	url = https://github.com/toppingskorea/toppings-server-config.git
+	branch = main

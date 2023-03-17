@@ -1,0 +1,17 @@
+dependencies {
+    implementation project(":domain")
+    implementation project(":common")
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+    implementation 'com.amazonaws:aws-java-sdk-s3'
+    implementation 'commons-io:commons-io:2.11.0'
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+}

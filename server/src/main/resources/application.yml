@@ -4,7 +4,10 @@ spring:
     group:
       local:
         - local
+        - swagger
       dev:
         - dev
+        - swagger
       prod:
         - main
+        - swagger

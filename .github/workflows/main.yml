@@ -38,7 +38,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: ./main.Dockerfile
+          file: ./main.develop.Dockerfile
           no-cache: true
           push: true
           tags: ${{ secrets.DOCKERHUB_REPONAME }}/toppings-main-server:latest

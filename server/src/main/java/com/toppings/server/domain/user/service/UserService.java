@@ -277,4 +277,8 @@ public class UserService {
 		userRepository.findById(userId).ifPresent(userRepository::delete);
 		return userId;
 	}
+
+	public Page<UserResponse> getUsers(Pageable pageable) {
+		return userRepository.findAllUser(pageable);
+	}
 }

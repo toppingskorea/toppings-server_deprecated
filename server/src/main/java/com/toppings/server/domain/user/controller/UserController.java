@@ -43,15 +43,6 @@ public class UserController {
 	}
 
 	/**
-	 * 유저 목록 조회 (admin)
-	 */
-	@GetMapping("/admin")
-	@PreAuthorize("hasRole('ROLE_ADMIN')")
-	public ResponseEntity<?> getUsersForAdmin() {
-		return ResponseEntity.ok(ApiDataResponse.of(""));
-	}
-
-	/**
 	 * 유저 회원가입 검증
 	 */
 	@GetMapping("/reg-check")

@@ -1,9 +1,16 @@
 package com.toppings.server.domain.user.dto;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import com.toppings.server.domain.user.constant.Auth;
 import com.toppings.server.domain.user.entity.User;
 
 import lombok.AllArgsConstructor;
@@ -35,6 +42,15 @@ public class UserResponse {
 	private Integer scrapCount;
 
 	private Integer reviewCount;
+
+	private Auth role;
+
+	private String habitContents;
+
+	@JsonSerialize(using = LocalDateTimeSerializer.class)
+	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy.MM.dd")
+	private LocalDateTime createDate;
 
 	public static UserResponse entityToDto(User user) {
 		return UserResponse.builder()

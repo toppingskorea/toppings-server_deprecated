@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.toppings.server.domain.user.constant.Auth;
 import com.toppings.server.domain.user.entity.User;
 
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long>, QueryDslUserRepository {
 
 	Optional<User> findUserByUsernameAndDeleteYn(
 		String username,

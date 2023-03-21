@@ -21,6 +21,7 @@ subprojects {
     apply plugin: 'java'
     apply plugin: boot
     apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'jacoco'
 
     sourceCompatibility = '11'
 
@@ -45,6 +46,8 @@ subprojects {
         reports {
             junitXml.enabled(true)
         }
+
+        finalizedBy jacocoTestReport
     }
 
     dependencies {
@@ -65,10 +68,15 @@ subprojects {
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
         testImplementation 'org.springframework.security:spring-security-test'
     }
-}
 
-project(':server') {
-    dependencies {
-        implementation project(':common')
+    tasks.register("prepareKotlinBuildScriptModel"){}
+
+    jacocoTestReport {
+        dependsOn test
+        reports {
+            xml.required = true
+            csv.required = false
+            html.required = false
+        }
     }
 }

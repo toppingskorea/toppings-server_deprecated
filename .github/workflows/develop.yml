@@ -64,3 +64,13 @@ jobs:
           docker create --name ${{ env.NAME }}-container -p 28080:28080 -e TZ=Asia/Seoul ${{ secrets.DOCKERHUB_REPONAME }}/toppings-dev-server:latest
           docker start ${{ env.NAME }}-container
           docker image prune -f
+
+      - name: action-slack
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          author_name: Github Action Test # default: 8398a7@action-slack
+          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
+        if: always() # Pick up events even if the job fails or is canceled.
